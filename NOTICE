@@ -1,0 +1,29 @@
+AIOS - AI-Native Operating System
+
+Copyright (c) 2025 CUI Labs (Pte.) Ltd., Singapore
+
+This product includes software developed by CUI Labs (Pte.) Ltd., Singapore.
+
+AIOS is an operating system where native processes are AI agents, not
+traditional applications. AIOS = Linux + Kubernetes + LangChain + 
+post-quantum crypto + cognitive runtime.
+
+For more information, visit: https://github.com/cuilabs/aios or https://cuilabs.io
+
+---
+
+TRADEMARK NOTICE
+
+"AIOS" and the AIOS logo are trademarks of CUI Labs (Pte.) Ltd., Singapore.
+
+This software is provided by CUI Labs (Pte.) Ltd., Singapore "as is" and any express or
+implied warranties, including, but not limited to, the implied warranties
+of merchantability and fitness for a particular purpose are disclaimed.
+
+---
+
+THIRD-PARTY NOTICES
+
+This software may include third-party components. See THIRD_PARTY_LICENSES.md
+for details.
+

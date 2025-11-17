@@ -1,0 +1,26 @@
+{
+	"name": "@aios/memoryd",
+	"version": "0.1.0",
+	"description": "AIOS Memory Fabric Service - Privileged userland service for semantic memory",
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"start": "node dist/index.js",
+		"lint": "biome check .",
+		"typecheck": "tsc --noEmit",
+		"clean": "rm -rf dist"
+	},
+	"dependencies": {
+		"@aios/kernel": "workspace:*",
+		"@aios/memory": "workspace:*",
+		"@aios/ipc": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.2",
+		"typescript": "^5.7.2"
+	}
+}
+

@@ -1,0 +1,6 @@
+[build]
+target = "x86_64-aios.json"
+
+[target.x86_64-aios]
+runner = "qemu-system-x86_64 -drive format=raw,file=target/x86_64-aios/debug/bootimage-aios-kernel.bin"
+

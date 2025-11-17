@@ -1,0 +1,21 @@
+name: CLA Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  cla-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check CLA
+        uses: cla-assistant/github-action@v2.1.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.CLA_BOT_TOKEN }}
+        with:
+          path-to-signatures: 'CLA_SIGNATURES.md'
+          path-to-document: 'CLA.md'
+          branch: 'main'
+          allowlist: bot, dependabot
+

@@ -1,0 +1,31 @@
+[package]
+name = "aios-kernel"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = [
+    "crates/kernel-core",
+    "crates/kernel-crypto",
+    "crates/kernel-hal",
+    "crates/kernel-ipc",
+    "crates/kernel-agent",
+    "crates/kernel-capability",
+    "crates/kernel-events",
+    "crates/kernel-drivers",
+    "crates/kernel-observability",
+    "crates/kernel-audit",
+    "crates/kernel-policy",
+]
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[dependencies]
+

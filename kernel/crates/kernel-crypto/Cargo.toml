@@ -1,0 +1,10 @@
+[package]
+name = "aios-kernel-crypto"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aios-kernel-core = { path = "../kernel-core" }
+# Post-quantum crypto libraries will be added here
+# oqs = "0.8"  # Open Quantum Safe library
+

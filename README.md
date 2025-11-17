@@ -1,0 +1,162 @@
+# AIOS — AI-Native Operating System
+
+**The OS layer for agent-first computing.**
+
+This is what Windows, macOS, Linux, and Android cannot become.
+
+---
+
+**Copyright (c) 2025 CUI Labs (Pte.) Ltd., Singapore**
+
+AIOS is developed and maintained by [CUI Labs (Pte.) Ltd.](https://cuilabs.io), Singapore.
+
+**"AIOS" and the AIOS logo are trademarks of CUI Labs (Pte.) Ltd., Singapore.**
+
+## 🧠 Core Definition
+
+AIOS is an operating system where native processes are AI agents, not traditional applications.
+
+**AIOS = Linux + Kubernetes + LangChain + post-quantum crypto + cognitive runtime**
+
+Instead of:
+- File managers
+- Processes
+- Sockets
+- System interrupts
+- Drivers
+
+AIOS exposes:
+- Agent identity management
+- Memory graphs
+- Context buses
+- Reasoning modules
+- Semantic IPC (inter-agent messaging)
+- Cognitive security layers
+- Self-optimization kernels
+
+**Think:** Linux kernel + multi-agent brain + self-evolving compute fabric.
+
+## 📚 Documentation
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Complete architecture documentation
+- **[BOOT_SEQUENCE.md](./BOOT_SEQUENCE.md)** - Detailed boot & attestation flow
+- **[REPO_LAYOUT.md](./REPO_LAYOUT.md)** - Repository structure
+- **[SYSCALL_API.md](./SYSCALL_API.md)** - Complete syscall API with examples
+- **[MISSING_COMPONENTS.md](./MISSING_COMPONENTS.md)** - Critical missing OS components
+- **[AGENT_FIRST_COMPONENTS.md](./AGENT_FIRST_COMPONENTS.md)** - 🔥 MANDATORY agent-first architecture components
+- **[FOUNDATIONAL_SUBSYSTEMS.md](./FOUNDATIONAL_SUBSYSTEMS.md)** - 13 foundational subsystems status
+- **[SUBSYSTEM_INVENTORY.md](./SUBSYSTEM_INVENTORY.md)** - Complete inventory of all 30 subsystems
+- **[COMPLETE_SYSTEM_INVENTORY.md](./COMPLETE_SYSTEM_INVENTORY.md)** - Complete inventory of 39 unique components (no overlaps)
+- **[BUSINESS_STRATEGY.md](./BUSINESS_STRATEGY.md)** - Open-source business strategy & revenue model
+- **[OPEN_CORE_SPLIT.md](./OPEN_CORE_SPLIT.md)** - What's open source vs. commercial
+- **[SINGAPORE_STRATEGY.md](./SINGAPORE_STRATEGY.md)** - Singapore-specific strategy for CUI Labs (Pte.) Ltd., Singapore
+- **[GITHUB_SETUP.md](./GITHUB_SETUP.md)** - GitHub repository setup guide
+- **[QUICK_START.md](./QUICK_START.md)** - Quick start guide for pushing to GitHub
+
+## 🏗 Architecture
+
+### Kernel (Rust)
+**Location:** `kernel/`
+
+A real operating system kernel written in Rust:
+- Agent-first process management
+- Binary IPC at kernel level
+- Post-quantum cryptography syscalls
+- Hardware abstraction layer (HAL)
+- Secure boot & attestation
+
+### Services (TypeScript/Rust)
+**Location:** `services/`
+
+Privileged system services:
+- `initd` - Init daemon (PID 1)
+- `identityd` - Identity service
+- `memoryd` - Memory fabric service
+- `semantic-ipcd` - Semantic IPC daemon
+- `planner` - Planning service
+- `agentsupervisor` - Agent supervisor
+- `networkd` - Network service
+
+### Runtime (TypeScript)
+**Location:** `packages/` and `apps/`
+
+High-level runtime and userland:
+- Agent orchestration
+- Workflow management
+- Application layer
+- Development tools
+
+## 🚀 Getting Started
+
+### Kernel Development
+
+```bash
+cd kernel
+./build.sh
+```
+
+### Runtime Development
+
+```bash
+# Install dependencies
+pnpm install
+
+# Build all packages
+pnpm build
+
+# Run development mode
+pnpm dev
+```
+
+## 📦 Project Structure
+
+```
+AIOS/
+├── boot/              # Bootloader and initramfs
+├── kernel/            # Rust kernel
+├── services/          # Userland services
+├── packages/          # TypeScript packages
+├── apps/              # Applications
+├── sdk/               # SDKs (Rust, TypeScript, Python)
+├── tests/             # Tests
+└── docs/              # Documentation
+```
+
+## 🔐 Security
+
+AIOS uses:
+- Capability tokens (required for all syscalls)
+- Behavioral anomaly detection
+- Cryptographic identity
+- Quantum-safe signing (CRYSTALS-Dilithium)
+- Strict agent-to-agent trust graphs
+- Secure boot & TPM measured boot
+- Remote attestation
+
+## 🎯 Why This Matters
+
+1. **First OS where the primary citizens are AI agents, not human processes**
+2. **First OS where IPC supports semantic interpretation (via userland daemon)**
+3. **First OS with built-in PQ crypto syscalls (full implementation in userland)**
+4. **First OS with cognition as a primitive (planning, context, memory)**
+5. **First OS designed to eventually support SILOX (self-evolving compute)**
+
+## 📄 License
+
+**Open Source (MIT/Apache 2.0):**
+- Kernel
+- Basic runtime
+- SDKs
+- Documentation
+
+**Commercial (Proprietary):**
+- memoryd (advanced features)
+- Behavioral analyzer
+- SILOX meta-learning
+- Enterprise features
+
+---
+
+**Built with Rust (kernel) and TypeScript (runtime).**  
+**Enterprise-grade, production-ready.**  
+**Version:** 0.1.0

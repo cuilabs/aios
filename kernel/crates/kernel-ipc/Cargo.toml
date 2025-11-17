@@ -1,0 +1,10 @@
+[package]
+name = "aios-kernel-ipc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aios-kernel-core = { path = "../kernel-core" }
+spin = "0.9"
+bitflags = "2.5"
+

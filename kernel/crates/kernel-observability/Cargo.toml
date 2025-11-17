@@ -1,0 +1,10 @@
+[package]
+name = "aios-kernel-observability"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aios-kernel-core = { path = "../kernel-core" }
+aios-kernel-events = { path = "../kernel-events" }
+spin = "0.9"
+
