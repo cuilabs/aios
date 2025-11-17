@@ -40,7 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-**Note:** This is an early development release. See [MISSING_COMPONENTS.md](MISSING_COMPONENTS.md) for components still in development.
+**Note:** This is an early development release. See [docs/MISSING_COMPONENTS.md](docs/MISSING_COMPONENTS.md) for components still in development.
 
 [Unreleased]: https://github.com/cuilabs/aios/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/cuilabs/aios/releases/tag/v0.1.0

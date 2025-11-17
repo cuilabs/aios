@@ -38,20 +38,29 @@ AIOS exposes:
 
 ## 📚 Documentation
 
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Complete architecture documentation
-- **[BOOT_SEQUENCE.md](./BOOT_SEQUENCE.md)** - Detailed boot & attestation flow
-- **[REPO_LAYOUT.md](./REPO_LAYOUT.md)** - Repository structure
-- **[SYSCALL_API.md](./SYSCALL_API.md)** - Complete syscall API with examples
-- **[MISSING_COMPONENTS.md](./MISSING_COMPONENTS.md)** - Critical missing OS components
-- **[AGENT_FIRST_COMPONENTS.md](./AGENT_FIRST_COMPONENTS.md)** - 🔥 MANDATORY agent-first architecture components
-- **[FOUNDATIONAL_SUBSYSTEMS.md](./FOUNDATIONAL_SUBSYSTEMS.md)** - 13 foundational subsystems status
-- **[SUBSYSTEM_INVENTORY.md](./SUBSYSTEM_INVENTORY.md)** - Complete inventory of all 30 subsystems
-- **[COMPLETE_SYSTEM_INVENTORY.md](./COMPLETE_SYSTEM_INVENTORY.md)** - Complete inventory of 39 unique components (no overlaps)
-- **[BUSINESS_STRATEGY.md](./BUSINESS_STRATEGY.md)** - Open-source business strategy & revenue model
-- **[OPEN_CORE_SPLIT.md](./OPEN_CORE_SPLIT.md)** - What's open source vs. commercial
-- **[SINGAPORE_STRATEGY.md](./SINGAPORE_STRATEGY.md)** - Singapore-specific strategy for CUI Labs (Pte.) Ltd., Singapore
-- **[GITHUB_SETUP.md](./GITHUB_SETUP.md)** - GitHub repository setup guide
-- **[QUICK_START.md](./QUICK_START.md)** - Quick start guide for pushing to GitHub
+All documentation is organized in the [`docs/`](./docs/) directory.
+
+### Core Documentation
+- **[Architecture](./docs/ARCHITECTURE.md)** - Complete architecture documentation
+- **[Boot Sequence](./docs/BOOT_SEQUENCE.md)** - Detailed boot & attestation flow
+- **[Repository Layout](./docs/REPO_LAYOUT.md)** - Repository structure
+- **[Syscall API](./docs/SYSCALL_API.md)** - Complete syscall API with examples
+
+### Component Documentation
+- **[Missing Components](./docs/MISSING_COMPONENTS.md)** - Critical missing OS components
+- **[Agent-First Components](./docs/AGENT_FIRST_COMPONENTS.md)** - 🔥 MANDATORY agent-first architecture components
+- **[Foundational Subsystems](./docs/FOUNDATIONAL_SUBSYSTEMS.md)** - 13 foundational subsystems status
+- **[Subsystem Inventory](./docs/SUBSYSTEM_INVENTORY.md)** - Complete inventory of all 30 subsystems
+- **[Complete System Inventory](./docs/COMPLETE_SYSTEM_INVENTORY.md)** - Complete inventory of 39 unique components (no overlaps)
+
+### Business & Strategy
+- **[Business Strategy](./docs/BUSINESS_STRATEGY.md)** - Open-source business strategy & revenue model
+- **[Open-Core Split](./docs/OPEN_CORE_SPLIT.md)** - What's open source vs. commercial
+- **[Singapore Strategy](./docs/SINGAPORE_STRATEGY.md)** - Singapore-specific strategy for CUI Labs (Pte.) Ltd., Singapore
+
+### Setup & Getting Started
+- **[GitHub Setup](./docs/GITHUB_SETUP.md)** - GitHub repository setup guide
+- **[Quick Start](./docs/QUICK_START.md)** - Quick start guide for pushing to GitHub
 
 ## 🏗 Architecture
 
