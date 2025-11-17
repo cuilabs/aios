@@ -48,4 +48,36 @@ yarn-error.log*
 tmp/
 temp/
 *.tmp
+*.temp
+.cache/
 
+# Rust
+target/
+**/*.rs.bk
+Cargo.lock
+
+# Build artifacts
+*.o
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Secrets
+*.key
+*.pem
+*.p12
+secrets/
+
+# Business & Commercial Documents (PRIVATE - DO NOT COMMIT)
+docs/business/
+*.business.md
+*.strategy.md
+*_strategy.md
+*_business.md
+*_commercial.md
+*_revenue.md
+*_pricing.md
+*_enterprise.md
+*_revenue_model.md
+*_business_plan.md

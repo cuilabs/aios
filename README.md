@@ -40,27 +40,24 @@ AIOS exposes:
 
 All documentation is organized in the [`docs/`](./docs/) directory.
 
-### Core Documentation
-- **[Architecture](./docs/ARCHITECTURE.md)** - Complete architecture documentation
-- **[Boot Sequence](./docs/BOOT_SEQUENCE.md)** - Detailed boot & attestation flow
-- **[Repository Layout](./docs/REPO_LAYOUT.md)** - Repository structure
-- **[Syscall API](./docs/SYSCALL_API.md)** - Complete syscall API with examples
+### Core Architecture
+- **[Architecture](./docs/architecture/ARCHITECTURE.md)** - Complete architecture documentation
+- **[Boot Sequence](./docs/architecture/BOOT_SEQUENCE.md)** - Detailed boot & attestation flow
+- **[Repository Layout](./docs/architecture/REPO_LAYOUT.md)** - Repository structure
+- **[Syscall API](./docs/architecture/SYSCALL_API.md)** - Complete syscall API with examples
 
 ### Component Documentation
-- **[Missing Components](./docs/MISSING_COMPONENTS.md)** - Critical missing OS components
-- **[Agent-First Components](./docs/AGENT_FIRST_COMPONENTS.md)** - 🔥 MANDATORY agent-first architecture components
-- **[Foundational Subsystems](./docs/FOUNDATIONAL_SUBSYSTEMS.md)** - 13 foundational subsystems status
-- **[Subsystem Inventory](./docs/SUBSYSTEM_INVENTORY.md)** - Complete inventory of all 30 subsystems
-- **[Complete System Inventory](./docs/COMPLETE_SYSTEM_INVENTORY.md)** - Complete inventory of 39 unique components (no overlaps)
-
-### Business & Strategy
-- **[Business Strategy](./docs/BUSINESS_STRATEGY.md)** - Open-source business strategy & revenue model
-- **[Open-Core Split](./docs/OPEN_CORE_SPLIT.md)** - What's open source vs. commercial
-- **[Singapore Strategy](./docs/SINGAPORE_STRATEGY.md)** - Singapore-specific strategy for CUI Labs (Pte.) Ltd., Singapore
+- **[Missing Components](./docs/components/MISSING_COMPONENTS.md)** - Critical missing OS components
+- **[Agent-First Components](./docs/components/AGENT_FIRST_COMPONENTS.md)** - 🔥 MANDATORY agent-first architecture components
+- **[Foundational Subsystems](./docs/components/FOUNDATIONAL_SUBSYSTEMS.md)** - 13 foundational subsystems status
+- **[Subsystem Inventory](./docs/components/SUBSYSTEM_INVENTORY.md)** - Complete inventory of all 30 subsystems
+- **[Complete System Inventory](./docs/components/COMPLETE_SYSTEM_INVENTORY.md)** - Complete inventory of 39 unique components (no overlaps)
 
 ### Setup & Getting Started
-- **[GitHub Setup](./docs/GITHUB_SETUP.md)** - GitHub repository setup guide
-- **[Quick Start](./docs/QUICK_START.md)** - Quick start guide for pushing to GitHub
+- **[GitHub Setup](./docs/setup/GITHUB_SETUP.md)** - GitHub repository setup guide
+- **[Quick Start](./docs/setup/QUICK_START.md)** - Quick start guide for pushing to GitHub
+
+See [docs/README.md](./docs/README.md) for the complete documentation index.
 
 ## 🏗 Architecture
 
