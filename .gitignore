@@ -70,6 +70,7 @@ Cargo.lock
 secrets/
 
 # Business & Commercial Documents (PRIVATE - DO NOT COMMIT)
+# These contain revenue models, pricing, competitive strategies - trade secrets
 docs/business/
 *.business.md
 *.strategy.md
