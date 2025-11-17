@@ -6,6 +6,7 @@ Welcome to the AIOS documentation directory. This directory contains all technic
 
 ### Core Architecture
 - **[Architecture](./architecture/ARCHITECTURE.md)** - Complete architecture documentation
+- **[Technical Whitepaper](./architecture/AIOS_TECHNICAL_WHITEPAPER.md)** - Comprehensive technical whitepaper
 - **[Boot Sequence](./architecture/BOOT_SEQUENCE.md)** - Detailed boot & attestation flow
 - **[Repository Layout](./architecture/REPO_LAYOUT.md)** - Repository structure
 - **[Syscall API](./architecture/SYSCALL_API.md)** - Complete syscall API with examples

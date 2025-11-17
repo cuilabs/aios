@@ -42,6 +42,7 @@ All documentation is organized in the [`docs/`](./docs/) directory.
 
 ### Core Architecture
 - **[Architecture](./docs/architecture/ARCHITECTURE.md)** - Complete architecture documentation
+- **[Technical Whitepaper](./docs/architecture/AIOS_TECHNICAL_WHITEPAPER.md)** - Comprehensive technical whitepaper
 - **[Boot Sequence](./docs/architecture/BOOT_SEQUENCE.md)** - Detailed boot & attestation flow
 - **[Repository Layout](./docs/architecture/REPO_LAYOUT.md)** - Repository structure
 - **[Syscall API](./docs/architecture/SYSCALL_API.md)** - Complete syscall API with examples
