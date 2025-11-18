@@ -21,6 +21,7 @@ pub mod sync;
 pub mod syscall;
 pub mod log;
 pub mod time;
+pub mod smp;
 
 use core::panic::PanicInfo;
 

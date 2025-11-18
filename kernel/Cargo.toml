@@ -16,6 +16,8 @@ members = [
     "crates/kernel-observability",
     "crates/kernel-audit",
     "crates/kernel-policy",
+    "crates/kernel-fs",
+    "crates/kernel-net",
 ]
 
 [profile.dev]

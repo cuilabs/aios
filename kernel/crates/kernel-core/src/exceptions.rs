@@ -135,9 +135,8 @@ extern "x86-interrupt" fn alignment_check_handler(
 }
 
 /// Get agent ID for address (if in agent sandbox)
-fn get_agent_for_address(_address: x86_64::VirtAddr) -> Option<u64> {
-    // TODO: Check if address is in agent sandbox
-    None
+fn get_agent_for_address(address: x86_64::VirtAddr) -> Option<u64> {
+    crate::memory::agent_mapping::get_agent_for_address(address)
 }
 
 /// Check if agent should be killed on violation

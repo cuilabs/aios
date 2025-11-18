@@ -1,0 +1,14 @@
+[package]
+name = "kernel-fs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+spin = "0.9"
+bitflags = "2.5"
+x86_64 = { version = "0.14", features = ["instructions"] }
+
+[features]
+default = []
+alloc = []
+

@@ -8,6 +8,7 @@ pub mod virtual_mem;
 pub mod allocator;
 pub mod agent_pool;
 pub mod fabric;
+pub mod agent_mapping;
 
 use core::alloc::Layout;
 
