@@ -57,8 +57,26 @@ else
 fi
 echo ""
 
-# 5. Code Quality Check - No Placeholder Code
-echo "5️⃣  Checking for placeholder/fake code..."
+# 5. Dependency Update Check
+echo "5️⃣  Checking for outdated dependencies..."
+OUTDATED_OUTPUT=$(pnpm outdated --format=table 2>/dev/null || echo "")
+OUTDATED_LINES=$(echo "$OUTDATED_OUTPUT" | grep -E "^\│" | grep -v "Package" | grep -v "────" | wc -l | tr -d ' ')
+
+if [ "$OUTDATED_LINES" = "0" ] || [ -z "$OUTDATED_LINES" ]; then
+	echo -e "${GREEN}✅ PASSED: All dependencies are up to date${NC}"
+else
+	echo -e "${RED}❌ FAILED: Found outdated dependency/dependencies${NC}"
+	echo -e "${YELLOW}   Run 'pnpm outdated' to see details${NC}"
+	echo -e "${YELLOW}   Run 'pnpm update-deps' to update all dependencies${NC}"
+	echo ""
+	echo "   Outdated packages:"
+	echo "$OUTDATED_OUTPUT" | grep -E "^\│" | grep -v "Package" | grep -v "────" | head -10 | sed 's/^/   /' || true
+	ERROR_COUNT=$((ERROR_COUNT + 1))
+fi
+echo ""
+
+# 6. Code Quality Check - No Placeholder Code
+echo "6️⃣  Checking for placeholder/fake code..."
 echo "   Scanning for: TODO, FIXME, mock, placeholder, simulation, etc."
 
 PLACEHOLDER_PATTERNS=(

@@ -129,9 +129,24 @@ The pre-push hook automatically checks:
 - ✅ Lint errors
 - ✅ TypeScript errors
 - ✅ Security audit
+- ✅ Dependency updates (all dependencies must be latest stable)
 - ✅ Placeholder/fake code detection (TODO, mock, stub, etc.)
 
-**Enterprise-grade production code is required.** Placeholder code, mocks, and incomplete implementations will be rejected.
+**Enterprise-grade production code is required.** Placeholder code, mocks, incomplete implementations, and outdated dependencies will be rejected.
+
+### Updating Dependencies
+
+To update all dependencies to latest stable versions:
+
+```bash
+pnpm update-deps
+```
+
+This will:
+1. Show current outdated packages
+2. Update all dependencies and dev dependencies to latest
+3. Show updated packages
+4. Remind you to test and commit changes
 
 ### Version Management
 

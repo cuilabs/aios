@@ -42,6 +42,21 @@ jobs:
       - name: Security Audit
         run: pnpm audit --audit-level=moderate || true
 
+      - name: Check for Outdated Dependencies
+        run: |
+          echo "Checking for outdated dependencies..."
+          OUTDATED_OUTPUT=$(pnpm outdated --format=table 2>/dev/null || echo "")
+          OUTDATED_LINES=$(echo "$OUTDATED_OUTPUT" | grep -E "^\│" | grep -v "Package" | grep -v "────" | wc -l | tr -d ' ')
+          if [ "$OUTDATED_LINES" != "0" ] && [ -n "$OUTDATED_LINES" ]; then
+            echo "❌ Found outdated dependencies"
+            echo "Outdated packages:"
+            echo "$OUTDATED_OUTPUT" || true
+            echo "Run 'pnpm update-deps' to update all dependencies"
+            exit 1
+          else
+            echo "✅ All dependencies are up to date"
+          fi
+
       - name: Check for Placeholder Code
         run: |
           echo "Checking for placeholder/fake code..."

@@ -19,7 +19,8 @@
 		"changeset": "changeset",
 		"version": "changeset version",
 		"release": "pnpm build && changeset publish",
-		"pre-push-check": "./scripts/pre-push-check.sh"
+		"pre-push-check": "./scripts/pre-push-check.sh",
+		"update-deps": "./scripts/update-dependencies.sh"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
