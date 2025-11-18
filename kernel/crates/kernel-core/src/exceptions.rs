@@ -152,8 +152,17 @@ fn kill_agent(_agent_id: u64) {
 }
 
 /// Handle page fault for agent
-fn handle_agent_page_fault(_agent_id: u64, _address: x86_64::VirtAddr, _error_code: PageFaultErrorCode) {
-    // TODO: Handle page fault (load page, copy-on-write, etc.)
+fn handle_agent_page_fault(agent_id: u64, address: x86_64::VirtAddr, error_code: PageFaultErrorCode) {
+    // Use virtual memory page fault handler
+    match crate::memory::virtual_mem::handle_page_fault(address, error_code, Some(agent_id)) {
+        Ok(()) => {
+            // Page fault handled successfully
+        }
+        Err(e) => {
+            // Page fault handling failed - kill agent or log error
+            crate::log::log_error!("Page fault handling failed for agent {}: {:?}", agent_id, e);
+        }
+    }
 }
 
 /// Handle GPF for agent

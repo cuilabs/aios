@@ -19,6 +19,8 @@ pub mod exceptions;
 pub mod error;
 pub mod sync;
 pub mod syscall;
+pub mod log;
+pub mod time;
 
 use core::panic::PanicInfo;
 
