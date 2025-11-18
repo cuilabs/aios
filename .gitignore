@@ -56,6 +56,10 @@ target/
 **/*.rs.bk
 Cargo.lock
 
+# Changesets
+.changeset/*.md
+!/.changeset/config.json
+
 # Build artifacts
 *.o
 *.so

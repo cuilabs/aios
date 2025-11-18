@@ -1,0 +1,117 @@
+name: Pre-Push Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  checks:
+    name: Pre-Push Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Check
+        run: pnpm build
+
+      - name: Lint Check
+        run: pnpm lint
+
+      - name: TypeScript Check
+        run: pnpm typecheck
+
+      - name: Security Audit
+        run: pnpm audit --audit-level=moderate || true
+
+      - name: Check for Placeholder Code
+        run: |
+          echo "Checking for placeholder/fake code..."
+          PLACEHOLDER_PATTERNS=(
+            "TODO"
+            "FIXME"
+            "XXX"
+            "\\bmock\\b"
+            "\\bMock\\b"
+            "\\bMOCK\\b"
+            "\\bplaceholder\\b"
+            "\\bPlaceholder\\b"
+            "\\bPLACEHOLDER\\b"
+            "\\bsimulation\\b"
+            "\\bSimulation\\b"
+            "\\bSIMULATION\\b"
+            "\\bstub\\b"
+            "\\bStub\\b"
+            "\\bSTUB\\b"
+            "\\bfake\\b"
+            "\\bFake\\b"
+            "\\bFAKE\\b"
+            "\\bdummy\\b"
+            "\\bDummy\\b"
+            "\\bDUMMY\\b"
+            "\\btest\\s+only"
+            "\\bskip\\s+test"
+            "\\bin\\s+production"
+            "\\bnot\\s+implemented"
+            "\\bNotImplemented"
+            "\\bnot\\s+ready"
+            "\\bNotReady"
+            "\\btemporary"
+            "\\bTemporary"
+            "\\bTEMPORARY"
+          )
+          
+          ERROR_COUNT=0
+          FILES=$(find . -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.rs" -o -name "*.js" -o -name "*.jsx" \) ! -path "*/node_modules/*" ! -path "*/dist/*" ! -path "*/.git/*" ! -path "*/.changeset/*" ! -path "*/docs/*" ! -name "*.md" ! -name "*.json" ! -name "*.lock")
+          
+          for file in $FILES; do
+            for pattern in "${PLACEHOLDER_PATTERNS[@]}"; do
+              if grep -iE "$pattern" "$file" > /dev/null 2>&1; then
+                if [[ "$pattern" == "TODO" ]] || [[ "$pattern" == "FIXME" ]]; then
+                  # Allow in comments for documentation
+                  if [[ "$file" == *.rs ]]; then
+                    if ! grep -iE "^\s*//.*$pattern|^\s*///.*$pattern|^\s*/\*.*$pattern" "$file" > /dev/null 2>&1; then
+                      echo "❌ Found $pattern in: $file"
+                      grep -n -iE "$pattern" "$file" | head -3
+                      ERROR_COUNT=$((ERROR_COUNT + 1))
+                    fi
+                  else
+                    echo "❌ Found $pattern in: $file"
+                    grep -n -iE "$pattern" "$file" | head -3
+                    ERROR_COUNT=$((ERROR_COUNT + 1))
+                  fi
+                else
+                  echo "❌ Found $pattern in: $file"
+                  grep -n -iE "$pattern" "$file" | head -3
+                  ERROR_COUNT=$((ERROR_COUNT + 1))
+                fi
+              fi
+            done
+          done
+          
+          if [ $ERROR_COUNT -gt 0 ]; then
+            echo "❌ Found $ERROR_COUNT placeholder/fake code instances"
+            echo "Enterprise-grade production code required. Please implement full functionality."
+            exit 1
+          else
+            echo "✅ No placeholder/fake code found"
+          fi
+

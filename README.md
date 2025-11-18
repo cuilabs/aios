@@ -115,6 +115,39 @@ pnpm build
 pnpm dev
 ```
 
+### Pre-Push Checks
+
+Before pushing to GitHub, all code must pass strict quality checks:
+
+```bash
+# Run pre-push checks manually
+pnpm pre-push-check
+```
+
+The pre-push hook automatically checks:
+- ✅ Build errors
+- ✅ Lint errors
+- ✅ TypeScript errors
+- ✅ Security audit
+- ✅ Placeholder/fake code detection (TODO, mock, stub, etc.)
+
+**Enterprise-grade production code is required.** Placeholder code, mocks, and incomplete implementations will be rejected.
+
+### Version Management
+
+This project uses [Changesets](https://github.com/changesets/changesets) for version management:
+
+```bash
+# Create a changeset for your changes
+pnpm changeset
+
+# Version packages (updates CHANGELOG)
+pnpm version
+
+# Release (builds and publishes)
+pnpm release
+```
+
 ## 📦 Project Structure
 
 ```
