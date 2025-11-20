@@ -331,7 +331,8 @@ export class AgentSupervisorService {
 							this.updateResourceUsage(agentId, {
 								cpu: 0,
 								memory: 0,
-								gpu: 0,
+								network: 0,
+								io: 0,
 							});
 						}
 					} catch (error) {
