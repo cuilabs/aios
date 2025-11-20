@@ -4,7 +4,7 @@
  * Service for collecting and exposing system metrics
  */
 
-import { SemanticMessageBus } from "@aios/ipc";
+import { SemanticMessageBus, SemanticMessageBuilder } from "@aios/ipc";
 import type { SystemMetrics, AgentMetrics } from "./types.js";
 
 /**
@@ -78,18 +78,25 @@ export class MetricsDaemon {
 					this.metrics.set("system", metrics);
 					
 					// Publish metrics via semantic IPC
-					await this.messageBus.publish({
-						id: `metrics-${Date.now()}`,
-						from: "metricsd",
-						to: "all",
-						intent: {
+					const metricsMessage = SemanticMessageBuilder.create(
+						"metricsd",
+						"*",
+						{
 							type: "observability.metrics",
-							priority: 1,
+							action: "notify",
+							constraints: {},
 							context: {},
+							priority: 1,
 						},
-						payload: metrics,
-						timestamp: Date.now(),
-					});
+						{
+							cpuUsage: metrics.cpuUsage,
+							memoryUsage: metrics.memoryUsage,
+							networkThroughput: metrics.networkThroughput,
+							ioThroughput: metrics.ioThroughput,
+							activeAgents: metrics.activeAgents,
+						}
+					);
+					this.messageBus.publish(metricsMessage);
 				} else {
 					// Fallback: use default values if kernel query fails
 					const metrics: SystemMetrics = {
