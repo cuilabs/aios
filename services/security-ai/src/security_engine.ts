@@ -3,16 +3,16 @@
  */
 
 import type {
+	SecurityRecommendation,
+	Threat,
 	ThreatDetectionRequest,
 	ThreatDetectionResponse,
-	Threat,
-	SecurityRecommendation,
-	VulnerabilityScanRequest,
-	VulnerabilityScanResponse,
-	Vulnerability,
+	ThreatIntelligence,
 	ThreatIntelligenceRequest,
 	ThreatIntelligenceResponse,
-	ThreatIntelligence,
+	Vulnerability,
+	VulnerabilityScanRequest,
+	VulnerabilityScanResponse,
 } from "./types.js";
 
 export class SecurityAIEngine {
@@ -72,9 +72,7 @@ export class SecurityAIEngine {
 	/**
 	 * Scan for vulnerabilities
 	 */
-	async scanVulnerabilities(
-		request: VulnerabilityScanRequest
-	): Promise<VulnerabilityScanResponse> {
+	async scanVulnerabilities(request: VulnerabilityScanRequest): Promise<VulnerabilityScanResponse> {
 		const vulnerabilities: Vulnerability[] = [];
 
 		// Vulnerability scanning would use actual security tools
@@ -150,9 +148,7 @@ export class SecurityAIEngine {
 	/**
 	 * Get priority from severity
 	 */
-	private getSeverityPriority(
-		severity: "low" | "medium" | "high" | "critical"
-	): number {
+	private getSeverityPriority(severity: "low" | "medium" | "high" | "critical"): number {
 		const priorityMap = {
 			low: 1,
 			medium: 2,
@@ -166,9 +162,7 @@ export class SecurityAIEngine {
 	/**
 	 * Calculate overall threat level
 	 */
-	private calculateThreatLevel(
-		threats: Threat[]
-	): "low" | "medium" | "high" | "critical" {
+	private calculateThreatLevel(threats: Threat[]): "low" | "medium" | "high" | "critical" {
 		if (threats.length === 0) return "low";
 
 		const hasCritical = threats.some((t) => t.severity === "critical");
@@ -186,10 +180,7 @@ export class SecurityAIEngine {
 	/**
 	 * Calculate confidence
 	 */
-	private calculateConfidence(
-		threats: Threat[],
-		metrics: Record<string, unknown>
-	): number {
+	private calculateConfidence(threats: Threat[], metrics: Record<string, unknown>): number {
 		if (threats.length === 0) return 0.0;
 
 		// Base confidence from number of threats
@@ -203,4 +194,3 @@ export class SecurityAIEngine {
 		return Math.min(1.0, confidence);
 	}
 }
-

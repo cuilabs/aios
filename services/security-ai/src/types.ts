@@ -71,4 +71,3 @@ export interface ThreatIntelligence {
 	indicators: string[];
 	recommendations: string[];
 }
-

@@ -1,12 +1,12 @@
 /**
  * Agent Checkpoint System
- * 
+ *
  * Handles saving and restoring agent state to/from disk
  */
 
-import * as fs from "fs/promises";
 import * as path from "path";
 import { fileURLToPath } from "url";
+import * as fs from "fs/promises";
 import type { AgentStatus } from "./types.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -36,13 +36,21 @@ export class CheckpointManager {
 		const defaultPath = checkpointDir || process.env["CHECKPOINT_DIR"];
 		if (defaultPath) {
 			// If path is absolute, use as-is; otherwise resolve from repo root
-			this.checkpointDir = path.isAbsolute(defaultPath) 
-				? defaultPath 
+			this.checkpointDir = path.isAbsolute(defaultPath)
+				? defaultPath
 				: path.resolve(process.cwd(), "..", "..", defaultPath);
 		} else {
 			// Default: resolve from current working directory (should be services/agentsupervisor)
 			// Go up to repo root, then to tests/artifacts/integration/checkpoints
-			const fromCwd = path.resolve(process.cwd(), "..", "..", "tests", "artifacts", "integration", "checkpoints");
+			const fromCwd = path.resolve(
+				process.cwd(),
+				"..",
+				"..",
+				"tests",
+				"artifacts",
+				"integration",
+				"checkpoints"
+			);
 			// Use process.cwd() path (services are typically started from their directory)
 			this.checkpointDir = fromCwd;
 		}
@@ -192,4 +200,3 @@ export class CheckpointManager {
 		}
 	}
 }
-

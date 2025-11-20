@@ -1,10 +1,10 @@
 /**
  * Predictive Threat Intelligence
- * 
+ *
  * Predicts future threats based on historical patterns and trends
  */
 
-import { ThreatEvent, ThreatType } from "./index";
+import { type ThreatEvent, ThreatType } from "./index";
 
 /**
  * Predicted threat
@@ -107,10 +107,8 @@ class PatternLearner {
 		const firstHalf = history.slice(0, history.length / 2);
 		const secondHalf = history.slice(history.length / 2);
 
-		const firstAvg =
-			firstHalf.reduce((sum, e) => sum + e.score, 0) / firstHalf.length;
-		const secondAvg =
-			secondHalf.reduce((sum, e) => sum + e.score, 0) / secondHalf.length;
+		const firstAvg = firstHalf.reduce((sum, e) => sum + e.score, 0) / firstHalf.length;
+		const secondAvg = secondHalf.reduce((sum, e) => sum + e.score, 0) / secondHalf.length;
 
 		return secondAvg - firstAvg; // Positive = escalating
 	}
@@ -179,9 +177,7 @@ export class PredictiveThreatIntelligence {
 			if (nextThreatTime && nextThreatTime <= endTime) {
 				// Predict threat
 				const recentThreats = events.slice(-10);
-				const avgScore =
-					recentThreats.reduce((sum, e) => sum + e.score, 0) /
-					recentThreats.length;
+				const avgScore = recentThreats.reduce((sum, e) => sum + e.score, 0) / recentThreats.length;
 				const mostCommonType = this.getMostCommonThreatType(events);
 
 				predictions.push({
@@ -209,9 +205,7 @@ export class PredictiveThreatIntelligence {
 	 * Update patterns for agent
 	 */
 	private updatePatterns(agentId: string): void {
-		const agentThreats = this.threatHistory.filter(
-			(e) => e.agentId === agentId
-		);
+		const agentThreats = this.threatHistory.filter((e) => e.agentId === agentId);
 		if (agentThreats.length >= 5) {
 			this.patternLearner.learnPattern(agentId, agentThreats);
 		}
@@ -311,9 +305,7 @@ export class PredictiveThreatIntelligence {
 		}
 
 		// Check for peak hours
-		const maxHour = pattern.hourlyPattern.indexOf(
-			Math.max(...pattern.hourlyPattern)
-		);
+		const maxHour = pattern.hourlyPattern.indexOf(Math.max(...pattern.hourlyPattern));
 		if (maxHour >= 0) {
 			indicators.push(`Peak threat hour: ${maxHour}:00`);
 		}
@@ -321,10 +313,7 @@ export class PredictiveThreatIntelligence {
 		return indicators;
 	}
 
-	private predictNextHourScore(
-		_threatType: ThreatType,
-		events: readonly ThreatEvent[]
-	): number {
+	private predictNextHourScore(_threatType: ThreatType, events: readonly ThreatEvent[]): number {
 		// Prediction: use recent average
 		const recent = events.slice(-20);
 		if (recent.length === 0) {
@@ -334,4 +323,3 @@ export class PredictiveThreatIntelligence {
 		return recent.reduce((sum, e) => sum + e.score, 0) / recent.length;
 	}
 }
-

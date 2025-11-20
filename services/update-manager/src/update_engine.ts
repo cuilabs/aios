@@ -3,16 +3,16 @@
  */
 
 import type {
-	Update,
-	UpdateScheduleRequest,
-	UpdateScheduleResponse,
-	ScheduledUpdate,
 	ImpactAssessment,
-	UpdateImpactRequest,
-	UpdateImpactResponse,
 	ImpactPrediction,
 	RollbackRequest,
 	RollbackResponse,
+	ScheduledUpdate,
+	Update,
+	UpdateImpactRequest,
+	UpdateImpactResponse,
+	UpdateScheduleRequest,
+	UpdateScheduleResponse,
 } from "./types.js";
 
 export class UpdateManagerEngine {
@@ -21,9 +21,7 @@ export class UpdateManagerEngine {
 	/**
 	 * Schedule updates
 	 */
-	async scheduleUpdates(
-		request: UpdateScheduleRequest
-	): Promise<UpdateScheduleResponse> {
+	async scheduleUpdates(request: UpdateScheduleRequest): Promise<UpdateScheduleResponse> {
 		const schedule: ScheduledUpdate[] = [];
 		const now = Date.now();
 
@@ -235,10 +233,9 @@ export class UpdateManagerEngine {
 		const match = version.match(/^(\d+)\.(\d+)\.(\d+)/);
 		if (match) {
 			const [, major, minor, patch] = match;
-			const newPatch = Math.max(0, parseInt(patch, 10) - 1);
+			const newPatch = Math.max(0, Number.parseInt(patch, 10) - 1);
 			return `${major}.${minor}.${newPatch}`;
 		}
 		return "0.0.0";
 	}
 }
-

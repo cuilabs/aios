@@ -4,8 +4,8 @@
  * Service for collecting and exposing system metrics
  */
 
-import { SemanticMessageBus, SemanticMessageBuilder } from "@aios/ipc";
-import type { SystemMetrics, AgentMetrics } from "./types.js";
+import { SemanticMessageBuilder, SemanticMessageBus } from "@aios/ipc";
+import type { AgentMetrics, SystemMetrics } from "./types.js";
 
 /**
  * Metrics Daemon
@@ -26,20 +26,17 @@ export class MetricsDaemon {
 	 */
 	async start(): Promise<void> {
 		// Subscribe to observability events
-		this.messageBus.subscribe(
-			{ intentType: "observability.metrics" },
-			async (message) => {
-				const payload = message.payload as Record<string, unknown>;
-				const metrics: SystemMetrics = {
-					cpuUsage: (payload.cpuUsage as number) ?? 0,
-					memoryUsage: (payload.memoryUsage as number) ?? 0,
-					networkThroughput: (payload.networkThroughput as number) ?? 0,
-					ioThroughput: (payload.ioThroughput as number) ?? 0,
-					activeAgents: (payload.activeAgents as number) ?? 0,
-				};
-				this.metrics.set("system", metrics);
-			}
-		);
+		this.messageBus.subscribe({ intentType: "observability.metrics" }, async (message) => {
+			const payload = message.payload as Record<string, unknown>;
+			const metrics: SystemMetrics = {
+				cpuUsage: (payload.cpuUsage as number) ?? 0,
+				memoryUsage: (payload.memoryUsage as number) ?? 0,
+				networkThroughput: (payload.networkThroughput as number) ?? 0,
+				ioThroughput: (payload.ioThroughput as number) ?? 0,
+				activeAgents: (payload.activeAgents as number) ?? 0,
+			};
+			this.metrics.set("system", metrics);
+		});
 
 		// Start metrics collection loop
 		this.startCollectionLoop();
@@ -52,12 +49,12 @@ export class MetricsDaemon {
 		setInterval(async () => {
 			// Collect metrics from kernel observability system via kernel-bridge service
 			const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-			
+
 			try {
 				const response = await fetch(`${kernelBridgeUrl}/api/kernel/observability/metrics`, {
 					method: "GET",
 				});
-				
+
 				if (response.ok) {
 					const kernelMetrics = (await response.json()) as {
 						cpuUsage?: number;
@@ -66,7 +63,7 @@ export class MetricsDaemon {
 						ioThroughput?: number;
 						activeAgents?: number;
 					};
-					
+
 					const metrics: SystemMetrics = {
 						cpuUsage: kernelMetrics.cpuUsage ?? 0,
 						memoryUsage: kernelMetrics.memoryUsage ?? 0,
@@ -74,9 +71,9 @@ export class MetricsDaemon {
 						ioThroughput: kernelMetrics.ioThroughput ?? 0,
 						activeAgents: kernelMetrics.activeAgents ?? this.agentMetrics.size,
 					};
-					
+
 					this.metrics.set("system", metrics);
-					
+
 					// Publish metrics via semantic IPC
 					const metricsMessage = SemanticMessageBuilder.create(
 						"metricsd",
@@ -137,4 +134,3 @@ export class MetricsDaemon {
 		return this.agentMetrics.get(agentId);
 	}
 }
-

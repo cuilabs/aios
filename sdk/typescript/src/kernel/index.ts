@@ -20,10 +20,7 @@ export class KernelClient {
 }
 
 export class KernelError extends Error {
-	constructor(
-		public code: "OUT_OF_MEMORY" | "INVALID_ADDRESS" | "PERMISSION_DENIED"
-	) {
+	constructor(public code: "OUT_OF_MEMORY" | "INVALID_ADDRESS" | "PERMISSION_DENIED") {
 		super();
 	}
 }
-

@@ -11,4 +11,3 @@ export class PolicyClient {
 		return true;
 	}
 }
-

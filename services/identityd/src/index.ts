@@ -9,8 +9,8 @@
  * - Identity revocation
  */
 
-import { SemanticMessageBus, SemanticMessageBuilder } from "@aios/ipc";
-import type { Identity, Certificate, AttestationEvidence } from "./types.js";
+import { SemanticMessageBuilder, SemanticMessageBus } from "@aios/ipc";
+import type { AttestationEvidence, Certificate, Identity } from "./types.js";
 
 /**
  * Identity Service
@@ -165,7 +165,7 @@ export class IdentityService {
 	/**
 	 * Issue certificate for agent
 	 */
-	async issueCertificate(agentId: string, validityDays: number = 365): Promise<Certificate> {
+	async issueCertificate(agentId: string, validityDays = 365): Promise<Certificate> {
 		const identity = this.identities.get(agentId);
 		if (!identity || identity.status !== "active") {
 			throw new Error(`Cannot issue certificate for inactive identity: ${agentId}`);
@@ -173,7 +173,7 @@ export class IdentityService {
 
 		// Generate certificate using PQC daemon
 		const pqcdUrl = process.env["PQCD_URL"] || "http://127.0.0.1:9004";
-		
+
 		try {
 			const response = await fetch(`${pqcdUrl}/api/pqc/keygen`, {
 				method: "POST",
@@ -182,13 +182,13 @@ export class IdentityService {
 					algorithm: "CRYSTALS-Dilithium",
 				}),
 			});
-			
+
 			if (response.ok) {
 				const keyPair = (await response.json()) as {
 					publicKey?: Uint8Array;
 					privateKey?: Uint8Array;
 				};
-				
+
 				// Store private key securely
 				if (keyPair.privateKey) {
 					this.keyStorage.set(`cert-${agentId}`, keyPair.privateKey);
@@ -197,7 +197,7 @@ export class IdentityService {
 		} catch (error) {
 			console.error("Failed to generate certificate keys:", error);
 		}
-		
+
 		const certificate: Certificate = {
 			agentId,
 			certificateId: `cert-${agentId}-${Date.now()}`,
@@ -227,9 +227,9 @@ export class IdentityService {
 
 		// Generate attestation evidence using TPM/enclave via kernel-bridge service
 		const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-		
+
 		let attestationData: Uint8Array | undefined;
-		
+
 		try {
 			const response = await fetch(`${kernelBridgeUrl}/api/kernel/attestation/generate`, {
 				method: "POST",
@@ -239,7 +239,7 @@ export class IdentityService {
 					attestationType,
 				}),
 			});
-			
+
 			if (response.ok) {
 				const result = (await response.json()) as { evidence?: string };
 				if (result.evidence) {
@@ -249,7 +249,7 @@ export class IdentityService {
 		} catch (error) {
 			console.error("Failed to generate attestation evidence:", error);
 		}
-		
+
 		const evidence: AttestationEvidence = {
 			agentId,
 			attestationType,
@@ -289,4 +289,3 @@ export class IdentityService {
 		return this.keyStorage.get(keyId);
 	}
 }
-

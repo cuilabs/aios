@@ -1,6 +1,6 @@
 /**
  * Autonomous Threat Response
- * 
+ *
  * Automatically responds to detected threats with appropriate mitigation actions
  */
 
@@ -235,4 +235,3 @@ export class AutonomousThreatResponse {
 		return this.responseHistory;
 	}
 }
-

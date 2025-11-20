@@ -1,9 +1,9 @@
 {
-  "fault_type": "gpu_stress",
-  "timestamp": "2025-11-19T20:13:31.521085Z",
-  "parameters": {
-    "duration_secs": "3"
-  },
-  "trace": "[2025-11-19T20:13:01Z] Starting GPU stress test\nDuration: 30s\n[2025-11-19T20:13:01Z] No GPU management tool found, simulating stress\n[2025-11-19T20:13:01Z] Simulating GPU memory stress...\n[2025-11-19T20:13:01Z] GPU stress simulation active\n[2025-11-19T20:13:31Z] GPU stress test completed\n\n",
-  "duration_ms": 30242
+	"fault_type": "gpu_stress",
+	"timestamp": "2025-11-19T20:13:31.521085Z",
+	"parameters": {
+		"duration_secs": "3"
+	},
+	"trace": "[2025-11-19T20:13:01Z] Starting GPU stress test\nDuration: 30s\n[2025-11-19T20:13:01Z] No GPU management tool found, simulating stress\n[2025-11-19T20:13:01Z] Simulating GPU memory stress...\n[2025-11-19T20:13:01Z] GPU stress simulation active\n[2025-11-19T20:13:31Z] GPU stress test completed\n\n",
+	"duration_ms": 30242
 }

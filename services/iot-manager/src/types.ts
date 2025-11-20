@@ -50,4 +50,3 @@ export interface DeviceDataPoint {
 	metric: string;
 	value: unknown;
 }
-

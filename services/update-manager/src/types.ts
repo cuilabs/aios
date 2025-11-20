@@ -66,4 +66,3 @@ export interface RollbackResponse {
 	previousVersion: string;
 	rollbackTime: number;
 }
-

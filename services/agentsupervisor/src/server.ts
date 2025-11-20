@@ -1,15 +1,15 @@
 /**
  * Agent Supervisor HTTP Server
- * 
+ *
  * Production-grade HTTP REST API server for agent supervisor service.
  * Exposes all agent lifecycle, GPU management, audit, and healing endpoints.
  */
 
-import express, { type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
-import { AgentSupervisorService } from "./index.js";
-import type { AgentImage, AgentStatus, AgentResourceUsage } from "./types.js";
+import express, { type Request, type Response, type NextFunction } from "express";
 import { CheckpointManager } from "./checkpoint.js";
+import type { AgentSupervisorService } from "./index.js";
+import type { AgentImage, AgentResourceUsage, AgentStatus } from "./types.js";
 
 const PORT = 9001;
 
@@ -18,9 +18,23 @@ export class AgentSupervisorServer {
 	private readonly service: AgentSupervisorService;
 	private readonly checkpointManager: CheckpointManager;
 	private server: ReturnType<typeof this.app.listen> | null = null;
-	private gpuDevices: Map<number, { ownerAgentId: string; priority: number; deviceHandle: number }> = new Map();
-	private auditLog: Array<{ agentId: string; operationId: string; type: string; timestamp: number }> = [];
-	private healingEvents: Array<{ timestamp: number; event_type: string; confidence_score: number; details: string; recovery_time_ms: number }> = [];
+	private gpuDevices: Map<
+		number,
+		{ ownerAgentId: string; priority: number; deviceHandle: number }
+	> = new Map();
+	private auditLog: Array<{
+		agentId: string;
+		operationId: string;
+		type: string;
+		timestamp: number;
+	}> = [];
+	private healingEvents: Array<{
+		timestamp: number;
+		event_type: string;
+		confidence_score: number;
+		details: string;
+		recovery_time_ms: number;
+	}> = [];
 	private agentCpuAffinity: Map<string, number> = new Map();
 	private nextDeviceHandle = 1;
 	private capabilities: Map<string, Set<string>> = new Map(); // agentId -> capabilities set
@@ -34,17 +48,19 @@ export class AgentSupervisorServer {
 		this.checkpointManager.initialize().catch((err) => {
 			console.error("Failed to initialize checkpoint manager:", err);
 		});
-		
+
 		// Initialize system capabilities (for system operations)
 		this.capabilities.set("system", new Set(["SPAWN_AGENT", "KILL_AGENT", "ADMIN"]));
 	}
 
 	private setupMiddleware(): void {
 		// CORS for localhost development
-		this.app.use(cors({
-			origin: ["http://localhost:9001", "http://127.0.0.1:9001"],
-			credentials: true,
-		}));
+		this.app.use(
+			cors({
+				origin: ["http://localhost:9001", "http://127.0.0.1:9001"],
+				credentials: true,
+			})
+		);
 
 		// JSON body parser
 		this.app.use(express.json({ limit: "10mb" }));
@@ -124,7 +140,7 @@ export class AgentSupervisorServer {
 				});
 				return;
 			}
-			
+
 			// If capability_token is undefined and system doesn't have spawn capability, reject
 			// (For test purposes, system has SPAWN_AGENT, so this won't trigger unless we remove it)
 			if (capability_token === undefined && !this.checkCapability("system", "SPAWN_AGENT")) {
@@ -141,7 +157,10 @@ export class AgentSupervisorServer {
 			const agentIdStr = agentId.toString();
 
 			// Initialize capabilities for new agent (default: SPAWN_AGENT, KILL_AGENT, ALLOC_MEMORY, ACCESS_GPU)
-			this.capabilities.set(agentIdStr, new Set(["SPAWN_AGENT", "KILL_AGENT", "ALLOC_MEMORY", "ACCESS_GPU"]));
+			this.capabilities.set(
+				agentIdStr,
+				new Set(["SPAWN_AGENT", "KILL_AGENT", "ALLOC_MEMORY", "ACCESS_GPU"])
+			);
 
 			// Load agent image from filesystem
 			await this.service.loadAgentImage(`/agents/${name}`, agentIdStr, undefined);
@@ -186,7 +205,7 @@ export class AgentSupervisorServer {
 				if (status) {
 					const cpuId = this.agentCpuAffinity.get(agentId);
 					agents.push({
-						id: parseInt(agentId, 10) || 0,
+						id: Number.parseInt(agentId, 10) || 0,
 						name: agentId,
 						state: status.status,
 						cpu_id: cpuId,
@@ -220,7 +239,7 @@ export class AgentSupervisorServer {
 
 			const cpuId = this.agentCpuAffinity.get(agentId);
 			res.json({
-				id: parseInt(agentId, 10) || 0,
+				id: Number.parseInt(agentId, 10) || 0,
 				state: status.status,
 				cpu_id: cpuId,
 			});
@@ -343,7 +362,7 @@ export class AgentSupervisorServer {
 
 			// Call kernel to migrate agent to target CPU via kernel-bridge service
 			const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-			
+
 			try {
 				await fetch(`${kernelBridgeUrl}/api/kernel/agent/${agentId}/migrate`, {
 					method: "POST",
@@ -394,10 +413,10 @@ export class AgentSupervisorServer {
 			// Restore CPU affinity if it was set
 			// (metadata doesn't include CPU, but we can infer from context)
 
-			const instanceId = parseInt(agentId, 10) + 1;
+			const instanceId = Number.parseInt(agentId, 10) + 1;
 
 			res.json({
-				agent_id: parseInt(agentId, 10) || 0,
+				agent_id: Number.parseInt(agentId, 10) || 0,
 				instance_id: instanceId,
 			});
 		} catch (error) {
@@ -458,7 +477,7 @@ export class AgentSupervisorServer {
 
 			// Perform action via kernel-bridge service
 			const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-			
+
 			try {
 				await fetch(`${kernelBridgeUrl}/api/kernel/agent/${agentId}/action`, {
 					method: "POST",
@@ -534,7 +553,7 @@ export class AgentSupervisorServer {
 					});
 					return;
 				}
-				
+
 				// Check if we can preempt (higher priority)
 				const requestPriority = priority ?? 0;
 				if (requestPriority > existingDevice.priority) {
@@ -581,7 +600,7 @@ export class AgentSupervisorServer {
 	private async handleReleaseGPU(req: Request, res: Response): Promise<void> {
 		try {
 			const handleStr = req.params.handle;
-			const handle = parseInt(handleStr, 10);
+			const handle = Number.parseInt(handleStr, 10);
 
 			if (isNaN(handle)) {
 				res.status(400).json({
@@ -623,7 +642,7 @@ export class AgentSupervisorServer {
 
 	private async handleGetGPUStatus(req: Request, res: Response): Promise<void> {
 		try {
-			const deviceId = parseInt(req.params.deviceId, 10);
+			const deviceId = Number.parseInt(req.params.deviceId, 10);
 
 			if (isNaN(deviceId)) {
 				res.status(400).json({
@@ -637,7 +656,7 @@ export class AgentSupervisorServer {
 			if (device) {
 				res.json({
 					device_id: deviceId,
-					owner_agent_id: parseInt(device.ownerAgentId, 10) || 0,
+					owner_agent_id: Number.parseInt(device.ownerAgentId, 10) || 0,
 					state: "claimed",
 				});
 			} else {
@@ -660,12 +679,12 @@ export class AgentSupervisorServer {
 		try {
 			// Query kernel GPU scheduler for utilization via kernel-bridge service
 			const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-			
+
 			try {
 				const response = await fetch(`${kernelBridgeUrl}/api/kernel/gpu/utilization`, {
 					method: "GET",
 				});
-				
+
 				if (response.ok) {
 					const stats = (await response.json()) as { gpu_percent?: number };
 					res.json({
@@ -676,7 +695,7 @@ export class AgentSupervisorServer {
 			} catch (error) {
 				console.error("Failed to query GPU utilization:", error);
 			}
-			
+
 			// Fallback: return default value if query fails
 			res.json({
 				gpu_percent: 0.0,
@@ -739,7 +758,7 @@ export class AgentSupervisorServer {
 			}
 
 			// Parse agentId to number for response
-			const agentId = parseInt(agentIdParam, 10) || 0;
+			const agentId = Number.parseInt(agentIdParam, 10) || 0;
 
 			res.json({
 				agent_id: agentId,
@@ -761,12 +780,12 @@ export class AgentSupervisorServer {
 		try {
 			// Query autonomous healer for events via kernel-bridge service
 			const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-			
+
 			try {
 				const response = await fetch(`${kernelBridgeUrl}/api/kernel/healing/events`, {
 					method: "GET",
 				});
-				
+
 				if (response.ok) {
 					const events = (await response.json()) as unknown[];
 					res.json(events);
@@ -775,7 +794,7 @@ export class AgentSupervisorServer {
 			} catch (error) {
 				console.error("Failed to query healing events:", error);
 			}
-			
+
 			// Fallback: return empty array if query fails
 			res.json([]);
 		} catch (error) {
@@ -791,12 +810,12 @@ export class AgentSupervisorServer {
 		try {
 			// Query autonomous healer for metrics via kernel-bridge service
 			const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-			
+
 			try {
 				const response = await fetch(`${kernelBridgeUrl}/api/kernel/healing/metrics`, {
 					method: "GET",
 				});
-				
+
 				if (response.ok) {
 					const metrics = (await response.json()) as { heal_ops_per_minute?: number };
 					res.json({
@@ -807,7 +826,7 @@ export class AgentSupervisorServer {
 			} catch (error) {
 				console.error("Failed to query healing metrics:", error);
 			}
-			
+
 			// Fallback: return default value if query fails
 			res.json({
 				heal_ops_per_minute: 0,
@@ -843,12 +862,12 @@ export class AgentSupervisorServer {
 	 */
 	private getCapabilityForAction(action: string): string | null {
 		const actionCapMap: Record<string, string> = {
-			"spawn": "SPAWN_AGENT",
-			"kill": "KILL_AGENT",
-			"access_fs": "ACCESS_FS",
-			"access_net": "ACCESS_NET",
-			"access_gpu": "ACCESS_GPU",
-			"access_io": "ACCESS_IO",
+			spawn: "SPAWN_AGENT",
+			kill: "KILL_AGENT",
+			access_fs: "ACCESS_FS",
+			access_net: "ACCESS_NET",
+			access_gpu: "ACCESS_GPU",
+			access_io: "ACCESS_IO",
 		};
 		return actionCapMap[action.toLowerCase()] ?? null;
 	}
@@ -890,4 +909,3 @@ export class AgentSupervisorServer {
 		});
 	}
 }
-

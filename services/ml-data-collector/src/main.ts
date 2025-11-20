@@ -1,11 +1,11 @@
 /**
  * ML Data Collector Service Main Entry Point
- * 
+ *
  * Runs the ML training data collection service
  */
 
-import express from "express";
 import cors from "cors";
+import express from "express";
 import { MLDataCollectorService } from "./collector.js";
 import { DataStorageManager } from "./data_storage.js";
 
@@ -17,11 +17,11 @@ const collector = new MLDataCollectorService({
 	metricsdUrl: process.env.METRICSD_URL || "http://127.0.0.1:9004",
 	agentsupervisorUrl: process.env.AGENTSUPERVISOR_URL || "http://127.0.0.1:9001",
 	securityAiUrl: process.env.SECURITY_AI_URL || "http://127.0.0.1:9010",
-	collectionInterval: parseInt(process.env.COLLECTION_INTERVAL || "5000", 10),
+	collectionInterval: Number.parseInt(process.env.COLLECTION_INTERVAL || "5000", 10),
 	dataDir: process.env.DATA_DIR || "./data/ml-training",
 });
 
-const PORT = parseInt(process.env.PORT || "9016", 10);
+const PORT = Number.parseInt(process.env.PORT || "9016", 10);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -71,10 +71,10 @@ app.post("/api/collect", async (req, res) => {
 // Start server
 app.listen(PORT, async () => {
 	console.log(`🚀 ML Data Collector Service listening on port ${PORT}`);
-	
+
 	// Auto-start collection
 	await collector.start();
-	
+
 	console.log("✅ ML Data Collector Service started");
 });
 
@@ -90,4 +90,3 @@ process.on("SIGTERM", () => {
 	collector.stop();
 	process.exit(0);
 });
-

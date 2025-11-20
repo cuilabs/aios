@@ -2,16 +2,16 @@
  * IoT Device Management Service HTTP Server
  */
 
-import express, { type Request, type Response } from "express";
 import cors from "cors";
+import express, { type Request, type Response } from "express";
 import { IoTManagerEngine } from "./iot_engine.js";
 import type {
-	DeviceDiscoveryRequest,
-	DeviceDiscoveryResponse,
 	DeviceControlRequest,
 	DeviceControlResponse,
 	DeviceDataRequest,
 	DeviceDataResponse,
+	DeviceDiscoveryRequest,
+	DeviceDiscoveryResponse,
 	IoTDevice,
 } from "./types.js";
 
@@ -43,8 +43,7 @@ export class IoTManagerServer {
 		this.app.post("/api/iot/discover", async (req: Request, res: Response) => {
 			try {
 				const request: DeviceDiscoveryRequest = req.body;
-				const response: DeviceDiscoveryResponse =
-					await this.iotEngine.discoverDevices(request);
+				const response: DeviceDiscoveryResponse = await this.iotEngine.discoverDevices(request);
 				res.json(response);
 			} catch (error) {
 				res.status(500).json({ error: String(error) });
@@ -116,4 +115,3 @@ export class IoTManagerServer {
 		});
 	}
 }
-

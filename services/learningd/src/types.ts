@@ -56,4 +56,3 @@ export interface Prediction {
 	probability: number;
 	confidence: number;
 }
-

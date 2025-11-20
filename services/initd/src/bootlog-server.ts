@@ -1,11 +1,11 @@
 /**
  * Boot Log HTTP Server
- * 
+ *
  * Exposes boot log endpoints for boot reproducibility testing
  */
 
-import express, { type Request, type Response } from "express";
 import cors from "cors";
+import express, { type Request, type Response } from "express";
 import { BootLogManager } from "./bootlog.js";
 
 const PORT = 9005;
@@ -26,10 +26,12 @@ export class BootLogServer {
 	}
 
 	private setupMiddleware(): void {
-		this.app.use(cors({
-			origin: ["http://localhost:9005", "http://127.0.0.1:9005"],
-			credentials: true,
-		}));
+		this.app.use(
+			cors({
+				origin: ["http://localhost:9005", "http://127.0.0.1:9005"],
+				credentials: true,
+			})
+		);
 		this.app.use(express.json());
 	}
 
@@ -112,4 +114,3 @@ export class BootLogServer {
 		});
 	}
 }
-

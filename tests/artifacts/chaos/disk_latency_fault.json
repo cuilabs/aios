@@ -1,10 +1,10 @@
 {
-  "fault_type": "disk_latency",
-  "timestamp": "2025-11-19T20:12:48.212998Z",
-  "parameters": {
-    "duration_secs": "5",
-    "latency_ms": "200"
-  },
-  "trace": "Warning: This script requires root privileges for tc (traffic control)\nIn CI/test environment, this may not be available\nSimulating disk latency injection...\n[2025-11-19T20:12:47Z] Starting disk latency injection\nDevice: /dev/nbd0\nLatency: 200ms\nDuration: 5s\n[2025-11-19T20:12:47Z] Injecting latency using tc...\n[2025-11-19T20:12:48Z] Disk latency injection completed\n\n",
-  "duration_ms": 1018
+	"fault_type": "disk_latency",
+	"timestamp": "2025-11-19T20:12:48.212998Z",
+	"parameters": {
+		"duration_secs": "5",
+		"latency_ms": "200"
+	},
+	"trace": "Warning: This script requires root privileges for tc (traffic control)\nIn CI/test environment, this may not be available\nSimulating disk latency injection...\n[2025-11-19T20:12:47Z] Starting disk latency injection\nDevice: /dev/nbd0\nLatency: 200ms\nDuration: 5s\n[2025-11-19T20:12:47Z] Injecting latency using tc...\n[2025-11-19T20:12:48Z] Disk latency injection completed\n\n",
+	"duration_ms": 1018
 }

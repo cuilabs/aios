@@ -1,6 +1,6 @@
 {
-  "ops_per_second": 1739.226977888238,
-  "per_node": {
-    "node1": 3479.0
-  }
+	"ops_per_second": 1739.226977888238,
+	"per_node": {
+		"node1": 3479.0
+	}
 }

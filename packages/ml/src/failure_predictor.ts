@@ -1,6 +1,6 @@
 /**
  * Failure Prediction ML Model
- * 
+ *
  * Uses TensorFlow.js to predict system failures before they occur
  */
 
@@ -132,9 +132,7 @@ export class FailurePredictorModel {
 		}
 
 		// Prepare training data
-		const trainingData = tf.stack(
-			features.map((f) => this.prepareInput(f))
-		) as any;
+		const trainingData = tf.stack(features.map((f) => this.prepareInput(f))) as any;
 
 		const labelData = tf.tensor2d(
 			labels.map((l) => [
@@ -163,4 +161,3 @@ export class FailurePredictorModel {
 		return history;
 	}
 }
-

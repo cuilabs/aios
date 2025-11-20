@@ -1,17 +1,17 @@
 /**
  * ML Bridge Service
- * 
+ *
  * IPC bridge between kernel and ML daemon (mld).
  * Receives IPC messages from kernel, translates to HTTP requests to ML daemon,
  * and returns responses via IPC.
- * 
+ *
  * This service runs in userland and provides the interface for kernel AI subsystems
  * to access ML predictions via the ML daemon HTTP API.
  */
 
-import express, { type Request, type Response } from "express";
-import cors from "cors";
 import axios from "axios";
+import cors from "cors";
+import express, { type Request, type Response } from "express";
 
 const PORT = 9006;
 const MLD_URL = "http://127.0.0.1:9005";
@@ -263,4 +263,3 @@ export class MLBridgeServer {
 		// Implementation for graceful shutdown
 	}
 }
-

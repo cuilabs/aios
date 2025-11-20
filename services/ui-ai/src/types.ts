@@ -55,4 +55,3 @@ export interface Notification {
 	content: string;
 	timestamp: number;
 }
-

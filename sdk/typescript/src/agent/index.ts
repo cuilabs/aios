@@ -29,4 +29,3 @@ export interface AgentStatus {
 	agentId: number;
 	state: "running" | "stopped" | "failed";
 }
-

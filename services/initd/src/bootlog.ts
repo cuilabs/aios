@@ -1,17 +1,17 @@
 /**
  * Boot Log System
- * 
+ *
  * Handles writing and reading boot logs for reproducibility checks
  */
 
-import * as fs from "fs/promises";
 import * as path from "path";
+import * as fs from "fs/promises";
 
 export class BootLogManager {
 	private readonly bootLogDir: string;
 	private readonly currentBootLogPath: string;
 
-	constructor(bootLogDir: string = "tests/artifacts/integration/boot_logs") {
+	constructor(bootLogDir = "tests/artifacts/integration/boot_logs") {
 		this.bootLogDir = bootLogDir;
 		this.currentBootLogPath = path.join(this.bootLogDir, `boot_${Date.now()}.log`);
 	}
@@ -76,4 +76,3 @@ export class BootLogManager {
 		}
 	}
 }
-

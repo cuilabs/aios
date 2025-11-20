@@ -42,49 +42,43 @@ export class MemoryFabricService {
 	 */
 	async start(): Promise<void> {
 		// Register IPC handlers using MessageFilter
-		this.messageBus.subscribe(
-			{ intentType: "memory.store" },
-			async (message) => {
-				const payload = message.payload as {
-					agentId?: string;
-					content?: Uint8Array;
-					metadata?: Record<string, unknown>;
-				};
-				if (payload.agentId && payload.content) {
-					await this.store(payload.agentId, payload.content, payload.metadata);
-				}
+		this.messageBus.subscribe({ intentType: "memory.store" }, async (message) => {
+			const payload = message.payload as {
+				agentId?: string;
+				content?: Uint8Array;
+				metadata?: Record<string, unknown>;
+			};
+			if (payload.agentId && payload.content) {
+				await this.store(payload.agentId, payload.content, payload.metadata);
 			}
-		);
+		});
 
-		this.messageBus.subscribe(
-			{ intentType: "memory.query" },
-			async (message) => {
-				const query = message.payload as {
-					query?: string;
-					limit?: number;
-					threshold?: number;
-				};
-				if (query.query) {
-					await this.query({
-						query: query.query,
-						limit: query.limit,
-						threshold: query.threshold,
-					});
-				}
+		this.messageBus.subscribe({ intentType: "memory.query" }, async (message) => {
+			const query = message.payload as {
+				query?: string;
+				limit?: number;
+				threshold?: number;
+			};
+			if (query.query) {
+				await this.query({
+					query: query.query,
+					limit: query.limit,
+					threshold: query.threshold,
+				});
 			}
-		);
+		});
 
 		// Register kernel memory fabric integration handlers
-		this.messageBus.subscribe(
-			{ intentType: "memory.fabric.create_region" },
-			async (message) => {
-				// Call kernel memory fabric syscall via kernel-bridge service
-				const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-				const payload = message.payload as { agentId?: string; size?: number; regionType?: string };
-				
-				if (payload.agentId && payload.size) {
-					try {
-						const response = await fetch(`${kernelBridgeUrl}/api/kernel/memory/fabric/create_region`, {
+		this.messageBus.subscribe({ intentType: "memory.fabric.create_region" }, async (message) => {
+			// Call kernel memory fabric syscall via kernel-bridge service
+			const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
+			const payload = message.payload as { agentId?: string; size?: number; regionType?: string };
+
+			if (payload.agentId && payload.size) {
+				try {
+					const response = await fetch(
+						`${kernelBridgeUrl}/api/kernel/memory/fabric/create_region`,
+						{
 							method: "POST",
 							headers: { "Content-Type": "application/json" },
 							body: JSON.stringify({
@@ -92,17 +86,17 @@ export class MemoryFabricService {
 								size: payload.size,
 								regionType: payload.regionType || "ephemeral",
 							}),
-						});
-						
-						if (!response.ok) {
-							console.error("Failed to create memory fabric region:", response.statusText);
 						}
-					} catch (error) {
-						console.error("Error creating memory fabric region:", error);
+					);
+
+					if (!response.ok) {
+						console.error("Failed to create memory fabric region:", response.statusText);
 					}
+				} catch (error) {
+					console.error("Error creating memory fabric region:", error);
 				}
 			}
-		);
+		});
 
 		this.messageBus.subscribe(
 			{ intentType: "memory.fabric.create_shared_page" },
@@ -110,15 +104,18 @@ export class MemoryFabricService {
 				// Call kernel memory fabric syscall via kernel-bridge service
 				const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
 				const payload = message.payload as { agents?: string[] };
-				
+
 				if (payload.agents && payload.agents.length > 0) {
 					try {
-						const response = await fetch(`${kernelBridgeUrl}/api/kernel/memory/fabric/create_shared_page`, {
-							method: "POST",
-							headers: { "Content-Type": "application/json" },
-							body: JSON.stringify({ agents: payload.agents }),
-						});
-						
+						const response = await fetch(
+							`${kernelBridgeUrl}/api/kernel/memory/fabric/create_shared_page`,
+							{
+								method: "POST",
+								headers: { "Content-Type": "application/json" },
+								body: JSON.stringify({ agents: payload.agents }),
+							}
+						);
+
 						if (!response.ok) {
 							console.error("Failed to create shared page:", response.statusText);
 						}
@@ -129,19 +126,13 @@ export class MemoryFabricService {
 			}
 		);
 
-		this.messageBus.subscribe(
-			{ intentType: "memory.fabric.tag_region" },
-			async () => {
-				// Tag memory region
-			}
-		);
+		this.messageBus.subscribe({ intentType: "memory.fabric.tag_region" }, async () => {
+			// Tag memory region
+		});
 
-		this.messageBus.subscribe(
-			{ intentType: "memory.fabric.create_lease" },
-			async () => {
-				// Create memory lease
-			}
-		);
+		this.messageBus.subscribe({ intentType: "memory.fabric.create_lease" }, async () => {
+			// Create memory lease
+		});
 
 		// Start periodic cleanup
 		this.startPeriodicCleanup();

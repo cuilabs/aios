@@ -2,9 +2,8 @@
  * AI-Powered UI/UX Service HTTP Server
  */
 
-import express, { type Request, type Response } from "express";
 import cors from "cors";
-import { UIAIEngine } from "./ui_engine.js";
+import express, { type Request, type Response } from "express";
 import type {
 	GestureRecognitionRequest,
 	GestureRecognitionResponse,
@@ -13,6 +12,7 @@ import type {
 	NotificationFilterRequest,
 	NotificationFilterResponse,
 } from "./types.js";
+import { UIAIEngine } from "./ui_engine.js";
 
 const PORT = 9011;
 
@@ -42,8 +42,7 @@ export class UIAIServer {
 		this.app.post("/api/ui/gesture", async (req: Request, res: Response) => {
 			try {
 				const request: GestureRecognitionRequest = req.body;
-				const response: GestureRecognitionResponse =
-					await this.uiEngine.recognizeGesture(request);
+				const response: GestureRecognitionResponse = await this.uiEngine.recognizeGesture(request);
 				res.json(response);
 			} catch (error) {
 				res.status(500).json({ error: String(error) });
@@ -54,8 +53,7 @@ export class UIAIServer {
 		this.app.post("/api/ui/adjust", async (req: Request, res: Response) => {
 			try {
 				const request: InterfaceAdjustmentRequest = req.body;
-				const response: InterfaceAdjustmentResponse =
-					await this.uiEngine.adjustInterface(request);
+				const response: InterfaceAdjustmentResponse = await this.uiEngine.adjustInterface(request);
 				res.json(response);
 			} catch (error) {
 				res.status(500).json({ error: String(error) });
@@ -81,4 +79,3 @@ export class UIAIServer {
 		});
 	}
 }
-

@@ -28,4 +28,3 @@ export interface AttestationEvidence {
 	readonly generatedAt: number;
 	readonly signature: Uint8Array;
 }
-

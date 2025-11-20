@@ -1,34 +1,22 @@
 [
-  {
-    "timestamp": 1234567890,
-    "agentId": "test-agent-1",
-    "features": {
-      "historicalCpu": [
-        0.5,
-        0.6,
-        0.4
-      ],
-      "historicalMemory": [
-        200000000,
-        250000000,
-        180000000
-      ],
-      "historicalGpu": [
-        0.2,
-        0.3,
-        0.1
-      ],
-      "timeOfDay": 14,
-      "dayOfWeek": 3,
-      "currentCpu": 0.55,
-      "currentMemory": 220000000,
-      "currentGpu": 0.25
-    },
-    "labels": {
-      "predictedCpu": 0.6,
-      "predictedMemory": 230000000,
-      "predictedGpu": 0.3,
-      "confidence": 0.85
-    }
-  }
+	{
+		"timestamp": 1234567890,
+		"agentId": "test-agent-1",
+		"features": {
+			"historicalCpu": [0.5, 0.6, 0.4],
+			"historicalMemory": [200000000, 250000000, 180000000],
+			"historicalGpu": [0.2, 0.3, 0.1],
+			"timeOfDay": 14,
+			"dayOfWeek": 3,
+			"currentCpu": 0.55,
+			"currentMemory": 220000000,
+			"currentGpu": 0.25
+		},
+		"labels": {
+			"predictedCpu": 0.6,
+			"predictedMemory": 230000000,
+			"predictedGpu": 0.3,
+			"confidence": 0.85
+		}
+	}
 ]

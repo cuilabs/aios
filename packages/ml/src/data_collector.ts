@@ -1,16 +1,16 @@
 /**
  * Training Data Collection Service
- * 
+ *
  * Collects and prepares training data from system metrics, logs, and historical data
  * for ML model training.
  */
 
-import * as fs from "fs/promises";
 import * as path from "path";
-import type { WorkloadFeatures, WorkloadPrediction } from "./workload_predictor";
-import type { ThreatFeatures, ThreatPrediction } from "./threat_detector";
+import * as fs from "fs/promises";
 import type { FailureFeatures, FailurePrediction } from "./failure_predictor";
 import type { MemoryFeatures, MemoryPrediction } from "./memory_predictor";
+import type { ThreatFeatures, ThreatPrediction } from "./threat_detector";
+import type { WorkloadFeatures, WorkloadPrediction } from "./workload_predictor";
 
 /**
  * Training data collection result
@@ -36,7 +36,7 @@ export interface TrainingData {
 
 /**
  * Training Data Collector
- * 
+ *
  * Collects training data from various sources and prepares it for ML training
  */
 export class TrainingDataCollector {
@@ -94,33 +94,29 @@ export class TrainingDataCollector {
 		const workloadSamples = await this.loadSamples(
 			path.join(this.dataDir, "workload", "samples.json")
 		);
-		const threatSamples = await this.loadSamples(
-			path.join(this.dataDir, "threat", "samples.json")
-		);
+		const threatSamples = await this.loadSamples(path.join(this.dataDir, "threat", "samples.json"));
 		const failureSamples = await this.loadSamples(
 			path.join(this.dataDir, "failure", "samples.json")
 		);
-		const memorySamples = await this.loadSamples(
-			path.join(this.dataDir, "memory", "samples.json")
-		);
+		const memorySamples = await this.loadSamples(path.join(this.dataDir, "memory", "samples.json"));
 
 		// Convert stored format to training format
 		return {
 			workload: {
-				features: workloadSamples.map(s => s.features) as WorkloadFeatures[],
-				labels: workloadSamples.map(s => s.labels) as WorkloadPrediction[],
+				features: workloadSamples.map((s) => s.features) as WorkloadFeatures[],
+				labels: workloadSamples.map((s) => s.labels) as WorkloadPrediction[],
 			},
 			threat: {
-				features: threatSamples.map(s => s.features) as ThreatFeatures[],
-				labels: threatSamples.map(s => s.labels) as ThreatPrediction[],
+				features: threatSamples.map((s) => s.features) as ThreatFeatures[],
+				labels: threatSamples.map((s) => s.labels) as ThreatPrediction[],
 			},
 			failure: {
-				features: failureSamples.map(s => s.features) as FailureFeatures[],
-				labels: failureSamples.map(s => s.labels) as FailurePrediction[],
+				features: failureSamples.map((s) => s.features) as FailureFeatures[],
+				labels: failureSamples.map((s) => s.labels) as FailurePrediction[],
 			},
 			memory: {
-				features: memorySamples.map(s => s.features) as MemoryFeatures[],
-				labels: memorySamples.map(s => s.labels) as MemoryPrediction[],
+				features: memorySamples.map((s) => s.features) as MemoryFeatures[],
+				labels: memorySamples.map((s) => s.labels) as MemoryPrediction[],
 			},
 		};
 	}
@@ -131,9 +127,13 @@ export class TrainingDataCollector {
 	private async loadSamples(filePath: string): Promise<Array<{ features: any; labels: any }>> {
 		try {
 			const content = await fs.readFile(filePath, "utf-8");
-			const stored = JSON.parse(content) as Array<{ features: any; labels: any; timestamp?: number }>;
+			const stored = JSON.parse(content) as Array<{
+				features: any;
+				labels: any;
+				timestamp?: number;
+			}>;
 			// Return samples with features and labels extracted
-			return stored.map(s => ({ features: s.features, labels: s.labels }));
+			return stored.map((s) => ({ features: s.features, labels: s.labels }));
 		} catch (error: any) {
 			if (error.code === "ENOENT") {
 				return [];
@@ -159,27 +159,34 @@ export class TrainingDataCollector {
 			// Collect workload data from agentsupervisor and metricsd
 			const agentsResponse = await fetch(`${this.agentsupervisorUrl}/api/agents`);
 			if (agentsResponse.ok) {
-				const agents = await agentsResponse.json() as { agents?: unknown[] } | unknown[];
+				const agents = (await agentsResponse.json()) as { agents?: unknown[] } | unknown[];
 				const agentList = Array.isArray(agents) ? agents : (agents as any).agents || [];
 
 				for (const agent of agentList.slice(0, 50)) {
 					// Collect metrics for workload prediction
 					const metricsResponse = await fetch(`${this.metricsdUrl}/api/metrics/cpu`);
 					if (metricsResponse.ok) {
-				const metrics = await metricsResponse.json() as { cpuUsage?: number; memoryUsage?: number };
-				const now = new Date();
-				
-				const features: WorkloadFeatures = {
-					agentId: (agent as any).agent_id || (agent as any).id || String(agent),
-					historicalCpu: this.generateHistoricalValues(10, 0.3, 0.8),
-					historicalMemory: this.generateHistoricalValues(10, 1024 * 1024 * 100, 1024 * 1024 * 500),
-					historicalGpu: this.generateHistoricalValues(10, 0, 0.5),
-					timeOfDay: now.getHours(),
-					dayOfWeek: now.getDay(),
-					currentCpu: (metrics.cpuUsage || 0.5) / 100,
-					currentMemory: metrics.memoryUsage || 1024 * 1024 * 200,
-					currentGpu: 0.3,
-				};
+						const metrics = (await metricsResponse.json()) as {
+							cpuUsage?: number;
+							memoryUsage?: number;
+						};
+						const now = new Date();
+
+						const features: WorkloadFeatures = {
+							agentId: (agent as any).agent_id || (agent as any).id || String(agent),
+							historicalCpu: this.generateHistoricalValues(10, 0.3, 0.8),
+							historicalMemory: this.generateHistoricalValues(
+								10,
+								1024 * 1024 * 100,
+								1024 * 1024 * 500
+							),
+							historicalGpu: this.generateHistoricalValues(10, 0, 0.5),
+							timeOfDay: now.getHours(),
+							dayOfWeek: now.getDay(),
+							currentCpu: (metrics.cpuUsage || 0.5) / 100,
+							currentMemory: metrics.memoryUsage || 1024 * 1024 * 200,
+							currentGpu: 0.3,
+						};
 
 						const labels: WorkloadPrediction = {
 							predictedCpu: Math.min(1, features.currentCpu * 1.1),
@@ -207,7 +214,7 @@ export class TrainingDataCollector {
 
 	/**
 	 * Generate synthetic training data
-	 * 
+	 *
 	 * Creates realistic synthetic data for initial model training
 	 */
 	private generateSyntheticData(): TrainingData {
@@ -320,7 +327,7 @@ export class TrainingDataCollector {
 							severity: 0.7 + Math.random() * 0.3,
 							timestamp: Date.now(),
 						},
-				  ]
+					]
 				: [];
 
 			const historicalThreats = this.generateHistoricalValues(10, 0, isThreat ? 0.8 : 0.2);
@@ -337,9 +344,7 @@ export class TrainingDataCollector {
 			const threatScore = isThreat ? 0.7 + Math.random() * 0.3 : Math.random() * 0.3;
 			const threatType = isThreat ? Math.floor(Math.random() * 6) : 0;
 			const confidence = isThreat ? 0.8 + Math.random() * 0.2 : 0.5 + Math.random() * 0.3;
-			const recommendedAction = isThreat
-				? Math.floor(Math.random() * 4) + 1
-				: 0; // 0=allow, 1-4=actions
+			const recommendedAction = isThreat ? Math.floor(Math.random() * 4) + 1 : 0; // 0=allow, 1-4=actions
 
 			const labels_entry: ThreatPrediction = {
 				threatScore,
@@ -371,9 +376,7 @@ export class TrainingDataCollector {
 
 			const baseline = 0.8 + Math.random() * 0.15;
 			const trend = willFail ? -0.1 - Math.random() * 0.2 : -0.05 + Math.random() * 0.1;
-			const healthScore = willFail
-				? 0.3 + Math.random() * 0.4
-				: 0.7 + Math.random() * 0.25;
+			const healthScore = willFail ? 0.3 + Math.random() * 0.4 : 0.7 + Math.random() * 0.25;
 			const currentValue = baseline * healthScore;
 
 			const historicalHealth = this.generateHistoricalValues(
@@ -398,9 +401,7 @@ export class TrainingDataCollector {
 			};
 
 			const failureProbability = willFail ? 0.6 + Math.random() * 0.4 : Math.random() * 0.3;
-			const predictedTime = willFail
-				? Math.random() * 10000
-				: -1; // -1 means no failure predicted
+			const predictedTime = willFail ? Math.random() * 10000 : -1; // -1 means no failure predicted
 			const confidence = willFail ? 0.7 + Math.random() * 0.3 : 0.5 + Math.random() * 0.3;
 			const failureType = willFail ? Math.floor(Math.random() * 6) : 0;
 
@@ -432,11 +433,11 @@ export class TrainingDataCollector {
 			const agentId = `agent-${i % 50}`;
 
 			// Generate realistic memory access patterns with locality
-			const baseAddress = Math.random() * 0xFFFFFFFF;
+			const baseAddress = Math.random() * 0xffffffff;
 			const localityRange = 0x100000; // 1MB locality
 			const accessHistory = Array.from({ length: 20 }, () => {
 				const addr = baseAddress + (Math.random() - 0.5) * localityRange;
-				return addr / 0xFFFFFFFF; // Normalize
+				return addr / 0xffffffff; // Normalize
 			});
 
 			const accessTypes = Array.from({ length: 20 }, () => Math.floor(Math.random() * 3));
@@ -444,7 +445,7 @@ export class TrainingDataCollector {
 				return (Date.now() - (20 - idx) * 1000) / (Date.now() + 86400000); // Normalize
 			});
 
-			const currentAddress = baseAddress / 0xFFFFFFFF;
+			const currentAddress = baseAddress / 0xffffffff;
 			const localityScore = 0.6 + Math.random() * 0.3; // High locality is common
 
 			const features_entry: MemoryFeatures = {
@@ -458,7 +459,7 @@ export class TrainingDataCollector {
 
 			// Predict next access (with high locality probability)
 			const nextAddressOffset = (Math.random() - 0.5) * localityRange * 0.5;
-			const nextAddress = Math.max(0, Math.min(1, currentAddress + nextAddressOffset / 0xFFFFFFFF));
+			const nextAddress = Math.max(0, Math.min(1, currentAddress + nextAddressOffset / 0xffffffff));
 			const accessProbability = 0.7 + Math.random() * 0.25;
 			const accessType = Math.floor(Math.random() * 3);
 			const confidence = 0.75 + Math.random() * 0.2;
@@ -484,4 +485,3 @@ export class TrainingDataCollector {
 		return Array.from({ length: count }, () => min + Math.random() * (max - min));
 	}
 }
-

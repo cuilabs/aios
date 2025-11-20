@@ -1,13 +1,13 @@
 /**
  * GUI Agent Package
- * 
+ *
  * Provides GUI agent implementation for managing windows and UI elements.
  * The GUI agent is a first-class agent that manages the graphical interface.
  */
 
 /**
  * GUI Agent
- * 
+ *
  * Manages windows, UI elements, and user interactions.
  * Communicates with display server via HTTP API.
  */
@@ -140,4 +140,3 @@ export interface WindowInfo {
 	focused: boolean;
 	framebufferId: number;
 }
-

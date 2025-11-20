@@ -42,7 +42,7 @@ export class SemanticIPCDaemon {
 		// Daemon agent ID is 0 (system service)
 		const daemonAgentId = 0;
 		const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-		
+
 		setInterval(async () => {
 			// Receive messages from kernel IPC via kernel-bridge service
 			try {
@@ -53,7 +53,10 @@ export class SemanticIPCDaemon {
 				});
 
 				if (response.ok) {
-					const result = (await response.json()) as { success: boolean; message?: BinaryIPCMessage };
+					const result = (await response.json()) as {
+						success: boolean;
+						message?: BinaryIPCMessage;
+					};
 					if (result.success && result.message) {
 						await this.processMessage(result.message);
 					}

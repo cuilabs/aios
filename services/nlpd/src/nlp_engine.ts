@@ -3,15 +3,15 @@
  */
 
 import type {
+	Action,
 	NLPDRequest,
 	NLPDResponse,
-	Action,
-	TranslationRequest,
-	TranslationResponse,
 	SpeechToTextRequest,
 	SpeechToTextResponse,
 	TextToSpeechRequest,
 	TextToSpeechResponse,
+	TranslationRequest,
+	TranslationResponse,
 } from "./types.js";
 
 export class NLPEngine {
@@ -54,17 +54,17 @@ export class NLPEngine {
 		// Entity extractors
 		this.entityExtractors.set("file_path", (text: string): Record<string, string> => {
 			const match = text.match(/(\/[^\s]+|\.\/[^\s]+|[A-Z]:\\[^\s]+)/i);
-			return match ? { file_path: match[1] } : {} as Record<string, string>;
+			return match ? { file_path: match[1] } : ({} as Record<string, string>);
 		});
 
 		this.entityExtractors.set("agent_name", (text: string): Record<string, string> => {
 			const match = text.match(/(?:agent|service)\s+([a-zA-Z0-9_-]+)/i);
-			return match ? { agent_name: match[1] } : {} as Record<string, string>;
+			return match ? { agent_name: match[1] } : ({} as Record<string, string>);
 		});
 
 		this.entityExtractors.set("url", (text: string): Record<string, string> => {
 			const match = text.match(/(https?:\/\/[^\s]+)/i);
-			return match ? { url: match[1] } : {} as Record<string, string>;
+			return match ? { url: match[1] } : ({} as Record<string, string>);
 		});
 	}
 
@@ -235,4 +235,3 @@ export class NLPEngine {
 		};
 	}
 }
-

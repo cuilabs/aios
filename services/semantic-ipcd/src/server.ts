@@ -1,24 +1,27 @@
 /**
  * Semantic IPC Daemon HTTP Server
- * 
+ *
  * Production-grade HTTP REST API server for semantic IPC service.
  * Exposes IPC send and receive endpoints.
  */
 
-import express, { type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
-import { SemanticIPCDaemon } from "./index.js";
+import express, { type Request, type Response, type NextFunction } from "express";
+import type { SemanticIPCDaemon } from "./index.js";
 
 const PORT = 9003;
 
 export class SemanticIPCServer {
 	private readonly app: express.Application;
-	private readonly messageQueue: Map<number, Array<{
-		message_id: number;
-		from_agent_id: number;
-		data: Record<string, unknown>;
-		metadata?: Record<string, unknown>;
-	}>>;
+	private readonly messageQueue: Map<
+		number,
+		Array<{
+			message_id: number;
+			from_agent_id: number;
+			data: Record<string, unknown>;
+			metadata?: Record<string, unknown>;
+		}>
+	>;
 	private server: ReturnType<express.Application["listen"]> | null = null;
 
 	constructor(_service: SemanticIPCDaemon) {
@@ -32,10 +35,12 @@ export class SemanticIPCServer {
 
 	private setupMiddleware(): void {
 		// CORS for localhost development
-		this.app.use(cors({
-			origin: ["http://localhost:9003", "http://127.0.0.1:9003"],
-			credentials: true,
-		}));
+		this.app.use(
+			cors({
+				origin: ["http://localhost:9003", "http://127.0.0.1:9003"],
+				credentials: true,
+			})
+		);
 
 		// JSON body parser
 		this.app.use(express.json({ limit: "10mb" }));
@@ -93,7 +98,11 @@ export class SemanticIPCServer {
 				toAgentId = body.to;
 				messageData = body.message;
 				metadata = messageData;
-			} else if (body.from_agent_id !== undefined && body.to_agent_id !== undefined && body.data !== undefined) {
+			} else if (
+				body.from_agent_id !== undefined &&
+				body.to_agent_id !== undefined &&
+				body.data !== undefined
+			) {
 				// Handle {from_agent_id, to_agent_id, data, metadata} format
 				fromAgentId = body.from_agent_id;
 				toAgentId = body.to_agent_id;
@@ -102,7 +111,8 @@ export class SemanticIPCServer {
 			} else {
 				res.status(400).json({
 					success: false,
-					error: "Missing required fields: either (from, to, message) or (from_agent_id, to_agent_id, data)",
+					error:
+						"Missing required fields: either (from, to, message) or (from_agent_id, to_agent_id, data)",
 				});
 				return;
 			}
@@ -110,7 +120,7 @@ export class SemanticIPCServer {
 			// Type safety check: if message declares type, validate data matches
 			const declaredType = messageData["type"] as string | undefined;
 			const messageDataValue = messageData["data"];
-			
+
 			// Only validate if type is declared and data exists
 			if (declaredType && messageDataValue !== undefined) {
 				const actualType = typeof messageDataValue;
@@ -167,7 +177,7 @@ export class SemanticIPCServer {
 	private async handleReceive(req: Request, res: Response): Promise<void> {
 		try {
 			const agentIdStr = req.params["agentId"];
-			
+
 			if (!agentIdStr) {
 				res.status(400).json({
 					success: false,
@@ -176,7 +186,7 @@ export class SemanticIPCServer {
 				return;
 			}
 
-			const agentId = parseInt(agentIdStr, 10);
+			const agentId = Number.parseInt(agentIdStr, 10);
 
 			if (isNaN(agentId)) {
 				res.status(400).json({
@@ -272,4 +282,3 @@ export class SemanticIPCServer {
 		});
 	}
 }
-

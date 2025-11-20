@@ -1,6 +1,6 @@
 /**
  * Memory Access Prediction ML Model
- * 
+ *
  * Uses TensorFlow.js to predict memory access patterns
  */
 
@@ -137,9 +137,7 @@ export class MemoryPredictorModel {
 		}
 
 		// Prepare training data
-		const trainingData = tf.stack(
-			features.map((f) => this.prepareInput(f))
-		) as any;
+		const trainingData = tf.stack(features.map((f) => this.prepareInput(f))) as any;
 
 		const labelData = tf.tensor2d(
 			labels.map((l) => [l.nextAddress, l.accessProbability, l.accessType, l.confidence])
@@ -163,4 +161,3 @@ export class MemoryPredictorModel {
 		return history;
 	}
 }
-

@@ -1,6 +1,6 @@
 /**
  * Agent Supervisor Service Main Entry Point
- * 
+ *
  * Starts both the IPC service and HTTP server.
  */
 
@@ -39,4 +39,3 @@ main().catch((error) => {
 	console.error("Unhandled error:", error);
 	process.exit(1);
 });
-

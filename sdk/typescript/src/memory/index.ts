@@ -2,7 +2,7 @@
  * Memory management API
  */
 
-import { KernelClient } from "../kernel/index.js";
+import type { KernelClient } from "../kernel/index.js";
 
 export class MemoryFabricClient {
 	constructor(private kernel: KernelClient) {}
@@ -23,4 +23,3 @@ export class MemoryFabricClient {
 		return 0;
 	}
 }
-

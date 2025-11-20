@@ -1,9 +1,9 @@
 /**
  * High-Performance ML Inference Engine
- * 
+ *
  * Enterprise-grade inference engine optimized for microsecond-level predictions
  * as required by AI-native operating system.
- * 
+ *
  * Features:
  * - Model result caching
  * - Batch prediction
@@ -12,11 +12,27 @@
  * - Automatic model quantization
  */
 
+import {
+	type FailureFeatures,
+	type FailurePrediction,
+	FailurePredictorModel,
+} from "./failure_predictor.js";
 import { getMLModelManager } from "./index.js";
-import { WorkloadPredictorModel, type WorkloadFeatures, type WorkloadPrediction } from "./workload_predictor.js";
-import { ThreatDetectorModel, type ThreatFeatures, type ThreatPrediction } from "./threat_detector.js";
-import { FailurePredictorModel, type FailureFeatures, type FailurePrediction } from "./failure_predictor.js";
-import { MemoryPredictorModel, type MemoryFeatures, type MemoryPrediction } from "./memory_predictor.js";
+import {
+	type MemoryFeatures,
+	type MemoryPrediction,
+	MemoryPredictorModel,
+} from "./memory_predictor.js";
+import {
+	ThreatDetectorModel,
+	type ThreatFeatures,
+	type ThreatPrediction,
+} from "./threat_detector.js";
+import {
+	type WorkloadFeatures,
+	type WorkloadPrediction,
+	WorkloadPredictorModel,
+} from "./workload_predictor.js";
 
 /**
  * Inference cache entry
@@ -45,7 +61,7 @@ export interface InferenceMetrics {
 
 /**
  * High-Performance ML Inference Engine
- * 
+ *
  * Optimized for microsecond-level predictions in AI-native OS
  */
 export class InferenceEngine {
@@ -67,9 +83,9 @@ export class InferenceEngine {
 	// Cache configuration
 	private readonly cacheTTL: Map<string, number> = new Map([
 		["workload", 100], // 100ms TTL for workload (fast-changing)
-		["threat", 500],   // 500ms TTL for threat (slower-changing)
+		["threat", 500], // 500ms TTL for threat (slower-changing)
 		["failure", 1000], // 1s TTL for failure (slow-changing)
-		["memory", 50],    // 50ms TTL for memory (very fast-changing)
+		["memory", 50], // 50ms TTL for memory (very fast-changing)
 	]);
 
 	constructor() {
@@ -98,7 +114,7 @@ export class InferenceEngine {
 			cacheHits: 0,
 			cacheMisses: 0,
 			averageLatencyMs: 0,
-			minLatencyMs: Infinity,
+			minLatencyMs: Number.POSITIVE_INFINITY,
 			maxLatencyMs: 0,
 			p50LatencyMs: 0,
 			p95LatencyMs: 0,
@@ -115,7 +131,7 @@ export class InferenceEngine {
 		const cached = this.workloadCache.get(cacheKey);
 		const now = Date.now();
 
-		if (cached && (now - cached.timestamp) < cached.ttl) {
+		if (cached && now - cached.timestamp < cached.ttl) {
 			this.recordCacheHit("workload");
 			return cached.result;
 		}
@@ -154,7 +170,7 @@ export class InferenceEngine {
 		const cached = this.threatCache.get(cacheKey);
 		const now = Date.now();
 
-		if (cached && (now - cached.timestamp) < cached.ttl) {
+		if (cached && now - cached.timestamp < cached.ttl) {
 			this.recordCacheHit("threat");
 			return cached.result;
 		}
@@ -193,7 +209,7 @@ export class InferenceEngine {
 		const cached = this.failureCache.get(cacheKey);
 		const now = Date.now();
 
-		if (cached && (now - cached.timestamp) < cached.ttl) {
+		if (cached && now - cached.timestamp < cached.ttl) {
 			this.recordCacheHit("failure");
 			return cached.result;
 		}
@@ -232,7 +248,7 @@ export class InferenceEngine {
 		const cached = this.memoryCache.get(cacheKey);
 		const now = Date.now();
 
-		if (cached && (now - cached.timestamp) < cached.ttl) {
+		if (cached && now - cached.timestamp < cached.ttl) {
 			this.recordCacheHit("memory");
 			return cached.result;
 		}
@@ -266,7 +282,9 @@ export class InferenceEngine {
 	/**
 	 * Batch predict workload (parallel)
 	 */
-	async batchPredictWorkload(featuresList: readonly WorkloadFeatures[]): Promise<WorkloadPrediction[]> {
+	async batchPredictWorkload(
+		featuresList: readonly WorkloadFeatures[]
+	): Promise<WorkloadPrediction[]> {
 		const startTime = performance.now();
 
 		// Parallel prediction
@@ -395,7 +413,7 @@ export class InferenceEngine {
 
 			// Calculate percentiles
 			const sorted = [...history].sort((a, b) => a - b);
-			const p50Idx = Math.floor(sorted.length * 0.50);
+			const p50Idx = Math.floor(sorted.length * 0.5);
 			const p95Idx = Math.floor(sorted.length * 0.95);
 			const p99Idx = Math.floor(sorted.length * 0.99);
 
@@ -426,7 +444,7 @@ export class InferenceEngine {
 			cacheHits: 0,
 			cacheMisses: 0,
 			averageLatencyMs: 0,
-			minLatencyMs: Infinity,
+			minLatencyMs: Number.POSITIVE_INFINITY,
 			maxLatencyMs: 0,
 			p50LatencyMs: 0,
 			p95LatencyMs: 0,
@@ -514,4 +532,3 @@ export function getInferenceEngine(): InferenceEngine {
 	}
 	return inferenceEngine;
 }
-

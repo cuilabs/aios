@@ -1,11 +1,11 @@
 /**
  * Persistent Data Storage for ML Training Data
- * 
+ *
  * Stores collected training data in JSON files for later use in model training
  */
 
-import * as fs from "fs/promises";
 import * as path from "path";
+import * as fs from "fs/promises";
 
 export interface StoredWorkloadSample {
 	readonly timestamp: number;
@@ -110,7 +110,7 @@ export interface StoredTrainingData {
 
 /**
  * Data Storage Manager
- * 
+ *
  * Manages persistent storage of training data in JSON files
  */
 export class DataStorageManager {
@@ -140,7 +140,7 @@ export class DataStorageManager {
 		const filePath = path.join(this.dataDir, "workload", "samples.json");
 		const samples = await this.loadSamples<StoredWorkloadSample>(filePath);
 		samples.push(sample);
-		
+
 		// Keep only the most recent samples
 		const trimmed = samples.slice(-this.maxSamplesPerType);
 		await fs.writeFile(filePath, JSON.stringify(trimmed, null, 2), "utf-8");
@@ -153,7 +153,7 @@ export class DataStorageManager {
 		const filePath = path.join(this.dataDir, "threat", "samples.json");
 		const samples = await this.loadSamples<StoredThreatSample>(filePath);
 		samples.push(sample);
-		
+
 		const trimmed = samples.slice(-this.maxSamplesPerType);
 		await fs.writeFile(filePath, JSON.stringify(trimmed, null, 2), "utf-8");
 	}
@@ -165,7 +165,7 @@ export class DataStorageManager {
 		const filePath = path.join(this.dataDir, "failure", "samples.json");
 		const samples = await this.loadSamples<StoredFailureSample>(filePath);
 		samples.push(sample);
-		
+
 		const trimmed = samples.slice(-this.maxSamplesPerType);
 		await fs.writeFile(filePath, JSON.stringify(trimmed, null, 2), "utf-8");
 	}
@@ -177,7 +177,7 @@ export class DataStorageManager {
 		const filePath = path.join(this.dataDir, "memory", "samples.json");
 		const samples = await this.loadSamples<StoredMemorySample>(filePath);
 		samples.push(sample);
-		
+
 		const trimmed = samples.slice(-this.maxSamplesPerType);
 		await fs.writeFile(filePath, JSON.stringify(trimmed, null, 2), "utf-8");
 	}
@@ -237,11 +237,11 @@ export class DataStorageManager {
 			if (workloadCount > 0 || threatCount > 0 || failureCount > 0 || memoryCount > 0) {
 				const data = await this.loadAllData();
 				const allTimestamps = [
-					...data.workload.map(s => s.timestamp),
-					...data.threat.map(s => s.timestamp),
-					...data.failure.map(s => s.timestamp),
-					...data.memory.map(s => s.timestamp),
-				].filter(t => t > 0);
+					...data.workload.map((s) => s.timestamp),
+					...data.threat.map((s) => s.timestamp),
+					...data.failure.map((s) => s.timestamp),
+					...data.memory.map((s) => s.timestamp),
+				].filter((t) => t > 0);
 
 				if (allTimestamps.length > 0) {
 					oldestTimestamp = Math.min(...allTimestamps);
@@ -286,4 +286,3 @@ export class DataStorageManager {
 		}
 	}
 }
-

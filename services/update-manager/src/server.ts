@@ -2,17 +2,17 @@
  * Autonomous Update Manager HTTP Server
  */
 
-import express, { type Request, type Response } from "express";
 import cors from "cors";
-import { UpdateManagerEngine } from "./update_engine.js";
+import express, { type Request, type Response } from "express";
 import type {
-	UpdateScheduleRequest,
-	UpdateScheduleResponse,
-	UpdateImpactRequest,
-	UpdateImpactResponse,
 	RollbackRequest,
 	RollbackResponse,
+	UpdateImpactRequest,
+	UpdateImpactResponse,
+	UpdateScheduleRequest,
+	UpdateScheduleResponse,
 } from "./types.js";
+import { UpdateManagerEngine } from "./update_engine.js";
 
 const PORT = 9010;
 
@@ -42,8 +42,7 @@ export class UpdateManagerServer {
 		this.app.post("/api/updates/schedule", async (req: Request, res: Response) => {
 			try {
 				const request: UpdateScheduleRequest = req.body;
-				const response: UpdateScheduleResponse =
-					await this.updateEngine.scheduleUpdates(request);
+				const response: UpdateScheduleResponse = await this.updateEngine.scheduleUpdates(request);
 				res.json(response);
 			} catch (error) {
 				res.status(500).json({ error: String(error) });
@@ -79,4 +78,3 @@ export class UpdateManagerServer {
 		});
 	}
 }
-

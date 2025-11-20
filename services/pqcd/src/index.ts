@@ -1,6 +1,6 @@
 /**
  * Post-Quantum Cryptography Daemon (pqcd)
- * 
+ *
  * Implements CRYSTALS-Kyber and CRYSTALS-Dilithium for AIOS
  * Handles PQC operations delegated from kernel syscalls
  */
@@ -29,7 +29,7 @@ export interface PQCOperationResponse {
 
 /**
  * Post-Quantum Cryptography Daemon
- * 
+ *
  * Handles PQC operations via IPC from kernel syscalls
  */
 export class PQCDaemon {
@@ -122,11 +122,7 @@ export class PQCDaemon {
 			};
 		}
 
-		const signature = QuantumSafeCrypto.sign(
-			request.data,
-			request.privateKey,
-			request.algorithm
-		);
+		const signature = QuantumSafeCrypto.sign(request.data, request.privateKey, request.algorithm);
 
 		return {
 			success: true,
@@ -239,4 +235,3 @@ if (require.main === module) {
 	daemon.start();
 	console.log("PQC Daemon started");
 }
-

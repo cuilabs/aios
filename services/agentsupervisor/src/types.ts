@@ -24,4 +24,3 @@ export interface AgentResourceUsage {
 	readonly network: number; // Network usage in bytes
 	readonly io: number; // I/O usage in bytes
 }
-

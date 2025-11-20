@@ -17,4 +17,3 @@ process.on("SIGTERM", () => {
 	console.log("Shutting down IoT Device Management Service...");
 	process.exit(0);
 });
-

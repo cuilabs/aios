@@ -1,6 +1,6 @@
 /**
  * Workload Prediction ML Model
- * 
+ *
  * Uses TensorFlow.js to predict agent workload patterns
  */
 
@@ -79,7 +79,8 @@ export class WorkloadPredictorModel {
 		const values = await prediction.data();
 		const predictedCpu = Math.max(0, Math.min(1, values[0]));
 		const predictedMemory = Math.max(0, values[1]);
-		const predictedGpu = features.currentGpu !== undefined ? Math.max(0, Math.min(1, values[2] ?? 0)) : undefined;
+		const predictedGpu =
+			features.currentGpu !== undefined ? Math.max(0, Math.min(1, values[2] ?? 0)) : undefined;
 		const confidence = Math.max(0, Math.min(1, values[3] ?? 0.5));
 
 		// Cleanup
@@ -155,9 +156,7 @@ export class WorkloadPredictorModel {
 		}
 
 		// Prepare training data
-		const trainingData = tf.stack(
-			features.map((f) => this.prepareInput(f))
-		) as any;
+		const trainingData = tf.stack(features.map((f) => this.prepareInput(f))) as any;
 
 		const labelData = tf.tensor2d(
 			labels.map((l) => [
@@ -186,4 +185,3 @@ export class WorkloadPredictorModel {
 		return history;
 	}
 }
-

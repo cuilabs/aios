@@ -1,11 +1,11 @@
 /**
  * Display Compositor
- * 
+ *
  * Manages windows, compositing, and display output.
  * Similar to Wayland compositor but agent-aware.
  */
 
-import type { Window, DisplayMode, FramebufferConfig } from "./types.js";
+import type { DisplayMode, FramebufferConfig, Window } from "./types.js";
 
 /**
  * Compositor
@@ -35,7 +35,12 @@ export class Compositor {
 	/**
 	 * Create window
 	 */
-	async createWindow(agentId: string, title: string, width: number, height: number): Promise<Window> {
+	async createWindow(
+		agentId: string,
+		title: string,
+		width: number,
+		height: number
+	): Promise<Window> {
 		const windowId = `window-${this.nextWindowId++}`;
 		const zIndex = this.nextZIndex++;
 
@@ -223,17 +228,17 @@ export class Compositor {
 		// 2. Use GPU scheduler to perform blit operation
 		// 3. Handle alpha blending and window effects
 		// 4. Update display framebuffer
-		
+
 		// Get display framebuffer via kernel bridge service
 		const displayResponse = await fetch(`${this.kernelBridgeUrl}/api/kernel/display/0`, {
 			method: "GET",
 			headers: { "Content-Type": "application/json" },
 		});
-		
+
 		if (!displayResponse.ok) {
 			return;
 		}
-		
+
 		// Perform GPU blit operation via kernel GPU scheduler
 		// GPU blit handles alpha blending, transparency, and window effects
 		// Window is composited to display framebuffer
@@ -260,10 +265,16 @@ export class Compositor {
 			throw new Error(`Failed to allocate framebuffer: ${response.statusText}`);
 		}
 
-		const result = (await response.json()) as { success: boolean; value: string; errorCode?: number };
-		
+		const result = (await response.json()) as {
+			success: boolean;
+			value: string;
+			errorCode?: number;
+		};
+
 		if (!result.success) {
-			throw new Error(`Failed to allocate framebuffer: error code ${result.errorCode || "unknown"}`);
+			throw new Error(
+				`Failed to allocate framebuffer: error code ${result.errorCode || "unknown"}`
+			);
 		}
 
 		const framebufferId = Number(result.value);
@@ -286,18 +297,21 @@ export class Compositor {
 	 */
 	private async freeFramebuffer(framebufferId: number): Promise<void> {
 		// Call kernel FramebufferFree syscall via kernel bridge service HTTP API
-		const response = await fetch(`${this.kernelBridgeUrl}/api/kernel/framebuffer/${framebufferId}`, {
-			method: "DELETE",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ capability: this.defaultCapability }),
-		});
+		const response = await fetch(
+			`${this.kernelBridgeUrl}/api/kernel/framebuffer/${framebufferId}`,
+			{
+				method: "DELETE",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ capability: this.defaultCapability }),
+			}
+		);
 
 		if (!response.ok) {
 			throw new Error(`Failed to free framebuffer: ${response.statusText}`);
 		}
 
 		const result = (await response.json()) as { success: boolean; errorCode?: number };
-		
+
 		if (!result.success) {
 			throw new Error(`Failed to free framebuffer: error code ${result.errorCode || "unknown"}`);
 		}
@@ -335,10 +349,9 @@ export class Compositor {
 		}
 
 		const result = (await response.json()) as { success: boolean; errorCode?: number };
-		
+
 		if (!result.success) {
 			throw new Error(`Failed to set display mode: error code ${result.errorCode || "unknown"}`);
 		}
 	}
 }
-

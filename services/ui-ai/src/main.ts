@@ -17,4 +17,3 @@ process.on("SIGTERM", () => {
 	console.log("Shutting down AI-Powered UI/UX Service...");
 	process.exit(0);
 });
-

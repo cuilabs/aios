@@ -1,12 +1,12 @@
 /**
  * TensorFlow.js ML Models for AIOS
- * 
+ *
  * Provides machine learning models for:
  * - Workload prediction
  * - Threat detection
  * - Failure prediction
  * - Memory access prediction
- * 
+ *
  * Also exports high-performance inference engine optimized for microsecond-level predictions
  */
 
@@ -35,7 +35,7 @@ try {
 
 /**
  * ML Model Manager
- * 
+ *
  * Manages all ML models used by AIOS AI-powered features
  */
 export class MLModelManager {
@@ -201,4 +201,3 @@ export function getMLModelManager(): MLModelManager {
 	}
 	return mlModelManager;
 }
-

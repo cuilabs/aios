@@ -1,19 +1,14 @@
 /**
  * ML Daemon HTTP Server
- * 
+ *
  * Production-grade HTTP REST API server for ML inference service.
  * Exposes optimized ML prediction endpoints for kernel AI subsystems.
  */
 
-import express, { type Request, type Response } from "express";
-import cors from "cors";
 import { getInferenceEngine } from "@aios/ml";
-import type {
-	WorkloadFeatures,
-	ThreatFeatures,
-	FailureFeatures,
-	MemoryFeatures,
-} from "./types.js";
+import cors from "cors";
+import express, { type Request, type Response } from "express";
+import type { FailureFeatures, MemoryFeatures, ThreatFeatures, WorkloadFeatures } from "./types.js";
 
 const PORT = 9005;
 
@@ -437,4 +432,3 @@ export class MLDaemonServer {
 		});
 	}
 }
-

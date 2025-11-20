@@ -17,4 +17,3 @@ process.on("SIGTERM", () => {
 	console.log("Shutting down NLP Integration Service...");
 	process.exit(0);
 });
-

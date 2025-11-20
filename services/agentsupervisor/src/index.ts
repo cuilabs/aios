@@ -9,10 +9,10 @@
  * - Agent resource tracking
  */
 
-import { SemanticMessageBus } from "@aios/ipc";
-import type { AgentImage, AgentStatus, AgentResourceUsage } from "./types.js";
-import { readFile } from "fs/promises";
 import { createHash } from "crypto";
+import { SemanticMessageBus } from "@aios/ipc";
+import { readFile } from "fs/promises";
+import type { AgentImage, AgentResourceUsage, AgentStatus } from "./types.js";
 
 /**
  * Agent Supervisor Service
@@ -38,60 +38,48 @@ export class AgentSupervisorService {
 	async start(): Promise<void> {
 		// Register IPC handlers using MessageFilter (non-blocking)
 		try {
-			this.messageBus.subscribe(
-				{ intentType: "agent.load" },
-				async (message) => {
-					const payload = message.payload as {
-						imagePath?: string;
-						agentId?: string;
-						signature?: Uint8Array;
-					};
-					if (payload.imagePath && payload.agentId) {
-						const image = await this.loadAgentImage(
-							payload.imagePath,
-							payload.agentId,
-							payload.signature
-						);
-						// Note: subscribe callback doesn't return, would need to send response via message
-					}
+			this.messageBus.subscribe({ intentType: "agent.load" }, async (message) => {
+				const payload = message.payload as {
+					imagePath?: string;
+					agentId?: string;
+					signature?: Uint8Array;
+				};
+				if (payload.imagePath && payload.agentId) {
+					const image = await this.loadAgentImage(
+						payload.imagePath,
+						payload.agentId,
+						payload.signature
+					);
+					// Note: subscribe callback doesn't return, would need to send response via message
 				}
-			);
+			});
 		} catch (error) {
 			// IPC subscription is optional - don't fail if it's not available
 			console.warn("Failed to subscribe to IPC events:", error);
 		}
 
 		try {
-			this.messageBus.subscribe(
-				{ intentType: "agent.start" },
-				async (message) => {
-					const payload = message.payload as { agentId?: string };
-					if (payload.agentId) {
-						await this.startAgent(payload.agentId);
-					}
+			this.messageBus.subscribe({ intentType: "agent.start" }, async (message) => {
+				const payload = message.payload as { agentId?: string };
+				if (payload.agentId) {
+					await this.startAgent(payload.agentId);
 				}
-			);
+			});
 
-			this.messageBus.subscribe(
-				{ intentType: "agent.stop" },
-				async (message) => {
-					const payload = message.payload as { agentId?: string };
-					if (payload.agentId) {
-						await this.stopAgent(payload.agentId);
-					}
+			this.messageBus.subscribe({ intentType: "agent.stop" }, async (message) => {
+				const payload = message.payload as { agentId?: string };
+				if (payload.agentId) {
+					await this.stopAgent(payload.agentId);
 				}
-			);
+			});
 
-			this.messageBus.subscribe(
-				{ intentType: "agent.status" },
-				async (message) => {
-					const payload = message.payload as { agentId?: string };
-					if (payload.agentId) {
-						const status = this.getAgentStatus(payload.agentId);
-						// Note: subscribe callback doesn't return, would need to send response via message
-					}
+			this.messageBus.subscribe({ intentType: "agent.status" }, async (message) => {
+				const payload = message.payload as { agentId?: string };
+				if (payload.agentId) {
+					const status = this.getAgentStatus(payload.agentId);
+					// Note: subscribe callback doesn't return, would need to send response via message
 				}
-			);
+			});
 		} catch (error) {
 			console.warn("Failed to subscribe to additional IPC events:", error);
 		}
@@ -120,10 +108,10 @@ export class AgentSupervisorService {
 		// Read agent image file from filesystem
 		const imageData = await readFile(imagePath);
 		const size = imageData.length;
-		
+
 		// Compute checksum (SHA-256)
 		const checksum = createHash("sha256").update(imageData).digest();
-		
+
 		const image: AgentImage = {
 			agentId,
 			imagePath,
@@ -159,12 +147,12 @@ export class AgentSupervisorService {
 		// Verify signature using public key from identityd service
 		// Query identityd service for agent's public key
 		const identitydUrl = process.env["IDENTITYD_URL"] || "http://127.0.0.1:9003";
-		
+
 		try {
 			const response = await fetch(`${identitydUrl}/api/identity/${imagePath}`, {
 				method: "GET",
 			});
-			
+
 			if (response.ok) {
 				const identity = (await response.json()) as { publicKey?: string };
 				if (identity.publicKey) {
@@ -181,7 +169,7 @@ export class AgentSupervisorService {
 							signature: Array.from(signature),
 						}),
 					});
-					
+
 					if (verifyResponse.ok) {
 						const result = (await verifyResponse.json()) as { success: boolean };
 						return result.success;
@@ -191,7 +179,7 @@ export class AgentSupervisorService {
 		} catch (error) {
 			console.error("Signature verification failed:", error);
 		}
-		
+
 		return false;
 	}
 
@@ -307,19 +295,22 @@ export class AgentSupervisorService {
 				if (status && status.status === "running") {
 					// Query kernel for actual resource usage via kernel-bridge service
 					const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-					
+
 					try {
-						const response = await fetch(`${kernelBridgeUrl}/api/kernel/agent/${agentId}/resources`, {
-							method: "GET",
-						});
-						
+						const response = await fetch(
+							`${kernelBridgeUrl}/api/kernel/agent/${agentId}/resources`,
+							{
+								method: "GET",
+							}
+						);
+
 						if (response.ok) {
 							const resources = (await response.json()) as {
 								cpu?: number;
 								memory?: number;
 								gpu?: number;
 							};
-							
+
 							this.updateResourceUsage(agentId, {
 								cpu: resources.cpu ?? 0,
 								memory: resources.memory ?? 0,
@@ -337,16 +328,15 @@ export class AgentSupervisorService {
 						}
 					} catch (error) {
 						console.error(`Failed to query resources for agent ${agentId}:`, error);
-							this.updateResourceUsage(agentId, {
-								cpu: 0,
-								memory: 0,
-								network: Math.random() * 1024 * 1024, // Random KB
-								io: Math.random() * 1024 * 1024, // Random KB
-							});
+						this.updateResourceUsage(agentId, {
+							cpu: 0,
+							memory: 0,
+							network: Math.random() * 1024 * 1024, // Random KB
+							io: Math.random() * 1024 * 1024, // Random KB
+						});
 					}
 				}
 			}
 		}, 5000); // Every 5 seconds
 	}
 }
-

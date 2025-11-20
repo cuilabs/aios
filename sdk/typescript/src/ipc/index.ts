@@ -2,7 +2,7 @@
  * IPC API
  */
 
-import { SemanticMessageBus } from "@aios/ipc";
+import type { SemanticMessageBus } from "@aios/ipc";
 
 export class IPCClient {
 	constructor(private messageBus: SemanticMessageBus) {}
@@ -27,4 +27,3 @@ export interface IPCMessage {
 	from: number;
 	data: Uint8Array;
 }
-

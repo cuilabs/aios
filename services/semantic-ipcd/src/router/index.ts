@@ -19,7 +19,7 @@ export class MessageRouter {
 		// Route based on semantic intent
 		// Route to destination agent(s)
 		const recipients = Array.isArray(message.to) ? message.to : [message.to];
-		
+
 		for (const recipientId of recipients) {
 			await this.deliver(message, recipientId);
 		}
@@ -33,11 +33,11 @@ export class MessageRouter {
 		// Kernel handles binary routing
 		// Convert semantic message to binary IPC message
 		const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-		
+
 		// Serialize semantic message to binary format
 		const binaryData = new TextEncoder().encode(JSON.stringify(message));
 		const metadata = new TextEncoder().encode(JSON.stringify(message.intent));
-		
+
 		// Send via kernel IPCSend syscall
 		try {
 			const response = await fetch(`${kernelBridgeUrl}/api/kernel/ipc/send`, {

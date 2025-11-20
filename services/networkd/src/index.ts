@@ -9,8 +9,8 @@
  * - Network monitoring
  */
 
-import { SemanticMessageBus, SemanticMessageBuilder } from "@aios/ipc";
-import type { NetworkConfig, NetworkInterface, DHCPLease, DNSRecord } from "./types.js";
+import { SemanticMessageBuilder, SemanticMessageBus } from "@aios/ipc";
+import type { DHCPLease, DNSRecord, NetworkConfig, NetworkInterface } from "./types.js";
 
 /**
  * Network Daemon
@@ -77,10 +77,7 @@ export class NetworkDaemon {
 	/**
 	 * Configure network interface
 	 */
-	async configureInterface(
-		interfaceId: string,
-		config: Partial<NetworkInterface>
-	): Promise<void> {
+	async configureInterface(interfaceId: string, config: Partial<NetworkInterface>): Promise<void> {
 		const iface = this.interfaces.get(interfaceId);
 		if (!iface) {
 			// Create new interface
@@ -127,7 +124,7 @@ export class NetworkDaemon {
 		// Send DHCP DISCOVER/DHCP REQUEST packets via kernel network stack
 		// Use kernel-bridge service to send DHCP packets
 		const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-		
+
 		try {
 			// Send DHCP DISCOVER packet
 			const discoverResponse = await fetch(`${kernelBridgeUrl}/api/kernel/network/dhcp/discover`, {
@@ -135,7 +132,7 @@ export class NetworkDaemon {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ interfaceId }),
 			});
-			
+
 			if (discoverResponse.ok) {
 				const offer = (await discoverResponse.json()) as {
 					ipAddress?: string;
@@ -144,7 +141,7 @@ export class NetworkDaemon {
 					dnsServers?: string[];
 					leaseTime?: number;
 				};
-				
+
 				// Send DHCP REQUEST packet
 				const requestResponse = await fetch(`${kernelBridgeUrl}/api/kernel/network/dhcp/request`, {
 					method: "POST",
@@ -154,7 +151,7 @@ export class NetworkDaemon {
 						ipAddress: offer.ipAddress,
 					}),
 				});
-				
+
 				if (requestResponse.ok) {
 					const lease: DHCPLease = {
 						interfaceId,
@@ -165,7 +162,7 @@ export class NetworkDaemon {
 						leaseTime: offer.leaseTime || 3600,
 						obtainedAt: Date.now(),
 					};
-					
+
 					this.dhcpLeases.set(interfaceId, lease);
 					return lease;
 				}
@@ -173,7 +170,7 @@ export class NetworkDaemon {
 		} catch (error) {
 			console.error("DHCP lease request failed:", error);
 		}
-		
+
 		// Fallback: return default lease if DHCP fails
 		const lease: DHCPLease = {
 			interfaceId,
@@ -211,7 +208,7 @@ export class NetworkDaemon {
 
 		// Send DNS query to DNS servers via kernel network stack
 		const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-		
+
 		try {
 			// Query DNS servers configured in network config
 			for (const dnsServer of this.networkConfig.dnsServers) {
@@ -223,12 +220,12 @@ export class NetworkDaemon {
 						dnsServer,
 					}),
 				});
-				
+
 				if (response.ok) {
 					const result = (await response.json()) as { address?: string };
 					if (result.address) {
 						const address = result.address;
-						
+
 						// Cache result
 						this.dnsCache.set(hostname, {
 							hostname,
@@ -236,7 +233,7 @@ export class NetworkDaemon {
 							resolvedAt: Date.now(),
 							expiresAt: Date.now() + 3600 * 1000, // 1 hour TTL
 						});
-						
+
 						return address;
 					}
 				}
@@ -244,7 +241,7 @@ export class NetworkDaemon {
 		} catch (error) {
 			console.error("DNS resolution failed:", error);
 		}
-		
+
 		// Fallback: return default address if DNS fails
 		const address = "0.0.0.0";
 
@@ -287,17 +284,20 @@ export class NetworkDaemon {
 	 * Start network monitoring
 	 */
 	private startNetworkMonitoring(): void {
-			setInterval(async () => {
+		setInterval(async () => {
 			// Monitor network interfaces
 			for (const [interfaceId, iface] of this.interfaces.entries()) {
 				// Query kernel for actual network statistics via kernel-bridge service
 				const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
-				
+
 				try {
-					const response = await fetch(`${kernelBridgeUrl}/api/kernel/network/interface/${interfaceId}/stats`, {
-						method: "GET",
-					});
-					
+					const response = await fetch(
+						`${kernelBridgeUrl}/api/kernel/network/interface/${interfaceId}/stats`,
+						{
+							method: "GET",
+						}
+					);
+
 					if (response.ok) {
 						const stats = (await response.json()) as {
 							bytesSent?: number;
@@ -306,7 +306,7 @@ export class NetworkDaemon {
 							packetsReceived?: number;
 							errors?: number;
 						};
-						
+
 						// Publish monitoring event with actual statistics
 						const monitorMessage = SemanticMessageBuilder.create(
 							"networkd",
@@ -346,4 +346,3 @@ export class NetworkDaemon {
 		return this.dhcpLeases.get(interfaceId);
 	}
 }
-

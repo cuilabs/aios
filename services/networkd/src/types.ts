@@ -34,4 +34,3 @@ export interface DNSRecord {
 	readonly resolvedAt: number;
 	readonly expiresAt: number;
 }
-

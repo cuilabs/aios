@@ -1,13 +1,13 @@
 /**
  * Memory Fabric HTTP Server
- * 
+ *
  * Production-grade HTTP REST API server for memory fabric service.
  * Exposes memory write, read, versioning, and snapshot endpoints.
  */
 
-import express, { type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
-import { MemoryFabricService } from "./index.js";
+import express, { type Request, type Response, type NextFunction } from "express";
+import type { MemoryFabricService } from "./index.js";
 
 const PORT = 9002;
 
@@ -36,10 +36,12 @@ export class MemoryFabricServer {
 
 	private setupMiddleware(): void {
 		// CORS for localhost development
-		this.app.use(cors({
-			origin: ["http://localhost:9002", "http://127.0.0.1:9002"],
-			credentials: true,
-		}));
+		this.app.use(
+			cors({
+				origin: ["http://localhost:9002", "http://127.0.0.1:9002"],
+				credentials: true,
+			})
+		);
 
 		// JSON body parser
 		this.app.use(express.json({ limit: "10mb" }));
@@ -149,7 +151,7 @@ export class MemoryFabricServer {
 	private async handleRead(req: Request, res: Response): Promise<void> {
 		try {
 			const key = req.params["key"];
-			
+
 			if (!key) {
 				res.status(400).json({
 					success: false,
@@ -209,7 +211,7 @@ export class MemoryFabricServer {
 		try {
 			const key = req.params["key"];
 			const versionStr = req.params["version"];
-			
+
 			if (!key || !versionStr) {
 				res.status(400).json({
 					success: false,
@@ -218,7 +220,7 @@ export class MemoryFabricServer {
 				return;
 			}
 
-			const version = parseInt(versionStr, 10);
+			const version = Number.parseInt(versionStr, 10);
 
 			if (isNaN(version)) {
 				res.status(400).json({
@@ -346,4 +348,3 @@ export class MemoryFabricServer {
 		});
 	}
 }
-

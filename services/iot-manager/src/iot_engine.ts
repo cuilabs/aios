@@ -3,14 +3,14 @@
  */
 
 import type {
-	IoTDevice,
-	DeviceDiscoveryRequest,
-	DeviceDiscoveryResponse,
 	DeviceControlRequest,
 	DeviceControlResponse,
+	DeviceDataPoint,
 	DeviceDataRequest,
 	DeviceDataResponse,
-	DeviceDataPoint,
+	DeviceDiscoveryRequest,
+	DeviceDiscoveryResponse,
+	IoTDevice,
 } from "./types.js";
 
 export class IoTManagerEngine {
@@ -20,9 +20,7 @@ export class IoTManagerEngine {
 	/**
 	 * Discover IoT devices
 	 */
-	async discoverDevices(
-		request: DeviceDiscoveryRequest
-	): Promise<DeviceDiscoveryResponse> {
+	async discoverDevices(request: DeviceDiscoveryRequest): Promise<DeviceDiscoveryResponse> {
 		const startTime = Date.now();
 		const devices: IoTDevice[] = [];
 
@@ -79,8 +77,7 @@ export class IoTManagerEngine {
 		if (request.timeRange) {
 			filtered = filtered.filter((point) => {
 				return (
-					point.timestamp >= request.timeRange!.start &&
-					point.timestamp <= request.timeRange!.end
+					point.timestamp >= request.timeRange!.start && point.timestamp <= request.timeRange!.end
 				);
 			});
 		}
@@ -111,4 +108,3 @@ export class IoTManagerEngine {
 		return Array.from(this.devices.values());
 	}
 }
-

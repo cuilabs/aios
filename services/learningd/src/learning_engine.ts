@@ -3,15 +3,15 @@
  */
 
 import type {
-	UserBehavior,
-	UserProfile,
 	BehaviorPattern,
 	LearningRequest,
 	LearningResponse,
-	Recommendation,
+	Prediction,
 	PredictionRequest,
 	PredictionResponse,
-	Prediction,
+	Recommendation,
+	UserBehavior,
+	UserProfile,
 } from "./types.js";
 
 export class LearningEngine {
@@ -133,10 +133,7 @@ export class LearningEngine {
 	/**
 	 * Generate recommendations
 	 */
-	private generateRecommendations(
-		profile: UserProfile,
-		behavior: UserBehavior
-	): Recommendation[] {
+	private generateRecommendations(profile: UserProfile, behavior: UserBehavior): Recommendation[] {
 		const recommendations: Recommendation[] = [];
 
 		// Recommend based on frequent patterns
@@ -169,4 +166,3 @@ export class LearningEngine {
 		return true;
 	}
 }
-

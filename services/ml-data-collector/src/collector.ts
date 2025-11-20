@@ -1,10 +1,16 @@
 /**
  * ML Training Data Collector Service
- * 
+ *
  * Continuously collects training data from running AIOS services
  */
 
-import { DataStorageManager, StoredWorkloadSample, StoredThreatSample, StoredFailureSample, StoredMemorySample } from "./data_storage.js";
+import {
+	DataStorageManager,
+	type StoredFailureSample,
+	type StoredMemorySample,
+	type StoredThreatSample,
+	type StoredWorkloadSample,
+} from "./data_storage.js";
 
 export interface CollectorConfig {
 	readonly metricsdUrl?: string;
@@ -16,7 +22,7 @@ export interface CollectorConfig {
 
 /**
  * ML Data Collector Service
- * 
+ *
  * Collects training data from running services and stores it persistently
  */
 export class MLDataCollectorService {
@@ -33,7 +39,7 @@ export class MLDataCollectorService {
 		this.agentsupervisorUrl = config.agentsupervisorUrl || "http://127.0.0.1:9001";
 		this.securityAiUrl = config.securityAiUrl || "http://127.0.0.1:9010";
 		this.collectionInterval = config.collectionInterval || 5000; // 5 seconds
-		
+
 		this.storage = new DataStorageManager(config.dataDir);
 	}
 
@@ -53,7 +59,7 @@ export class MLDataCollectorService {
 
 		// Schedule periodic collection
 		this.collectionTimer = setInterval(() => {
-			this.collect().catch(err => {
+			this.collect().catch((err) => {
 				console.error("Error during data collection:", err);
 			});
 		}, this.collectionInterval);
@@ -120,12 +126,13 @@ export class MLDataCollectorService {
 		try {
 			const stats = await Promise.race([
 				this.storage.getStatistics(),
-				new Promise<{workload: number; threat: number; failure: number; memory: number}>((_, reject) => 
-					setTimeout(() => reject(new Error("Timeout")), 5000)
-				)
+				new Promise<{ workload: number; threat: number; failure: number; memory: number }>(
+					(_, reject) => setTimeout(() => reject(new Error("Timeout")), 5000)
+				),
 			]);
-			
-			const hasAnyData = stats.workload > 0 || stats.threat > 0 || stats.failure > 0 || stats.memory > 0;
+
+			const hasAnyData =
+				stats.workload > 0 || stats.threat > 0 || stats.failure > 0 || stats.memory > 0;
 
 			// If no data was collected from services AND no existing data, generate synthetic data
 			if (!collectedFromServices && !hasAnyData) {
@@ -250,24 +257,27 @@ export class MLDataCollectorService {
 		// Generate memory samples
 		for (let i = 0; i < 5; i++) {
 			const agentId = `agent-${i}`;
-			const baseAddress = Math.random() * 0xFFFFFFFF;
+			const baseAddress = Math.random() * 0xffffffff;
 			const sample: StoredMemorySample = {
 				timestamp,
 				agentId,
 				features: {
 					accessHistory: Array.from({ length: 20 }, () => {
 						const addr = baseAddress + (Math.random() - 0.5) * 0x100000;
-						return addr / 0xFFFFFFFF;
+						return addr / 0xffffffff;
 					}),
 					accessTypes: Array.from({ length: 20 }, () => Math.floor(Math.random() * 3)),
 					accessTimestamps: Array.from({ length: 20 }, (_, idx) => {
 						return (timestamp - (20 - idx) * 1000) / (timestamp + 86400000);
 					}),
-					currentAddress: baseAddress / 0xFFFFFFFF,
+					currentAddress: baseAddress / 0xffffffff,
 					localityScore: 0.6 + Math.random() * 0.3,
 				},
 				labels: {
-					nextAddress: Math.max(0, Math.min(1, baseAddress / 0xFFFFFFFF + (Math.random() - 0.5) * 0.1)),
+					nextAddress: Math.max(
+						0,
+						Math.min(1, baseAddress / 0xffffffff + (Math.random() - 0.5) * 0.1)
+					),
 					accessProbability: 0.7 + Math.random() * 0.25,
 					accessType: Math.floor(Math.random() * 3),
 					confidence: 0.75 + Math.random() * 0.2,
@@ -286,34 +296,38 @@ export class MLDataCollectorService {
 		try {
 			// Get agent list
 			const agentsResponse = await fetch(`${this.agentsupervisorUrl}/api/agents`, {
-				signal: AbortSignal.timeout(2000) // 2 second timeout
+				signal: AbortSignal.timeout(2000), // 2 second timeout
 			});
 			if (!agentsResponse.ok) {
 				throw new Error(`agentsupervisor returned ${agentsResponse.status}`);
 			}
 
-			const agents = await agentsResponse.json() as { agents?: unknown[] } | unknown[];
+			const agents = (await agentsResponse.json()) as { agents?: unknown[] } | unknown[];
 			const agentList = Array.isArray(agents) ? agents : (agents as any).agents || [];
 
 			// Get CPU metrics
 			const metricsResponse = await fetch(`${this.metricsdUrl}/api/metrics/cpu`, {
-				signal: AbortSignal.timeout(2000) // 2 second timeout
+				signal: AbortSignal.timeout(2000), // 2 second timeout
 			});
 			if (!metricsResponse.ok) {
 				throw new Error(`metricsd returned ${metricsResponse.status}`);
 			}
 
-			const metrics = await metricsResponse.json() as { cpuUsage?: number; memoryUsage?: number };
+			const metrics = (await metricsResponse.json()) as { cpuUsage?: number; memoryUsage?: number };
 			const now = new Date();
 			const timestamp = Date.now();
 
 			// Collect data for each agent
 			for (const agent of agentList.slice(0, 20)) {
 				const agentId = (agent as any).agent_id || (agent as any).id || String(agent);
-				
+
 				// Generate historical values (in production, would query historical metrics)
 				const historicalCpu = this.generateHistoricalValues(10, 0.3, 0.8);
-				const historicalMemory = this.generateHistoricalValues(10, 1024 * 1024 * 100, 1024 * 1024 * 500);
+				const historicalMemory = this.generateHistoricalValues(
+					10,
+					1024 * 1024 * 100,
+					1024 * 1024 * 500
+				);
 				const historicalGpu = this.generateHistoricalValues(10, 0, 0.5);
 
 				const sample: StoredWorkloadSample = {
@@ -330,7 +344,7 @@ export class MLDataCollectorService {
 						currentGpu: 0.3, // Would query GPU metrics in production
 					},
 					labels: {
-						predictedCpu: Math.min(1, (metrics.cpuUsage || 0.5) / 100 * 1.1),
+						predictedCpu: Math.min(1, ((metrics.cpuUsage || 0.5) / 100) * 1.1),
 						predictedMemory: (metrics.memoryUsage || 1024 * 1024 * 200) * 1.05,
 						predictedGpu: 0.3,
 						confidence: 0.85,
@@ -356,18 +370,20 @@ export class MLDataCollectorService {
 				return;
 			}
 
-			const agents = await agentsResponse.json() as { agents?: unknown[] } | unknown[];
+			const agents = (await agentsResponse.json()) as { agents?: unknown[] } | unknown[];
 			const agentList = Array.isArray(agents) ? agents : (agents as any).agents || [];
 
 			// Get threat detection results
 			const threatResponse = await fetch(`${this.securityAiUrl}/api/detect-threat`);
-			const threatData = threatResponse.ok ? (await threatResponse.json() as {
-				anomalies?: Array<{ type: string; severity: number; timestamp: number }>;
-				threatScore?: number;
-				threatType?: number;
-				confidence?: number;
-				recommendedAction?: number;
-			}) : null;
+			const threatData = threatResponse.ok
+				? ((await threatResponse.json()) as {
+						anomalies?: Array<{ type: string; severity: number; timestamp: number }>;
+						threatScore?: number;
+						threatType?: number;
+						confidence?: number;
+						recommendedAction?: number;
+					})
+				: null;
 
 			const timestamp = Date.now();
 
@@ -420,9 +436,11 @@ export class MLDataCollectorService {
 		try {
 			// Get system health metrics
 			const healthResponse = await fetch(`${this.metricsdUrl}/api/metrics/health`);
-			const healthData = healthResponse.ok ? (await healthResponse.json() as {
-				healthScore?: number;
-			}) : null;
+			const healthData = healthResponse.ok
+				? ((await healthResponse.json()) as {
+						healthScore?: number;
+					})
+				: null;
 
 			const timestamp = Date.now();
 			const components = ["kernel", "scheduler", "memory", "network", "storage"];
@@ -467,14 +485,14 @@ export class MLDataCollectorService {
 				return;
 			}
 
-			const agents = await agentsResponse.json() as { agents?: unknown[] } | unknown[];
+			const agents = (await agentsResponse.json()) as { agents?: unknown[] } | unknown[];
 			const agentList = Array.isArray(agents) ? agents : (agents as any).agents || [];
 
 			const timestamp = Date.now();
 
 			for (const agent of agentList.slice(0, 10)) {
 				const agentId = (agent as any).agent_id || (agent as any).id || String(agent);
-				const baseAddress = Math.random() * 0xFFFFFFFF;
+				const baseAddress = Math.random() * 0xffffffff;
 				const localityRange = 0x100000;
 
 				const sample: StoredMemorySample = {
@@ -483,17 +501,20 @@ export class MLDataCollectorService {
 					features: {
 						accessHistory: Array.from({ length: 20 }, () => {
 							const addr = baseAddress + (Math.random() - 0.5) * localityRange;
-							return addr / 0xFFFFFFFF;
+							return addr / 0xffffffff;
 						}),
 						accessTypes: Array.from({ length: 20 }, () => Math.floor(Math.random() * 3)),
 						accessTimestamps: Array.from({ length: 20 }, (_, idx) => {
 							return (timestamp - (20 - idx) * 1000) / (timestamp + 86400000);
 						}),
-						currentAddress: baseAddress / 0xFFFFFFFF,
+						currentAddress: baseAddress / 0xffffffff,
 						localityScore: 0.6 + Math.random() * 0.3,
 					},
 					labels: {
-						nextAddress: Math.max(0, Math.min(1, baseAddress / 0xFFFFFFFF + (Math.random() - 0.5) * 0.1)),
+						nextAddress: Math.max(
+							0,
+							Math.min(1, baseAddress / 0xffffffff + (Math.random() - 0.5) * 0.1)
+						),
 						accessProbability: 0.7 + Math.random() * 0.25,
 						accessType: Math.floor(Math.random() * 3),
 						confidence: 0.75 + Math.random() * 0.2,
@@ -522,4 +543,3 @@ export class MLDataCollectorService {
 		return await this.storage.getStatistics();
 	}
 }
-

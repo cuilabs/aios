@@ -17,4 +17,3 @@ export interface AgentMetrics {
 	readonly networkBytes: number;
 	readonly ioOperations: number;
 }
-

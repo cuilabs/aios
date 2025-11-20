@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-11-19T11:36:19Z",
-  "output_dir": "tests/artifacts/perf",
-  "benchmarks": {
-    "latency": "completed",
-    "throughput": "completed",
-    "mixed": "completed",
-    "kernel": "skipped"
-  }
+	"timestamp": "2025-11-19T11:36:19Z",
+	"output_dir": "tests/artifacts/perf",
+	"benchmarks": {
+		"latency": "completed",
+		"throughput": "completed",
+		"mixed": "completed",
+		"kernel": "skipped"
+	}
 }

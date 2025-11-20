@@ -33,7 +33,13 @@ export interface DisplayMode {
  */
 export interface InputEvent {
 	readonly deviceId: number;
-	readonly eventType: "keyPress" | "keyRelease" | "mouseMove" | "mouseButton" | "mouseWheel" | "touch";
+	readonly eventType:
+		| "keyPress"
+		| "keyRelease"
+		| "mouseMove"
+		| "mouseButton"
+		| "mouseWheel"
+		| "touch";
 	readonly timestamp: number;
 	readonly data: InputEventData;
 }
@@ -67,4 +73,3 @@ export interface FramebufferConfig {
 	readonly physicalAddr: string;
 	readonly size: number;
 }
-

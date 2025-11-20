@@ -1,12 +1,12 @@
 /**
  * ML-Based Threat Detection Engine
- * 
+ *
  * Provides machine learning-based threat detection and autonomous response
  * for proactive security in AIOS.
  */
 
-import { BehavioralAnalyzer, BehaviorMetrics } from "../behavioral";
-import { BehavioralAnomaly } from "../types";
+import type { BehaviorMetrics, BehavioralAnalyzer } from "../behavioral";
+import type { BehavioralAnomaly } from "../types";
 
 /**
  * Threat score
@@ -100,7 +100,7 @@ export interface ThreatLabel {
 
 /**
  * ML Threat Detector
- * 
+ *
  * Uses machine learning models to detect threats based on agent behavior
  */
 export class MLThreatDetector {
@@ -326,4 +326,3 @@ export interface ThreatEvent {
 	readonly threatType: ThreatType;
 	readonly action: SecurityAction;
 }
-

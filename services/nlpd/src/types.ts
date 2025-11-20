@@ -60,4 +60,3 @@ export interface TextToSpeechRequest {
 export interface TextToSpeechResponse {
 	audio: string; // Base64 encoded audio
 }
-

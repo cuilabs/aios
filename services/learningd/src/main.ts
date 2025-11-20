@@ -17,4 +17,3 @@ process.on("SIGTERM", () => {
 	console.log("Shutting down Adaptive Learning Service...");
 	process.exit(0);
 });
-

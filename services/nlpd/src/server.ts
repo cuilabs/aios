@@ -2,18 +2,18 @@
  * NLP Integration Service HTTP Server
  */
 
-import express, { type Request, type Response } from "express";
 import cors from "cors";
+import express, { type Request, type Response } from "express";
 import { NLPEngine } from "./nlp_engine.js";
 import type {
 	NLPDRequest,
 	NLPDResponse,
-	TranslationRequest,
-	TranslationResponse,
 	SpeechToTextRequest,
 	SpeechToTextResponse,
 	TextToSpeechRequest,
 	TextToSpeechResponse,
+	TranslationRequest,
+	TranslationResponse,
 } from "./types.js";
 
 const PORT = 9007;
@@ -91,4 +91,3 @@ export class NLPServer {
 		});
 	}
 }
-

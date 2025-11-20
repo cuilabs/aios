@@ -1,6 +1,6 @@
 /**
  * Kernel Syscall Bridge
- * 
+ *
  * Provides access to kernel syscalls via FFI or HTTP API fallback.
  * Attempts to load kernel library via FFI, falls back to HTTP API if unavailable.
  */
@@ -31,7 +31,7 @@ interface CapabilityToken {
 
 /**
  * Kernel syscall bridge
- * 
+ *
  * Provides access to kernel syscalls via FFI or HTTP API.
  */
 export class SyscallBridge {
@@ -97,7 +97,10 @@ export class SyscallBridge {
 	/**
 	 * Free framebuffer
 	 */
-	async freeFramebuffer(framebufferId: bigint, capability: CapabilityToken): Promise<SyscallResult> {
+	async freeFramebuffer(
+		framebufferId: bigint,
+		capability: CapabilityToken
+	): Promise<SyscallResult> {
 		if (this.useFFI && this.kernelLib) {
 			return this.kernelLib.framebuffer_free(framebufferId, capability);
 		}
@@ -318,4 +321,3 @@ export class SyscallBridge {
 		return (await response.json()) as SyscallResult;
 	}
 }
-

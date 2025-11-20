@@ -1,17 +1,17 @@
 /**
  * ML Model Training Script
- * 
+ *
  * Enterprise-grade production training pipeline for TensorFlow.js models
  * Trains all AIOS AI-powered feature models with real or synthetic data
  */
 
-import { WorkloadPredictorModel } from "./workload_predictor";
-import { ThreatDetectorModel } from "./threat_detector";
-import { FailurePredictorModel } from "./failure_predictor";
-import { MemoryPredictorModel } from "./memory_predictor";
-import { TrainingDataCollector } from "./data_collector";
 import * as fs from "fs";
 import * as path from "path";
+import { TrainingDataCollector } from "./data_collector";
+import { FailurePredictorModel } from "./failure_predictor";
+import { MemoryPredictorModel } from "./memory_predictor";
+import { ThreatDetectorModel } from "./threat_detector";
+import { WorkloadPredictorModel } from "./workload_predictor";
 
 /**
  * Train all models with comprehensive training pipeline
@@ -53,10 +53,7 @@ async function trainAllModels(): Promise<void> {
 		console.log(`   Training on ${data.workload.features.length} samples...`);
 		const workloadModel = new WorkloadPredictorModel();
 		await workloadModel.initialize();
-		const workloadHistory = await workloadModel.train(
-			data.workload.features,
-			data.workload.labels
-		);
+		const workloadHistory = await workloadModel.train(data.workload.features, data.workload.labels);
 		const finalLoss = workloadHistory.history.loss?.[workloadHistory.history.loss.length - 1];
 		const finalAcc = workloadHistory.history.acc?.[workloadHistory.history.acc.length - 1];
 		console.log(
@@ -135,4 +132,3 @@ if (require.main === module) {
 }
 
 export { trainAllModels };
-

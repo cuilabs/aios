@@ -1,6 +1,6 @@
 /**
  * ML Daemon Service Main Entry Point
- * 
+ *
  * High-performance ML inference service for AI-powered kernel subsystems
  */
 
@@ -34,4 +34,3 @@ main().catch((error) => {
 	console.error("Unhandled error:", error);
 	process.exit(1);
 });
-

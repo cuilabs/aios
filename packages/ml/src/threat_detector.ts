@@ -1,6 +1,6 @@
 /**
  * Threat Detection ML Model
- * 
+ *
  * Uses TensorFlow.js to detect security threats based on agent behavior
  */
 
@@ -19,7 +19,7 @@ try {
 		tf = null;
 	}
 }
-import { BehaviorMetrics, BehavioralAnomaly } from "@aios/security";
+import type { BehaviorMetrics, BehavioralAnomaly } from "@aios/security";
 
 /**
  * Threat detection input features
@@ -134,9 +134,7 @@ export class ThreatDetectorModel {
 		}
 
 		// Prepare training data
-		const trainingData = tf.stack(
-			features.map((f) => this.prepareInput(f))
-		) as any;
+		const trainingData = tf.stack(features.map((f) => this.prepareInput(f))) as any;
 
 		const labelData = tf.tensor2d(
 			labels.map((l) => [l.threatScore, l.threatType, l.confidence, l.recommendedAction])
@@ -160,4 +158,3 @@ export class ThreatDetectorModel {
 		return history;
 	}
 }
-

@@ -19,4 +19,3 @@ export interface SystemMetrics {
 	cpuUsage: number;
 	memoryUsage: number;
 }
-

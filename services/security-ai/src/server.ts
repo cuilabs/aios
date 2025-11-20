@@ -2,16 +2,16 @@
  * Security AI Service HTTP Server
  */
 
-import express, { type Request, type Response } from "express";
 import cors from "cors";
+import express, { type Request, type Response } from "express";
 import { SecurityAIEngine } from "./security_engine.js";
 import type {
 	ThreatDetectionRequest,
 	ThreatDetectionResponse,
-	VulnerabilityScanRequest,
-	VulnerabilityScanResponse,
 	ThreatIntelligenceRequest,
 	ThreatIntelligenceResponse,
+	VulnerabilityScanRequest,
+	VulnerabilityScanResponse,
 } from "./types.js";
 
 const PORT = 9009;
@@ -42,8 +42,7 @@ export class SecurityAIServer {
 		this.app.post("/api/security/detect", async (req: Request, res: Response) => {
 			try {
 				const request: ThreatDetectionRequest = req.body;
-				const response: ThreatDetectionResponse =
-					await this.securityEngine.detectThreats(request);
+				const response: ThreatDetectionResponse = await this.securityEngine.detectThreats(request);
 				res.json(response);
 			} catch (error) {
 				res.status(500).json({ error: String(error) });
@@ -81,4 +80,3 @@ export class SecurityAIServer {
 		});
 	}
 }
-

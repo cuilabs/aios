@@ -1,11 +1,11 @@
 /**
  * Display Server HTTP API
- * 
+ *
  * Production-grade HTTP REST API server for display and window management.
  */
 
-import express, { type Request, type Response } from "express";
 import cors from "cors";
+import express, { type Request, type Response } from "express";
 import { Compositor } from "./compositor.js";
 import type { DisplayMode, InputEvent } from "./types.js";
 
@@ -412,11 +412,11 @@ export class DisplayServer {
 	private async handleInputEvent(req: Request, res: Response): Promise<void> {
 		try {
 			const event = req.body as InputEvent;
-			
+
 			// Route input to focused window/agent
 			const windows = this.compositor.getAllWindows();
 			const focusedWindow = windows.find((w) => w.focused);
-			
+
 			if (focusedWindow) {
 				// Send input event to agent via semantic IPC
 				try {
@@ -438,7 +438,7 @@ export class DisplayServer {
 					console.error("Failed to send input event via semantic IPC:", error);
 				}
 			}
-			
+
 			res.json({
 				success: true,
 				message: "Input event received",
@@ -548,4 +548,3 @@ export class DisplayServer {
 		});
 	}
 }
-

@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-11-19T11:36:23Z",
-  "output_dir": "tests/artifacts/chaos",
-  "tests": {
-    "disk_latency": "completed",
-    "nic_flap": "completed",
-    "gpu_stress": "completed",
-    "recovery": "checked"
-  }
+	"timestamp": "2025-11-19T11:36:23Z",
+	"output_dir": "tests/artifacts/chaos",
+	"tests": {
+		"disk_latency": "completed",
+		"nic_flap": "completed",
+		"gpu_stress": "completed",
+		"recovery": "checked"
+	}
 }

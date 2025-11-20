@@ -6,21 +6,19 @@ import type {
 	Gesture,
 	GestureRecognitionRequest,
 	GestureRecognitionResponse,
+	InterfaceAdjustment,
 	InterfaceAdjustmentRequest,
 	InterfaceAdjustmentResponse,
-	InterfaceAdjustment,
+	Notification,
 	NotificationFilterRequest,
 	NotificationFilterResponse,
-	Notification,
 } from "./types.js";
 
 export class UIAIEngine {
 	/**
 	 * Recognize gesture
 	 */
-	async recognizeGesture(
-		request: GestureRecognitionRequest
-	): Promise<GestureRecognitionResponse> {
+	async recognizeGesture(request: GestureRecognitionRequest): Promise<GestureRecognitionResponse> {
 		const { gesture, context } = request;
 
 		// Simple gesture recognition
@@ -70,9 +68,7 @@ export class UIAIEngine {
 	/**
 	 * Adjust interface
 	 */
-	async adjustInterface(
-		request: InterfaceAdjustmentRequest
-	): Promise<InterfaceAdjustmentResponse> {
+	async adjustInterface(request: InterfaceAdjustmentRequest): Promise<InterfaceAdjustmentResponse> {
 		const adjustments: InterfaceAdjustment[] = [];
 
 		// Context-aware adjustments
@@ -136,4 +132,3 @@ export class UIAIEngine {
 		};
 	}
 }
-

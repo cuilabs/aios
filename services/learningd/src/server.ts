@@ -2,8 +2,8 @@
  * Adaptive Learning Service HTTP Server
  */
 
-import express, { type Request, type Response } from "express";
 import cors from "cors";
+import express, { type Request, type Response } from "express";
 import { LearningEngine } from "./learning_engine.js";
 import type {
 	LearningRequest,
@@ -80,4 +80,3 @@ export class LearningServer {
 		});
 	}
 }
-
