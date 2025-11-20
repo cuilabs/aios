@@ -54,7 +54,7 @@ export class MessageRouter {
 			if (!response.ok) {
 				console.error(`Failed to deliver message to agent ${agentId}: ${response.statusText}`);
 			}
-		} catch (error) {
+		} catch (_error) {
 			console.error(`Error delivering message to agent ${agentId}:`, error);
 		}
 	}
