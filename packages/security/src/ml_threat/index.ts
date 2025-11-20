@@ -160,7 +160,7 @@ export class MLThreatDetector {
 	/**
 	 * Get threat indicators from metrics and anomalies
 	 */
-	private _getThreatIndicators(
+	private getThreatIndicators(
 		metrics: BehaviorMetrics,
 		anomalies: readonly BehavioralAnomaly[]
 	): readonly ThreatIndicator[] {
@@ -204,50 +204,27 @@ export class MLThreatDetector {
 		anomalies: readonly BehavioralAnomaly[]
 	): ThreatScore {
 		let threatScore = 0.0;
-		const indicators: ThreatIndicator[] = [];
 
-		// Check latency anomaly
+		// Get indicators from helper method
+		const indicators = this.getThreatIndicators(metrics, anomalies);
+
+		// Calculate threat score based on indicators
+		for (const indicator of indicators) {
+			if (indicator.severity === "critical") {
+				threatScore += 0.3;
+			} else if (indicator.severity === "high") {
+				threatScore += 0.2;
+			} else if (indicator.severity === "medium") {
+				threatScore += 0.1;
+			}
+		}
+
+		// Additional scoring based on metrics
 		if (anomalies.some((a) => a.type === "high_latency")) {
 			threatScore += 0.2;
-			indicators.push({
-				type: "high_latency",
-				severity: "medium",
-				description: "Unusually high latency detected",
-				value: metrics.averageLatency,
-			});
 		}
-
-		// Check error rate
-		if (metrics.errorRate > 0.1) {
-			threatScore += 0.3;
-			indicators.push({
-				type: "high_error_rate",
-				severity: metrics.errorRate > 0.2 ? "critical" : "high",
-				description: `Error rate ${(metrics.errorRate * 100).toFixed(2)}% exceeds threshold`,
-				value: metrics.errorRate,
-			});
-		}
-
-		// Check resource usage
-		if (metrics.resourceUsage > 1.5) {
-			threatScore += 0.2;
-			indicators.push({
-				type: "high_resource_usage",
-				severity: "medium",
-				description: "Resource usage exceeds baseline",
-				value: metrics.resourceUsage,
-			});
-		}
-
-		// Check message frequency
 		if (metrics.messageFrequency > 1000) {
 			threatScore += 0.3;
-			indicators.push({
-				type: "high_message_frequency",
-				severity: "high",
-				description: "Unusually high message frequency",
-				value: metrics.messageFrequency,
-			});
 		}
 
 		// Determine threat type

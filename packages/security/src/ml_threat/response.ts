@@ -55,7 +55,11 @@ export class AutonomousThreatResponse {
 				break;
 
 			case SecurityAction.Escalate:
-				result = await this.escalateThreat(threat, agentId);
+				if (threat.score >= this.escalationThreshold) {
+					result = await this.escalateThreat(threat, agentId);
+				} else {
+					result = await this.monitorAgent(agentId, threat);
+				}
 				break;
 
 			case SecurityAction.Monitor:
