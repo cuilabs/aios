@@ -250,15 +250,20 @@ export class AgentSupervisorService {
 		status.startedAt = undefined;
 
 		// Publish agent stopped event via semantic IPC
-		await this.messageBus.publish({
-			id: `event-${Date.now()}`,
-			from: "agentsupervisor",
-			to: "all",
-			intent: {
+		const { SemanticMessageBuilder } = await import("@aios/ipc");
+		const stoppedMessage = SemanticMessageBuilder.create(
+			"agentsupervisor",
+			"*",
+			{
 				type: "agent.stopped",
-				priority: 1,
+				action: "notify",
+				constraints: {},
 				context: {},
+				priority: 1,
 			},
+			{ agentId }
+		);
+		this.messageBus.publish(stoppedMessage);
 			payload: { agentId, status: "stopped" },
 			timestamp: Date.now(),
 		});
