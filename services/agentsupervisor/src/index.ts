@@ -323,8 +323,8 @@ export class AgentSupervisorService {
 							this.updateResourceUsage(agentId, {
 								cpu: resources.cpu ?? 0,
 								memory: resources.memory ?? 0,
-								network: resources.network ?? 0,
-								io: resources.io ?? 0,
+								network: 0, // Network not available from kernel query
+								io: 0, // I/O not available from kernel query
 							});
 						} else {
 							// Fallback: use default values if kernel query fails
