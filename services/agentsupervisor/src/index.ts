@@ -261,9 +261,6 @@ export class AgentSupervisorService {
 			{ agentId }
 		);
 		this.messageBus.publish(stoppedMessage);
-			payload: { agentId, status: "stopped" },
-			timestamp: Date.now(),
-		});
 	}
 
 	/**
