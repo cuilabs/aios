@@ -213,15 +213,20 @@ export class AgentSupervisorService {
 		status.startedAt = Date.now();
 
 		// Publish agent started event via semantic IPC
-		await this.messageBus.publish({
-			id: `event-${Date.now()}`,
-			from: "agentsupervisor",
-			to: "all",
-			intent: {
+		const { SemanticMessageBuilder } = await import("@aios/ipc");
+		const startedMessage = SemanticMessageBuilder.create(
+			"agentsupervisor",
+			"*",
+			{
 				type: "agent.started",
-				priority: 1,
+				action: "notify",
+				constraints: {},
 				context: {},
+				priority: 1,
 			},
+			{ agentId }
+		);
+		this.messageBus.publish(startedMessage);
 			payload: { agentId, status: "running" },
 			timestamp: Date.now(),
 		});
@@ -319,7 +324,8 @@ export class AgentSupervisorService {
 							this.updateResourceUsage(agentId, {
 								cpu: resources.cpu ?? 0,
 								memory: resources.memory ?? 0,
-								gpu: resources.gpu ?? 0,
+								network: resources.network ?? 0,
+								io: resources.io ?? 0,
 							});
 						} else {
 							// Fallback: use default values if kernel query fails
@@ -331,13 +337,12 @@ export class AgentSupervisorService {
 						}
 					} catch (error) {
 						console.error(`Failed to query resources for agent ${agentId}:`, error);
-						this.updateResourceUsage(agentId, {
-							cpu: 0,
-							memory: 0,
-							gpu: 0,
-							network: Math.random() * 1024 * 1024, // Random KB
-							io: Math.random() * 1024 * 1024, // Random KB
-						});
+							this.updateResourceUsage(agentId, {
+								cpu: 0,
+								memory: 0,
+								network: Math.random() * 1024 * 1024, // Random KB
+								io: Math.random() * 1024 * 1024, // Random KB
+							});
 					}
 				}
 			}
