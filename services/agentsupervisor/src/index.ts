@@ -227,9 +227,6 @@ export class AgentSupervisorService {
 			{ agentId }
 		);
 		this.messageBus.publish(startedMessage);
-			payload: { agentId, status: "running" },
-			timestamp: Date.now(),
-		});
 	}
 
 	/**
