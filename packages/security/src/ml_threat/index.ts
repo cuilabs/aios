@@ -160,7 +160,7 @@ export class MLThreatDetector {
 	/**
 	 * Get threat indicators from metrics and anomalies
 	 */
-	private getThreatIndicators(
+	private _getThreatIndicators(
 		metrics: BehaviorMetrics,
 		anomalies: readonly BehavioralAnomaly[]
 	): readonly ThreatIndicator[] {

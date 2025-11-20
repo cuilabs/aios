@@ -34,7 +34,7 @@ export interface QuarantineStatus {
 export class AutonomousThreatResponse {
 	private readonly quarantinedAgents = new Map<string, QuarantineStatus>();
 	private readonly responseHistory: ResponseActionResult[] = [];
-	private readonly escalationThreshold = 0.8; // Escalate if threat score >= 0.8
+	private readonly _escalationThreshold = 0.8; // Escalate if threat score >= 0.8
 
 	/**
 	 * Automatically respond to detected threat
@@ -163,7 +163,7 @@ export class AutonomousThreatResponse {
 	/**
 	 * Kill agent
 	 */
-	async killAgent(agentId: string, reason: string): Promise<ResponseActionResult> {
+	async killAgent(agentId: string, _reason: string): Promise<ResponseActionResult> {
 		// Kill actions:
 		// 1. Send kill signal to agent
 		// 2. Clean up resources
@@ -181,7 +181,7 @@ export class AutonomousThreatResponse {
 	/**
 	 * Escalate threat to human operator
 	 */
-	async escalateThreat(threat: ThreatScore, agentId: string): Promise<ResponseActionResult> {
+	async escalateThreat(_threat: ThreatScore, agentId: string): Promise<ResponseActionResult> {
 		// Escalation actions:
 		// 1. Create security incident ticket
 		// 2. Send alert to security team
@@ -199,7 +199,7 @@ export class AutonomousThreatResponse {
 	/**
 	 * Monitor agent (enhanced monitoring)
 	 */
-	async monitorAgent(agentId: string, threat: ThreatScore): Promise<ResponseActionResult> {
+	async monitorAgent(agentId: string, _threat: ThreatScore): Promise<ResponseActionResult> {
 		// Monitoring actions:
 		// 1. Increase monitoring frequency
 		// 2. Enable detailed logging

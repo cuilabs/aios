@@ -322,7 +322,7 @@ export class PredictiveThreatIntelligence {
 	}
 
 	private predictNextHourScore(
-		threatType: ThreatType,
+		_threatType: ThreatType,
 		events: readonly ThreatEvent[]
 	): number {
 		// Prediction: use recent average
