@@ -90,9 +90,12 @@ class PatternLearner {
 		if (history.length < 2) {
 			return 3_600_000; // 1 hour default
 		}
-		return (
-			history[history.length - 1].timestamp - history[0].timestamp
-		);
+		const lastEvent = history[history.length - 1];
+		const firstEvent = history[0];
+		if (!lastEvent || !firstEvent) {
+			return 3_600_000; // 1 hour default
+		}
+		return lastEvent.timestamp - firstEvent.timestamp;
 	}
 
 	private calculateEscalationRate(history: readonly ThreatEvent[]): number {
@@ -259,7 +262,12 @@ export class PredictiveThreatIntelligence {
 		if (events.length < 2) {
 			return 3_600_000; // 1 hour
 		}
-		return events[events.length - 1].timestamp - events[0].timestamp;
+		const lastEvent = events[events.length - 1];
+		const firstEvent = events[0];
+		if (!lastEvent || !firstEvent) {
+			return 3_600_000; // 1 hour default
+		}
+		return lastEvent.timestamp - firstEvent.timestamp;
 	}
 
 	private getMostCommonThreatType(events: readonly ThreatEvent[]): ThreatType {
@@ -288,7 +296,7 @@ export class PredictiveThreatIntelligence {
 		if (eventCount < 20) {
 			return 0.5 + (eventCount / 20) * 0.3;
 		}
-		return 0.8 + ((eventCount.min(100) - 20) / 80) * 0.2;
+		return 0.8 + ((Math.min(eventCount, 100) - 20) / 80) * 0.2;
 	}
 
 	private getThreatIndicators(pattern: ThreatPattern): readonly string[] {

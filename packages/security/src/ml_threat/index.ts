@@ -5,8 +5,8 @@
  * for proactive security in AIOS.
  */
 
-import { BehavioralAnalyzer, BehaviorMetrics, BehavioralAnomaly } from "../behavioral";
-import { ThreatDetectorModel, ThreatFeatures, ThreatPrediction as MLThreatPrediction } from "@aios/ml";
+import { BehavioralAnalyzer, BehaviorMetrics } from "../behavioral";
+import { BehavioralAnomaly } from "../types";
 
 /**
  * Threat score
@@ -106,14 +106,11 @@ export interface ThreatLabel {
 export class MLThreatDetector {
 	private readonly models = new Map<string, ThreatModel>();
 	private readonly behavioralAnalyzer: BehavioralAnalyzer;
-	private readonly trainingData: BehaviorDataset = { samples: [] };
+	private trainingData: BehaviorDataset = { samples: [] };
 	private readonly threatHistory: ThreatEvent[] = [];
-	private readonly mlModel: ThreatDetectorModel;
-	private mlModelInitialized = false;
 
 	constructor(behavioralAnalyzer: BehavioralAnalyzer) {
 		this.behavioralAnalyzer = behavioralAnalyzer;
-		this.mlModel = new ThreatDetectorModel();
 	}
 
 	/**
@@ -122,12 +119,16 @@ export class MLThreatDetector {
 	async trainModel(agentId: string, dataset: BehaviorDataset): Promise<void> {
 		// Train ML model (e.g., TensorFlow.js) or use rule-based fallback
 		const model: ThreatModel = {
-			score: (metrics, anomalies) => this.scoreThreat(metrics, anomalies),
-			train: async (ds) => {
-				// Store training data
-				this.trainingData.samples.push(...ds.samples);
+			score: (metrics, anomalies) => {
+				return this.scoreThreatRuleBased(metrics, anomalies);
 			},
-				getAccuracy: () => 0.85, // Default accuracy for rule-based model
+			train: async (ds) => {
+				// Store training data (create new array since samples is readonly)
+				this.trainingData = {
+					samples: [...this.trainingData.samples, ...ds.samples],
+				};
+			},
+			getAccuracy: () => 0.85, // Default accuracy for rule-based model
 		};
 
 		this.models.set(agentId, model);
@@ -138,79 +139,11 @@ export class MLThreatDetector {
 	 * Score current behavior for threat level
 	 */
 	async scoreThreat(agentId: string, metrics: BehaviorMetrics): Promise<ThreatScore> {
-		// Initialize ML model if not already initialized
-		if (!this.mlModelInitialized) {
-			try {
-				await this.mlModel.initialize();
-				this.mlModelInitialized = true;
-			} catch (error) {
-				console.warn("Failed to initialize ML model, using rule-based fallback:", error);
-			}
-		}
-
 		// Get anomalies from behavioral analyzer
 		const profile = this.behavioralAnalyzer.getProfile(agentId);
 		const anomalies = profile?.anomalies ?? [];
 
-		// Try ML model first
-		if (this.mlModelInitialized) {
-			try {
-				// Get historical threats for this agent
-				const agentThreats = this.threatHistory
-					.filter((e) => e.agentId === agentId)
-					.slice(-10)
-					.map((e) => e.score);
-
-				const features: ThreatFeatures = {
-					agentId,
-					metrics,
-					anomalies,
-					historicalThreats: agentThreats.length >= 10 ? agentThreats : [...agentThreats, ...Array(10 - agentThreats.length).fill(0)],
-					timeSinceLastThreat: agentThreats.length > 0
-						? Date.now() - this.threatHistory
-								.filter((e) => e.agentId === agentId)
-								.slice(-1)[0]?.timestamp ?? Date.now()
-						: Infinity,
-				};
-
-				const mlPrediction = await this.mlModel.predict(features);
-
-				// Convert ML prediction to ThreatScore
-				const threatTypes = [
-					ThreatType.ResourceExhaustion,
-					ThreatType.UnauthorizedAccess,
-					ThreatType.DataExfiltration,
-					ThreatType.DenialOfService,
-					ThreatType.PrivilegeEscalation,
-					ThreatType.Unknown,
-				];
-
-				const securityActions = [
-					SecurityAction.Monitor,
-					SecurityAction.Quarantine,
-					SecurityAction.Kill,
-					SecurityAction.Escalate,
-					SecurityAction.NoAction,
-				];
-
-				const score: ThreatScore = {
-					score: mlPrediction.threatScore,
-					confidence: mlPrediction.confidence,
-					threatType: threatTypes[mlPrediction.threatType] ?? ThreatType.Unknown,
-					recommendedAction: securityActions[mlPrediction.recommendedAction] ?? SecurityAction.Monitor,
-					indicators: this.getThreatIndicators(metrics, anomalies),
-				};
-
-				// Record threat event
-				this.recordThreatEvent(agentId, score);
-
-				return score;
-			} catch (error) {
-				console.warn("ML prediction failed, falling back to rule-based:", error);
-			}
-		}
-
-		// Fallback to rule-based or agent-specific model
+		// Use agent-specific model if available
 		const model = this.models.get(agentId);
 		if (model) {
 			const score = model.score(metrics, anomalies);
@@ -218,7 +151,7 @@ export class MLThreatDetector {
 			return score;
 		}
 
-		// Final fallback: rule-based
+		// Fallback: rule-based
 		const score = this.scoreThreatRuleBased(metrics, anomalies);
 		this.recordThreatEvent(agentId, score);
 		return score;
@@ -338,7 +271,7 @@ export class MLThreatDetector {
 		}
 
 		return {
-			score: threatScore.min(1.0),
+			score: Math.min(threatScore, 1.0),
 			confidence: 0.7, // Rule-based has lower confidence
 			threatType,
 			recommendedAction,

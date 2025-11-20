@@ -4,7 +4,8 @@
  * Automatically responds to detected threats with appropriate mitigation actions
  */
 
-import { ThreatScore, SecurityAction, ThreatType } from "./index";
+import type { ThreatScore } from "./index";
+import { SecurityAction } from "./index";
 
 /**
  * Response action result
