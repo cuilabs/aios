@@ -61,4 +61,3 @@ export interface TrustEdge {
 	readonly trustLevel: number;
 	readonly capabilities: readonly string[];
 }
-

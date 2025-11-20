@@ -18,4 +18,3 @@ export interface SemanticMessage {
 	readonly payload: Uint8Array;
 	readonly timestamp: number;
 }
-

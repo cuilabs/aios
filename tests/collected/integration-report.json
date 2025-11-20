@@ -1,0 +1,145 @@
+{
+  "timestamp": "2025-11-19T14:28:40.250686Z",
+  "suite": "integration",
+  "tests": [
+    {
+      "name": "agent_lifecycle_spawn",
+      "status": "Pass",
+      "duration_ms": 17,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:39.050014Z"
+    },
+    {
+      "name": "agent_lifecycle_checkpoint",
+      "status": {
+        "Fail": "Checkpoint file not found at expected path: tests/artifacts/integration/checkpoints/checkpoint_562519069_1763562519070"
+      },
+      "duration_ms": 2,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:39.067788Z"
+    },
+    {
+      "name": "agent_lifecycle_migrate",
+      "status": {
+        "Fail": "Agent not migrated to target CPU. Current CPU: None"
+      },
+      "duration_ms": 3,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:39.070290Z"
+    },
+    {
+      "name": "agent_lifecycle_kill",
+      "status": {
+        "Fail": "Agent still exists after kill operation"
+      },
+      "duration_ms": 106,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:39.074135Z"
+    },
+    {
+      "name": "agent_lifecycle_restore",
+      "status": {
+        "Fail": "Failed to read checkpoints directory"
+      },
+      "duration_ms": 0,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:39.181050Z"
+    },
+    {
+      "name": "ipc_message_delivery",
+      "status": "Pass",
+      "duration_ms": 220,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:39.181068Z"
+    },
+    {
+      "name": "ipc_intent_preservation",
+      "status": "Pass",
+      "duration_ms": 212,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:39.401169Z"
+    },
+    {
+      "name": "ipc_type_safety",
+      "status": {
+        "Fail": "Type safety check failed: mismatched type was accepted"
+      },
+      "duration_ms": 3,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:39.613541Z"
+    },
+    {
+      "name": "memory_fabric_write_read_consistency",
+      "status": "Pass",
+      "duration_ms": 12,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:39.616693Z"
+    },
+    {
+      "name": "memory_fabric_versioning",
+      "status": "Pass",
+      "duration_ms": 3,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:39.629128Z"
+    },
+    {
+      "name": "memory_fabric_lease_expiry",
+      "status": "Pass",
+      "duration_ms": 606,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:39.632815Z"
+    },
+    {
+      "name": "capability_unauthorized_rejection",
+      "status": {
+        "Fail": "Unauthorized operation was not rejected"
+      },
+      "duration_ms": 1,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:40.239618Z"
+    },
+    {
+      "name": "capability_audit_trail",
+      "status": {
+        "Fail": "Audit trail entry not found for operation"
+      },
+      "duration_ms": 3,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:40.240903Z"
+    },
+    {
+      "name": "boot_reproducibility_logs",
+      "status": {
+        "Fail": "Failed to read boot log (first boot)"
+      },
+      "duration_ms": 0,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:40.244868Z"
+    },
+    {
+      "name": "gpu_scheduler_claim_release",
+      "status": {
+        "Fail": "GPU device not properly claimed by agent"
+      },
+      "duration_ms": 2,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:40.245144Z"
+    },
+    {
+      "name": "gpu_scheduler_preemption",
+      "status": {
+        "Fail": "GPU preemption failed: device not transferred to higher priority agent"
+      },
+      "duration_ms": 2,
+      "details": null,
+      "timestamp": "2025-11-19T14:28:40.247865Z"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 6,
+    "failed": 10,
+    "skipped": 0,
+    "duration_ms": 1200
+  }
+}

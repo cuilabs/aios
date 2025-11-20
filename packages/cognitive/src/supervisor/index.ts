@@ -4,9 +4,9 @@
  */
 
 import type { AgentContext } from "../context/index.js";
-import { ContextAllocator } from "../context/index.js";
+import type { ContextAllocator } from "../context/index.js";
 import type { PlanningTask } from "../planning/index.js";
-import { PlanningManager } from "../planning/index.js";
+import type { PlanningManager } from "../planning/index.js";
 
 export interface AgentSupervisorConfig {
 	readonly maxConcurrentAgents: number;
@@ -83,10 +83,15 @@ export class AgentSupervisor {
 	private updateAgentStatus(agentId: string): void {
 		const contexts = this.config.contextAllocator.getByAgent(agentId);
 
-		// Get active tasks (simplified - in production, query planning manager)
 		const activeTasks: PlanningTask[] = [];
+		for (const task of this.config.planningManager.getAllTasks?.() ?? []) {
+			if (task.agentId === agentId && (task.status === "pending" || task.status === "executing")) {
+				activeTasks.push(task);
+			}
+		}
 
-		const state: AgentStatus["state"] = contexts.length > 0 ? "active" : "idle";
+		const state: AgentStatus["state"] =
+			contexts.length > 0 || activeTasks.length > 0 ? "active" : "idle";
 
 		const status: AgentStatus = {
 			agentId,
@@ -106,9 +111,9 @@ export class AgentSupervisor {
 
 		return {
 			totalAgents: this.activeAgents.size,
-			activeAgents: Array.from(this.agentStatuses.values()).filter((s) => s.state === "active").length,
+			activeAgents: Array.from(this.agentStatuses.values()).filter((s) => s.state === "active")
+				.length,
 			totalContexts: contextStats.total,
 		};
 	}
 }
-

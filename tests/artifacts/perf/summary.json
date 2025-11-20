@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-11-19T20:12:40.228984Z",
+  "latency": {
+    "agent_types": {
+      "planning": {
+        "p50_ms": 1.0,
+        "p95_ms": 1.0,
+        "p99_ms": 1.0,
+        "count": 5
+      },
+      "tool_use": {
+        "p50_ms": 1.0,
+        "p95_ms": 1.0,
+        "p99_ms": 1.0,
+        "count": 5
+      },
+      "reasoning": {
+        "p50_ms": 1.0,
+        "p95_ms": 5.0,
+        "p99_ms": 5.0,
+        "count": 5
+      }
+    }
+  },
+  "throughput": {
+    "ops_per_second": 1739.226977888238,
+    "per_node": {
+      "node1": 3479.0
+    }
+  },
+  "resource_utilization": {
+    "cpu_percent": 0.0,
+    "ram_mb": 36864,
+    "gpu_percent": 0.0,
+    "io_ops_per_sec": 176986.25222956017
+  },
+  "swap_activity": {
+    "swap_in_per_minute": 0,
+    "swap_out_per_minute": 0
+  },
+  "garbage_healing": {
+    "heal_ops_per_minute": 0
+  },
+  "baseline_thresholds": {
+    "latency_p99_max_ms": 100.0,
+    "throughput_min_ops_per_sec": 500.0
+  }
+}

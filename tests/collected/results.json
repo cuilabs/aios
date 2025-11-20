@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-11-19T11:36:29Z",
+  "output_dir": "tests/artifacts/integration",
+  "tests": {
+    "kernel_boot": "skipped",
+    "kernel_tests": "skipped",
+    "integration": "skipped"
+  }
+}

@@ -40,6 +40,8 @@ A real operating system kernel written in Rust, running on bare metal. The kerne
 - Interrupt handling
 - System call interface (with capability validation)
 - Agent memory pools
+- **AI-Adaptive Memory Management** (MemoryPatternAnalyzer, AICacheManager, AdaptivePaging)
+- **AI Self-Healing** (FailurePredictor, AutonomousHealer, PredictiveMaintenance)
 
 #### kernel-hal
 - **Hardware Abstraction Layer** — Portable hardware interfaces
@@ -50,8 +52,12 @@ A real operating system kernel written in Rust, running on bare metal. The kerne
 - ACPI (Advanced Configuration and Power Interface)
 - SATA/NVMe drivers
 - Basic NIC drivers
+- **GPU Scheduler** (device detection, memory allocation)
 
 #### kernel-agent
+- Agent management and lifecycle
+- **AI-Powered Resource Scheduler** (WorkloadPredictor, PredictiveAllocator)
+- Agent scheduling with AI workload prediction
 - Agent-first process management
 - Agent scheduler (deterministic epoch + weighted fair share + EDF)
 - Agent lifecycle (spawn, clone, merge, split, upgrade, specialize)
@@ -109,6 +115,11 @@ High-level runtime and userland for development and deployment:
 - Workflow management
 - Application layer
 - Development tools
+- **TensorFlow.js ML Models** (`packages/ml/`)
+  - Workload prediction models
+  - Threat detection models
+  - Failure prediction models
+  - Memory access prediction models
 
 ## System Calls
 
@@ -474,5 +485,6 @@ AIOS provides system calls for low-level agent operations. All syscalls:
 
 **Built:** August 2025  
 **Version:** 0.1.0  
+**Last Updated:** November 2025  
 **Status:** Production-grade foundation - early development  
 **Target:** x86_64 bare metal

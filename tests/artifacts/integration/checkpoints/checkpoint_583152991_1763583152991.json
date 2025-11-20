@@ -1,0 +1,13 @@
+{
+  "checkpointId": "checkpoint_583152991_1763583152991",
+  "agentId": "583152991",
+  "timestamp": 1763583152991,
+  "state": "running",
+  "resourceUsage": {
+    "cpu": 0,
+    "memory": 0,
+    "network": 0,
+    "io": 0
+  },
+  "startedAt": 1763583152991
+}

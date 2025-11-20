@@ -9,6 +9,8 @@ extern crate alloc;
 pub mod agent;
 pub mod scheduler;
 pub mod lifecycle;
+#[cfg(feature = "alloc")]
+pub mod ai_scheduler;
 
 use agent::Agent;
 use scheduler::AgentScheduler;
@@ -35,7 +37,16 @@ impl AgentManager {
         let mut agents = self.agents.lock();
         agents.push(agent);
         
-        self.scheduler.add_agent(agent_id);
+        self.scheduler.add_agent(agent_id, 1024, 0); // Default weight and priority
+        
+        // Initialize AI scheduler if not already initialized
+        #[cfg(feature = "alloc")]
+        {
+            use crate::ai_scheduler;
+            if ai_scheduler::get().is_none() {
+                ai_scheduler::init();
+            }
+        }
         
         Ok(agent_id)
     }

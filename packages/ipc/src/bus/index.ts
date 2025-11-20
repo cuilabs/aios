@@ -3,14 +3,14 @@
  * Routes messages between agents based on intent and context
  */
 
-import type { SemanticMessage, MessageHandler, MessageFilter, MessageResponse } from "../types.js";
 import { SemanticMessageBuilder } from "../message/index.js";
+import type { MessageFilter, MessageHandler, MessageResponse, SemanticMessage } from "../types.js";
 
 export interface BusMetrics {
-	readonly totalMessages: number;
-	readonly deliveredMessages: number;
-	readonly failedMessages: number;
-	readonly averageLatency: number;
+	totalMessages: number;
+	deliveredMessages: number;
+	failedMessages: number;
+	averageLatency: number;
 }
 
 /**
@@ -27,6 +27,10 @@ export class SemanticMessageBus {
 		failedMessages: 0,
 		averageLatency: 0,
 	};
+	private readonly subscriptions = new Map<
+		string,
+		Array<{ filter: MessageFilter; callback: (message: SemanticMessage) => void }>
+	>();
 
 	/**
 	 * Register message handler for an agent
@@ -85,7 +89,7 @@ export class SemanticMessageBus {
 					recipientId,
 					false,
 					undefined,
-					error instanceof Error ? error.message : "Unknown error",
+					error instanceof Error ? error.message : "Unknown error"
 				);
 				responses.push(errorResponse);
 			}
@@ -94,16 +98,17 @@ export class SemanticMessageBus {
 		// Update latency metrics
 		const latency = Date.now() - startTime;
 		this.metrics.averageLatency =
-			(this.metrics.averageLatency * (this.metrics.totalMessages - 1) + latency) / this.metrics.totalMessages;
+			(this.metrics.averageLatency * (this.metrics.totalMessages - 1) + latency) /
+			this.metrics.totalMessages;
 
 		// Return first response if only one recipient, otherwise return null
-		return responses.length === 1 ? responses[0] : null;
+		return responses.length === 1 ? (responses[0] ?? null) : null;
 	}
 
 	/**
 	 * Send message and wait for response
 	 */
-	async sendAndWait(message: SemanticMessage, timeout: number = 5000): Promise<MessageResponse> {
+	async sendAndWait(message: SemanticMessage, timeout = 5000): Promise<MessageResponse> {
 		return new Promise((resolve, reject) => {
 			const timeoutId = setTimeout(() => {
 				this.pendingResponses.delete(message.id);
@@ -141,21 +146,36 @@ export class SemanticMessageBus {
 
 	/**
 	 * Subscribe to messages matching filter
+	 * Implements event emitter pattern for message subscriptions
 	 */
 	subscribe(filter: MessageFilter, callback: (message: SemanticMessage) => void): () => void {
-		// Simplified subscription - in production, use event emitter pattern
-		const unsubscribe = () => {
-			// Remove subscription
-		};
+		const subscriptionId = this.generateSubscriptionId();
+		const subscriptions = this.subscriptions.get(subscriptionId) ?? [];
+		subscriptions.push({ filter, callback });
+		this.subscriptions.set(subscriptionId, subscriptions);
 
-		// Process existing queue
 		for (const message of this.messageQueue) {
 			if (this.matchesFilter(message, filter)) {
 				callback(message);
 			}
 		}
 
-		return unsubscribe;
+		return () => {
+			const subs = this.subscriptions.get(subscriptionId);
+			if (subs) {
+				const index = subs.findIndex((s) => s.callback === callback);
+				if (index !== -1) {
+					subs.splice(index, 1);
+					if (subs.length === 0) {
+						this.subscriptions.delete(subscriptionId);
+					}
+				}
+			}
+		};
+	}
+
+	private generateSubscriptionId(): string {
+		return `sub-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 	}
 
 	/**
@@ -201,4 +221,3 @@ export class SemanticMessageBus {
 		return true;
 	}
 }
-

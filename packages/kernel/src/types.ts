@@ -37,4 +37,3 @@ export interface SchedulingPolicy {
 	readonly fairness: "fifo" | "priority" | "deadline" | "round-robin";
 	readonly quantum: number;
 }
-

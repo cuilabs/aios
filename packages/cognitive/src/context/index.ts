@@ -5,6 +5,8 @@
 
 import type { AgentContext } from "../types.js";
 
+export type { AgentContext };
+
 /**
  * Context allocator
  * Allocates and manages execution contexts for agents
@@ -13,7 +15,7 @@ export class ContextAllocator {
 	private readonly contexts = new Map<string, AgentContext>();
 	private readonly maxContexts: number;
 
-	constructor(maxContexts: number = 1000) {
+	constructor(maxContexts = 1000) {
 		this.maxContexts = maxContexts;
 	}
 
@@ -134,4 +136,3 @@ export class ContextAllocator {
 		return `ctx-${agentId}-${timestamp}-${random}`;
 	}
 }
-

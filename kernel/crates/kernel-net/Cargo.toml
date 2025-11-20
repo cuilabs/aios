@@ -1,9 +1,13 @@
 [package]
-name = "kernel-net"
+name = "aios-kernel-net"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+aios-kernel-capability = { path = "../kernel-capability" }
+aios-kernel-events = { path = "../kernel-events" }
+aios-kernel-observability = { path = "../kernel-observability" }
+aios-kernel-policy = { path = "../kernel-policy" }
 spin = "0.9"
 bitflags = "2.5"
 x86_64 = { version = "0.14", features = ["instructions"] }

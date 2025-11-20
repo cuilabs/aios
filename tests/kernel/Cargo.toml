@@ -1,0 +1,31 @@
+[package]
+name = "aios-kernel-tests"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "kernel_tests"
+path = "lib.rs"
+
+[[test]]
+name = "unit_tests"
+path = "unit/mod.rs"
+harness = true
+
+[[test]]
+name = "integration_tests"
+path = "integration/mod.rs"
+harness = true
+
+[dependencies]
+aios-kernel-core = { path = "../../kernel/crates/kernel-core" }
+aios-kernel-agent = { path = "../../kernel/crates/kernel-agent" }
+aios-kernel-policy = { path = "../../kernel/crates/kernel-policy" }
+aios-kernel-capability = { path = "../../kernel/crates/kernel-capability" }
+aios-kernel-memory = { path = "../../kernel/crates/kernel-core" }
+spin = "0.9"
+
+[features]
+default = ["alloc"]
+alloc = []
+

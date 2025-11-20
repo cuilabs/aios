@@ -1,0 +1,19 @@
+{
+	"name": "@aios/services/identityd",
+	"version": "0.1.0",
+	"type": "module",
+	"description": "Identity Service for AIOS - Agent identity management, certificates, and attestation",
+	"main": "src/index.ts",
+	"scripts": {
+		"build": "tsc",
+		"start": "node dist/index.js"
+	},
+	"dependencies": {
+		"@aios/ipc": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/node": "^20.0.0",
+		"typescript": "^5.3.0"
+	}
+}
+

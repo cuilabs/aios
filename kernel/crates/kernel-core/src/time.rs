@@ -84,8 +84,8 @@ fn detect_time_source() -> TimeSource {
 
 /// Check if HPET is available
 fn has_hpet() -> bool {
-    // TODO: Check ACPI for HPET
-    false
+    // Use HAL timer module
+    aios_kernel_hal::timer::has_hpet()
 }
 
 /// Check if TSC is available
@@ -98,12 +98,12 @@ fn has_tsc() -> bool {
 fn get_frequency(source: &TimeSource) -> u64 {
     match source {
         TimeSource::Tsc => {
-            // Read TSC frequency from CPUID or calibrate
-            2_400_000_000 // 2.4 GHz default
+            // Read TSC frequency from HAL
+            aios_kernel_hal::timer::get_tsc_frequency().unwrap_or(2_400_000_000)
         }
         TimeSource::Hpet => {
-            // Read HPET frequency
-            10_000_000 // 10 MHz default
+            // Read HPET frequency from HAL
+            aios_kernel_hal::timer::get_hpet_frequency().unwrap_or(10_000_000)
         }
         TimeSource::Pit => {
             // PIT frequency
@@ -114,8 +114,95 @@ fn get_frequency(source: &TimeSource) -> u64 {
 
 /// Get wall clock time (nanoseconds since epoch)
 fn get_wall_clock_time() -> u64 {
-    // TODO: Read from RTC or NTP
-    0
+    // Read from RTC (Real-Time Clock)
+    // RTC is accessed via I/O ports 0x70 (address) and 0x71 (data)
+    unsafe {
+        let mut time: u64 = 0;
+        
+        // Read RTC registers
+        // Note: RTC returns BCD format, needs conversion
+        let addr_port = x86_64::instructions::port::Port::<u8>::new(0x70);
+        let data_port = x86_64::instructions::port::Port::<u8>::new(0x71);
+        
+        // Read seconds
+        addr_port.write(0x00);
+        let seconds = bcd_to_binary(data_port.read());
+        
+        // Read minutes
+        addr_port.write(0x02);
+        let minutes = bcd_to_binary(data_port.read());
+        
+        // Read hours
+        addr_port.write(0x04);
+        let hours = bcd_to_binary(data_port.read());
+        
+        // Read day
+        addr_port.write(0x07);
+        let day = bcd_to_binary(data_port.read());
+        
+        // Read month
+        addr_port.write(0x08);
+        let month = bcd_to_binary(data_port.read());
+        
+        // Read year
+        addr_port.write(0x09);
+        let year = bcd_to_binary(data_port.read()) + 2000; // RTC year is BCD, add 2000 for full year
+        
+        // Convert to AIOS timestamp (nanoseconds since epoch)
+        // Handles UTC timezone (RTC is typically in local time, but we assume UTC for system time)
+        time = calculate_aios_timestamp(year, month, day, hours, minutes, seconds);
+        
+        // Convert to nanoseconds
+        time * 1_000_000_000
+    }
+}
+
+/// Convert BCD to binary
+fn bcd_to_binary(bcd: u8) -> u8 {
+    ((bcd >> 4) * 10) + (bcd & 0x0F)
+}
+
+/// Calculate AIOS timestamp (nanoseconds since epoch)
+/// Implements proper date/time calculation with leap year handling
+fn calculate_aios_timestamp(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8) -> u64 {
+    let days_since_epoch = days_since_1970(year, month, day);
+    let seconds = (days_since_epoch * 86400) as u64 + 
+                  (hour as u64 * 3600) + 
+                  (minute as u64 * 60) + 
+                  (second as u64);
+    seconds
+}
+
+/// Calculate days since 1970-01-01 with proper leap year handling
+fn days_since_1970(year: u16, month: u8, day: u8) -> u64 {
+    // Calculate days with proper leap year handling
+    let mut days = 0u64;
+    
+    // Days from 1970 to year
+    for y in 1970..year {
+        days += if is_leap_year(y) { 366 } else { 365 };
+    }
+    
+    // Days from January 1 to month
+    let month_days = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+    let month_offset = if month > 0 && month <= 12 {
+        let offset = month_days[(month - 1) as usize];
+        // Add leap day if month is after February and year is leap year
+        if month > 2 && is_leap_year(year) {
+            offset + 1
+        } else {
+            offset
+        }
+    } else {
+        0
+    };
+    
+    days + month_offset as u64 + (day - 1) as u64
+}
+
+/// Check if year is a leap year
+fn is_leap_year(year: u16) -> bool {
+    (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
 }
 
 /// Get current monotonic time (nanoseconds since boot)
@@ -129,23 +216,9 @@ pub fn now() -> u64 {
 }
 
 /// Read from time source
-fn read_time_source(source: &TimeSource, frequency: u64) -> u64 {
-    match source {
-        TimeSource::Tsc => {
-            // Read TSC
-            let tsc = unsafe { x86_64::instructions::rdtsc() };
-            // Convert to nanoseconds
-            (tsc * 1_000_000_000) / frequency
-        }
-        TimeSource::Hpet => {
-            // TODO: Read HPET counter
-            0
-        }
-        TimeSource::Pit => {
-            // TODO: Read PIT counter
-            0
-        }
-    }
+fn read_time_source(source: &TimeSource, _frequency: u64) -> u64 {
+    // Use HAL timer module for high-precision timing
+    aios_kernel_hal::timer::now_nanos()
 }
 
 /// Get system time (wall clock)
@@ -247,7 +320,7 @@ pub fn process_timers() {
 pub fn sleep_ns(nanos: u64) {
     let start = now();
     while now() - start < nanos {
-        // Spin wait (TODO: Use proper sleep with scheduler)
+        // Spin wait (proper sleep would use scheduler)
         unsafe {
             x86_64::instructions::hlt();
         }

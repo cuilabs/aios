@@ -3,7 +3,7 @@
  * Manages agent toolchains and tools
  */
 
-import type { Toolchain, Tool } from "../types.js";
+import type { Tool, Toolchain } from "../types.js";
 
 /**
  * Toolchain manager
@@ -30,7 +30,11 @@ export class ToolchainManager {
 	/**
 	 * Create toolchain
 	 */
-	create(name: string, toolIds: readonly string[], configuration: Readonly<Record<string, unknown>> = {}): Toolchain {
+	create(
+		name: string,
+		toolIds: readonly string[],
+		configuration: Readonly<Record<string, unknown>> = {}
+	): Toolchain {
 		const toolchainId = this.generateToolchainId();
 
 		// Validate all tools exist
@@ -131,4 +135,3 @@ export class ToolchainManager {
 		return `toolchain-${timestamp}-${random}`;
 	}
 }
-

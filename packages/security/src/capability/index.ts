@@ -12,7 +12,9 @@ import type { CapabilityToken } from "../types.js";
  */
 export class CapabilityManager {
 	private readonly tokens = new Map<string, CapabilityToken>();
-	private readonly identityManager: { sign: (agentId: string, data: Uint8Array) => Uint8Array | null };
+	private readonly identityManager: {
+		sign: (agentId: string, data: Uint8Array) => Uint8Array | null;
+	};
 
 	constructor(identityManager: { sign: (agentId: string, data: Uint8Array) => Uint8Array | null }) {
 		this.identityManager = identityManager;
@@ -25,7 +27,7 @@ export class CapabilityManager {
 		agentId: string,
 		capabilities: readonly string[],
 		permissions: Readonly<Record<string, unknown>> = {},
-		expiresAt?: number,
+		expiresAt?: number
 	): CapabilityToken {
 		const tokenId = this.generateTokenId();
 		const tokenData = {
@@ -75,11 +77,26 @@ export class CapabilityManager {
 		};
 
 		const data = new TextEncoder().encode(JSON.stringify(tokenData));
-		const expectedHash = QuantumSafeCrypto.hash(data);
+		const dataHash = QuantumSafeCrypto.hash(data);
 
-		// Simplified signature verification
 		if (token.signature.length === 0) {
-			return { valid: false, reason: "Invalid signature" };
+			return { valid: false, reason: "Invalid signature: empty" };
+		}
+
+		const identity = this.identityManager.sign(token.agentId, dataHash);
+		if (!identity) {
+			return { valid: false, reason: "Invalid identity" };
+		}
+
+		const expectedSignature = QuantumSafeCrypto.hash(new Uint8Array([...dataHash, ...identity]));
+		if (expectedSignature.length !== token.signature.length) {
+			return { valid: false, reason: "Invalid signature: length mismatch" };
+		}
+
+		for (let i = 0; i < expectedSignature.length; i++) {
+			if (expectedSignature[i] !== token.signature[i]) {
+				return { valid: false, reason: "Invalid signature: verification failed" };
+			}
 		}
 
 		return { valid: true };
@@ -115,9 +132,6 @@ export class CapabilityManager {
 	 */
 	private generateTokenId(): string {
 		const bytes = QuantumSafeCrypto.randomBytes(16);
-		return `cap-${Array.from(bytes)
-			.map((b) => b.toString(16).padStart(2, "0"))
-			.join("")}`;
+		return `cap-${Array.from(bytes, (b: number) => b.toString(16).padStart(2, "0")).join("")}`;
 	}
 }
-

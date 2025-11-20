@@ -3,13 +3,30 @@
  * The AIOS operating system runtime that integrates all layers
  */
 
-import { QuantumSafeCrypto, createDeterministicScheduler, ResourceIsolation, SecureEnclaveManager } from "@aios/kernel";
-import { MemoryFabric } from "@aios/memory";
+import {
+	EnvironmentManager,
+	PipelineManager,
+	ToolchainManager,
+	WorkflowManager,
+} from "@aios/application";
+import { AgentSupervisor, ContextAllocator, PlanningManager } from "@aios/cognitive";
+import type { AgentSupervisor as AgentSupervisorType } from "@aios/cognitive";
 import { SemanticMessageBus } from "@aios/ipc";
-import { IdentityManager, CapabilityManager, BehavioralAnalyzer, TrustGraphManager } from "@aios/security";
-import { ContextAllocator, PlanningManager, AgentSupervisor } from "@aios/cognitive";
+import type { SemanticMessageBus as SemanticMessageBusType } from "@aios/ipc";
+import {
+	ResourceIsolation,
+	SecureEnclaveManager,
+	createDeterministicScheduler,
+} from "@aios/kernel";
+import { MemoryFabric } from "@aios/memory";
 import { AgentOrchestrator } from "@aios/orchestration";
-import { WorkflowManager, PipelineManager, EnvironmentManager, ToolchainManager } from "@aios/application";
+import {
+	BehavioralAnalyzer,
+	CapabilityManager,
+	IdentityManager,
+	TrustGraphManager,
+} from "@aios/security";
+import type { TrustGraphManager as TrustGraphManagerType } from "@aios/security";
 
 export interface AIOSRuntimeConfig {
 	readonly kernelVersion: string;
@@ -110,10 +127,13 @@ export class AIOSRuntime {
 			isolation: { contexts: number };
 			enclaves: number;
 		};
-			memory: { stats: { size: number; capacity: number; dimensions: number } };
-		ipc: { metrics: ReturnType<typeof this.messageBus.getMetrics> };
-		security: { identities: number; trustGraph: ReturnType<typeof this.trustGraph.getTrustGraph> };
-		cognitive: { stats: ReturnType<typeof this.agentSupervisor.getStats> };
+		memory: { stats: { size: number; capacity: number; dimensions: number } };
+		ipc: { metrics: ReturnType<SemanticMessageBusType["getMetrics"]> };
+		security: {
+			identities: number;
+			trustGraph: ReturnType<TrustGraphManagerType["getTrustGraph"]>;
+		};
+		cognitive: { stats: ReturnType<AgentSupervisorType["getStats"]> };
 		orchestration: { agents: number };
 		application: {
 			workflows: number;
@@ -126,13 +146,13 @@ export class AIOSRuntime {
 			config: this.config,
 			kernel: {
 				scheduler: { queueLength: this.scheduler.getQueueLength() },
-				isolation: { contexts: 0 }, // Simplified
+				isolation: { contexts: this.resourceIsolation.getContextCount?.() ?? 0 },
 				enclaves: this.secureEnclaves.listEnclaves().length,
 			},
 			memory: { stats: this.memoryFabric.getStats() },
 			ipc: { metrics: this.messageBus.getMetrics() },
 			security: {
-				identities: 0, // Simplified
+				identities: this.identityManager.listIdentities?.()?.length ?? 0,
 				trustGraph: this.trustGraph.getTrustGraph(),
 			},
 			cognitive: { stats: this.agentSupervisor.getStats() },
@@ -291,4 +311,3 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 	console.log("AIOS Runtime initialized");
 	console.log(JSON.stringify(runtime.getInfo(), null, 2));
 }
-

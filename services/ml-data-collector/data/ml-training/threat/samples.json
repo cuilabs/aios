@@ -1,0 +1,207 @@
+[
+  {
+    "timestamp": 1763667811730,
+    "agentId": "agent-0",
+    "features": {
+      "metrics": {
+        "operationCount": 287,
+        "averageLatency": 35.99652139533205,
+        "resourceUsage": {
+          "cpu": 0.5348303532757308,
+          "memory": 209715200,
+          "network": 12925.914347724738
+        },
+        "messageFrequency": 41.3559829292987,
+        "networkConnections": 12.662341673801514,
+        "fileAccesses": 53.32107309287494,
+        "capabilityEscalations": 0,
+        "errorRate": 0.028194374946933144,
+        "memoryAllocations": 598.4871168898484
+      },
+      "anomalies": [],
+      "historicalThreats": [
+        0.07810048478774197,
+        0.07752625941857341,
+        0.061686451567698836,
+        0.17971240987775447,
+        0.054728053411370416,
+        0.11622144324838923,
+        0.09821239701580993,
+        0.11062367902343886,
+        0.06822528014722776,
+        0.11604088081696547
+      ],
+      "timeSinceLastThreat": 15737.333715308647
+    },
+    "labels": {
+      "threatScore": 0.08546135737852789,
+      "threatType": 0,
+      "confidence": 0.7203335611436625,
+      "recommendedAction": 0
+    }
+  },
+  {
+    "timestamp": 1763667811730,
+    "agentId": "agent-1",
+    "features": {
+      "metrics": {
+        "operationCount": 351,
+        "averageLatency": 27.048206459637626,
+        "resourceUsage": {
+          "cpu": 0.5900944915272732,
+          "memory": 209715200,
+          "network": 13797.454907745481
+        },
+        "messageFrequency": 42.94676505481793,
+        "networkConnections": 10.407230972148938,
+        "fileAccesses": 39.561448920144,
+        "capabilityEscalations": 0,
+        "errorRate": 0.028293371720262778,
+        "memoryAllocations": 354.1367252276824
+      },
+      "anomalies": [],
+      "historicalThreats": [
+        0.11029108339972825,
+        0.11697553643338005,
+        0.06405516354541506,
+        0.12320023420804933,
+        0.15143506653603286,
+        0.04114089988192471,
+        0.02528280812689987,
+        0.1734207817408455,
+        0.18738551311987092,
+        0.0275353924481077
+      ],
+      "timeSinceLastThreat": 41093.647047944316
+    },
+    "labels": {
+      "threatScore": 0.08171031387121554,
+      "threatType": 0,
+      "confidence": 0.5739243589746957,
+      "recommendedAction": 0
+    }
+  },
+  {
+    "timestamp": 1763667811730,
+    "agentId": "agent-2",
+    "features": {
+      "metrics": {
+        "operationCount": 551,
+        "averageLatency": 59.58772747496045,
+        "resourceUsage": {
+          "cpu": 0.6353889369074173,
+          "memory": 209715200,
+          "network": 13932.306542690885
+        },
+        "messageFrequency": 43.378843053158405,
+        "networkConnections": 9.385884911139225,
+        "fileAccesses": 69.286940289023,
+        "capabilityEscalations": 0,
+        "errorRate": 0.020481470493043975,
+        "memoryAllocations": 550.8248677318732
+      },
+      "anomalies": [],
+      "historicalThreats": [
+        0.13186835010500145,
+        0.03291319349983048,
+        0.02151903150424124,
+        0.14784208653412662,
+        0.11504674460353669,
+        0.19660203064303766,
+        0.12075688712852811,
+        0.07419267294474784,
+        0.172652413751424,
+        0.19317439694820218
+      ],
+      "timeSinceLastThreat": 36536.343534871194
+    },
+    "labels": {
+      "threatScore": 0.16191208288628506,
+      "threatType": 0,
+      "confidence": 0.5573896970218514,
+      "recommendedAction": 0
+    }
+  },
+  {
+    "timestamp": 1763667811730,
+    "agentId": "agent-3",
+    "features": {
+      "metrics": {
+        "operationCount": 152,
+        "averageLatency": 17.269573556738894,
+        "resourceUsage": {
+          "cpu": 0.6540950709401385,
+          "memory": 209715200,
+          "network": 9309.234218491376
+        },
+        "messageFrequency": 36.224851853762665,
+        "networkConnections": 7.710489729806933,
+        "fileAccesses": 47.89150574766865,
+        "capabilityEscalations": 0,
+        "errorRate": 0.021091414576152993,
+        "memoryAllocations": 509.74762472468285
+      },
+      "anomalies": [],
+      "historicalThreats": [
+        0.0021786432518133836,
+        0.19328642230680773,
+        0.1327854242491068,
+        0.13448653611850991,
+        0.09120772027729492,
+        0.029786133647672665,
+        0.15827173218456433,
+        0.13328867612083878,
+        0.10586628685996452,
+        0.08459237230468859
+      ],
+      "timeSinceLastThreat": 11301.675602660667
+    },
+    "labels": {
+      "threatScore": 0.16186830561647533,
+      "threatType": 0,
+      "confidence": 0.7575146439304095,
+      "recommendedAction": 0
+    }
+  },
+  {
+    "timestamp": 1763667811730,
+    "agentId": "agent-4",
+    "features": {
+      "metrics": {
+        "operationCount": 184,
+        "averageLatency": 19.742002222735948,
+        "resourceUsage": {
+          "cpu": 0.48256919050442304,
+          "memory": 209715200,
+          "network": 12701.455951051546
+        },
+        "messageFrequency": 44.291202537322064,
+        "networkConnections": 11.44609742073246,
+        "fileAccesses": 30.35422552556442,
+        "capabilityEscalations": 0,
+        "errorRate": 0.04329891446013054,
+        "memoryAllocations": 195.77379712571866
+      },
+      "anomalies": [],
+      "historicalThreats": [
+        0.11161606513591288,
+        0.09628228590973037,
+        0.13296228347570027,
+        0.07635132528028943,
+        0.19373970594865067,
+        0.04965011270669395,
+        0.1612985854996837,
+        0.009435820384758254,
+        0.004291576809051323,
+        0.1094278459891879
+      ],
+      "timeSinceLastThreat": 53269.05805853895
+    },
+    "labels": {
+      "threatScore": 0.20068334266348128,
+      "threatType": 0,
+      "confidence": 0.755435550861286,
+      "recommendedAction": 0
+    }
+  }
+]

@@ -9,3 +9,7 @@ aios-kernel-crypto = { path = "../kernel-crypto" }
 aios-kernel-events = { path = "../kernel-events" }
 spin = "0.9"
 
+[features]
+default = []
+alloc = []
+

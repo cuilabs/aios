@@ -106,8 +106,7 @@ fn format_message(level: LogLevel, message: &'static str) -> alloc::string::Stri
 
 /// Get current timestamp (nanoseconds since boot)
 fn get_timestamp() -> u64 {
-    // TODO: Use actual time source
-    0
+    crate::time::now()
 }
 
 /// Log macros

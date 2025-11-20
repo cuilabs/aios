@@ -46,7 +46,10 @@ export class PipelineManager {
 	/**
 	 * Execute pipeline
 	 */
-	async execute(pipelineId: string, executor: (stage: PipelineStage) => Promise<void>): Promise<boolean> {
+	async execute(
+		pipelineId: string,
+		executor: (stage: PipelineStage) => Promise<void>
+	): Promise<boolean> {
 		const pipeline = this.pipelines.get(pipelineId);
 		if (!pipeline) {
 			return false;
@@ -60,7 +63,9 @@ export class PipelineManager {
 			// Execute stages in dependency order
 			while (executedStages.size < pipeline.stages.length) {
 				const readyStages = pipeline.stages.filter(
-					(stage) => !executedStages.has(stage.id) && stage.dependencies.every((depId) => executedStages.has(depId)),
+					(stage) =>
+						!executedStages.has(stage.id) &&
+						stage.dependencies.every((depId) => executedStages.has(depId))
 				);
 
 				if (readyStages.length === 0) {
@@ -84,7 +89,7 @@ export class PipelineManager {
 								this.updateStageStatus(pipelineId, stage.id, "failed");
 								throw error;
 							}
-						}),
+						})
 					);
 				}
 
@@ -123,7 +128,11 @@ export class PipelineManager {
 	/**
 	 * Update stage status
 	 */
-	private updateStageStatus(pipelineId: string, stageId: string, status: PipelineStage["status"]): void {
+	private updateStageStatus(
+		pipelineId: string,
+		stageId: string,
+		status: PipelineStage["status"]
+	): void {
 		const pipeline = this.pipelines.get(pipelineId);
 		if (!pipeline) {
 			return;
@@ -162,4 +171,3 @@ export class PipelineManager {
 		return `pipeline-${timestamp}-${random}`;
 	}
 }
-

@@ -42,4 +42,3 @@ export interface ExecutionStep {
 	readonly parameters: Readonly<Record<string, unknown>>;
 	readonly timeout: number;
 }
-

@@ -4,14 +4,15 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+aios-kernel-events = { path = "../kernel-events" }
+aios-kernel-ipc = { path = "../kernel-ipc" }
 spin = "0.9"
 bitflags = "2.5"
 x86_64 = { version = "0.14", features = ["instructions"] }
 volatile = "0.4"
-multiboot2 = "0.11"
+multiboot2 = "0.24"
 
-[target.'cfg(target_os = "none")'.dependencies]
-bootloader = { version = "0.12", features = ["map_physical_memory"] }
+# Bootloader removed - we have our own minimal bootloader in boot/bootloader/
 
 [features]
 default = []

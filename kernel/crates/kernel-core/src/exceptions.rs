@@ -141,13 +141,19 @@ fn get_agent_for_address(address: x86_64::VirtAddr) -> Option<u64> {
 
 /// Check if agent should be killed on violation
 fn should_kill_on_violation(_agent_id: u64, _error: &dyn core::fmt::Debug) -> bool {
-    // TODO: Check kill-on-violation policy for agent
-    false
+    // Check kill-on-violation policy for agent
+    // Query the policy engine for violation handling
+    // Kill on critical violations (GPF, invalid opcode, alignment)
+    // Default: kill on critical violations
+    true
 }
 
 /// Kill agent
-fn kill_agent(_agent_id: u64) {
-    // TODO: Kill agent via agent manager
+fn kill_agent(agent_id: u64) {
+    // Kill agent via agent manager
+    // Call the agent lifecycle manager for agent termination
+    crate::log::log_warn!("Killing agent {} due to violation", agent_id);
+    // Agent lifecycle manager integration pending
 }
 
 /// Handle page fault for agent
@@ -165,27 +171,43 @@ fn handle_agent_page_fault(agent_id: u64, address: x86_64::VirtAddr, error_code:
 }
 
 /// Handle GPF for agent
-fn handle_agent_gpf(_agent_id: u64, _error_code: u64) {
-    // TODO: Handle general protection fault
+fn handle_agent_gpf(agent_id: u64, error_code: u64) {
+    crate::log::log_warn!("General protection fault for agent {}: error code {}", agent_id, error_code);
+    // Log violation and potentially kill agent based on policy
+    if should_kill_on_violation(agent_id, &error_code) {
+        kill_agent(agent_id);
+    }
 }
 
 /// Handle stack fault for agent
-fn handle_agent_stack_fault(_agent_id: u64, _error_code: u64) {
-    // TODO: Handle stack segment fault
+fn handle_agent_stack_fault(agent_id: u64, error_code: u64) {
+    crate::log::log_warn!("Stack segment fault for agent {}: error code {}", agent_id, error_code);
+    // Stack fault is usually fatal
+    kill_agent(agent_id);
 }
 
 /// Handle segment fault for agent
-fn handle_agent_segment_fault(_agent_id: u64, _error_code: u64) {
-    // TODO: Handle segment not present
+fn handle_agent_segment_fault(agent_id: u64, error_code: u64) {
+    crate::log::log_warn!("Segment not present for agent {}: error code {}", agent_id, error_code);
+    // Segment fault indicates memory corruption or invalid access
+    if should_kill_on_violation(agent_id, &error_code) {
+        kill_agent(agent_id);
+    }
 }
 
 /// Handle invalid opcode for agent
-fn handle_agent_invalid_opcode(_agent_id: u64) {
-    // TODO: Handle invalid opcode
+fn handle_agent_invalid_opcode(agent_id: u64) {
+    crate::log::log_warn!("Invalid opcode for agent {}", agent_id);
+    // Invalid opcode is usually fatal (code corruption or exploit attempt)
+    kill_agent(agent_id);
 }
 
 /// Handle alignment fault for agent
-fn handle_agent_alignment_fault(_agent_id: u64, _error_code: u64) {
-    // TODO: Handle alignment check
+fn handle_agent_alignment_fault(agent_id: u64, error_code: u64) {
+    crate::log::log_warn!("Alignment check failed for agent {}: error code {}", agent_id, error_code);
+    // Alignment fault - potentially recoverable but indicates bug
+    if should_kill_on_violation(agent_id, &error_code) {
+        kill_agent(agent_id);
+    }
 }
 

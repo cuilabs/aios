@@ -19,7 +19,7 @@ export class EnvironmentManager {
 		name: string,
 		agents: readonly string[] = [],
 		resources: Readonly<Record<string, unknown>> = {},
-		configuration: Readonly<Record<string, unknown>> = {},
+		configuration: Readonly<Record<string, unknown>> = {}
 	): Environment {
 		const environmentId = this.generateEnvironmentId();
 
@@ -120,4 +120,3 @@ export class EnvironmentManager {
 		return `env-${timestamp}-${random}`;
 	}
 }
-

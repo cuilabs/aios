@@ -1,0 +1,22 @@
+{
+  "agent_types": {
+    "planning": {
+      "p50_ms": 1.0,
+      "p95_ms": 1.0,
+      "p99_ms": 1.0,
+      "count": 5
+    },
+    "tool_use": {
+      "p50_ms": 1.0,
+      "p95_ms": 1.0,
+      "p99_ms": 1.0,
+      "count": 5
+    },
+    "reasoning": {
+      "p50_ms": 1.0,
+      "p95_ms": 5.0,
+      "p99_ms": 5.0,
+      "count": 5
+    }
+  }
+}

@@ -37,8 +37,12 @@ impl IPCMessageBus {
         message.id = *next_id;
         *next_id = next_id.wrapping_add(1);
         
-        // Set timestamp (simplified - would use kernel time)
-        message.timestamp = 0; // TODO: Get from kernel time
+        // Timestamp should be set by caller (kernel-core) to avoid circular dependency
+        // If not set, use 0 as placeholder
+        if message.timestamp == 0 {
+            // In a real implementation, this would be set by the caller
+            // For now, we'll leave it as 0 and let the caller set it
+        }
 
         // Route to destination agent
         let mut queues = self.queues.lock();

@@ -24,7 +24,7 @@ pub struct DirectoryEntry {
 pub struct Directory {
     pub inode: Inode,
     #[cfg(feature = "alloc")]
-    entries: alloc::collections::BTreeMap<String, InodeNumber>,
+    pub entries: alloc::collections::BTreeMap<String, InodeNumber>,
 }
 
 impl Directory {

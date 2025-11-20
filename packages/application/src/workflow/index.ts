@@ -46,7 +46,10 @@ export class WorkflowManager {
 	/**
 	 * Execute workflow
 	 */
-	async execute(workflowId: string, executor: (step: WorkflowStep) => Promise<Readonly<Record<string, unknown>>>): Promise<boolean> {
+	async execute(
+		workflowId: string,
+		executor: (step: WorkflowStep) => Promise<Readonly<Record<string, unknown>>>
+	): Promise<boolean> {
 		const workflow = this.workflows.get(workflowId);
 		if (!workflow) {
 			return false;
@@ -110,7 +113,11 @@ export class WorkflowManager {
 	/**
 	 * Update step status
 	 */
-	private updateStepStatus(workflowId: string, stepId: string, status: WorkflowStep["status"]): void {
+	private updateStepStatus(
+		workflowId: string,
+		stepId: string,
+		status: WorkflowStep["status"]
+	): void {
 		const workflow = this.workflows.get(workflowId);
 		if (!workflow) {
 			return;
@@ -149,4 +156,3 @@ export class WorkflowManager {
 		return `workflow-${timestamp}-${random}`;
 	}
 }
-

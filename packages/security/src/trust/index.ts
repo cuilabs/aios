@@ -4,7 +4,7 @@
  */
 
 import { QuantumSafeCrypto } from "@aios/kernel";
-import type { TrustRelationship, TrustGraph, TrustNode, TrustEdge } from "../types.js";
+import type { TrustEdge, TrustGraph, TrustNode, TrustRelationship } from "../types.js";
 
 /**
  * Trust graph manager
@@ -23,7 +23,7 @@ export class TrustGraphManager {
 		to: string,
 		level: number,
 		capabilities: readonly string[],
-		expiresAt?: number,
+		expiresAt?: number
 	): TrustRelationship {
 		const relationshipId = `${from}:${to}`;
 
@@ -65,7 +65,7 @@ export class TrustGraphManager {
 		const relationship = this.relationships.get(relationshipId);
 
 		// Check expiration
-		if (relationship && relationship.expiresAt && relationship.expiresAt < Date.now()) {
+		if (relationship?.expiresAt && relationship.expiresAt < Date.now()) {
 			this.relationships.delete(relationshipId);
 			return null;
 		}
@@ -112,13 +112,15 @@ export class TrustGraphManager {
 	/**
 	 * Get trust path between agents
 	 */
-	findTrustPath(from: string, to: string, minTrustLevel: number = 0.5): string[] | null {
-		// Simplified path finding using BFS
+	findTrustPath(from: string, to: string, minTrustLevel = 0.5): string[] | null {
+		// Path finding using BFS
 		const visited = new Set<string>();
 		const queue: Array<{ agent: string; path: string[] }> = [{ agent: from, path: [from] }];
 
 		while (queue.length > 0) {
-			const { agent, path } = queue.shift()!;
+			const item = queue.shift();
+			if (!item) break;
+			const { agent, path } = item;
 
 			if (agent === to) {
 				return path;
@@ -156,7 +158,12 @@ export class TrustGraphManager {
 	/**
 	 * Update graph edge
 	 */
-	private updateGraphEdge(from: string, to: string, level: number, capabilities: readonly string[]): void {
+	private updateGraphEdge(
+		from: string,
+		to: string,
+		level: number,
+		capabilities: readonly string[]
+	): void {
 		const edges = this.edges.get(from) ?? [];
 		const existingIndex = edges.findIndex((e) => e.to === to);
 
@@ -191,4 +198,3 @@ export class TrustGraphManager {
 		}
 	}
 }
-

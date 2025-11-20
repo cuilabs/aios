@@ -3,7 +3,7 @@
  * Monitors agent behavior patterns and detects anomalies
  */
 
-import type { BehavioralProfile, BehavioralAnomaly } from "../types.js";
+import type { BehavioralAnomaly, BehavioralProfile } from "../types.js";
 
 export interface BehaviorMetrics {
 	readonly operationCount: number;
@@ -89,7 +89,7 @@ export class BehavioralAnalyzer {
 			return {};
 		}
 
-		const sums: Record<string, number> = {
+		const sums = {
 			operationCount: 0,
 			averageLatency: 0,
 			errorRate: 0,
@@ -119,20 +119,25 @@ export class BehavioralAnalyzer {
 	 * Detect anomalies in current metrics
 	 */
 	private detectAnomalies(
-		agentId: string,
+		_agentId: string,
 		metrics: BehaviorMetrics,
-		baseline: Readonly<Record<string, number>>,
+		baseline: Readonly<Record<string, number>>
 	): readonly BehavioralAnomaly[] {
 		const anomalies: BehavioralAnomaly[] = [];
 
 		// Check latency anomaly
-		if (baseline.averageLatency > 0 && metrics.averageLatency > baseline.averageLatency * this.anomalyThresholds.latency) {
+		// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+		const baselineLatency = baseline["averageLatency"] ?? 0;
+		if (
+			baselineLatency > 0 &&
+			metrics.averageLatency > baselineLatency * this.anomalyThresholds.latency
+		) {
 			anomalies.push({
 				type: "high_latency",
-				severity: metrics.averageLatency > baseline.averageLatency * 3 ? "critical" : "high",
-				description: `Latency ${metrics.averageLatency.toFixed(2)}ms exceeds baseline ${baseline.averageLatency.toFixed(2)}ms`,
+				severity: metrics.averageLatency > baselineLatency * 3 ? "critical" : "high",
+				description: `Latency ${metrics.averageLatency.toFixed(2)}ms exceeds baseline ${baselineLatency.toFixed(2)}ms`,
 				timestamp: Date.now(),
-				metrics: { latency: metrics.averageLatency, baseline: baseline.averageLatency },
+				metrics: { latency: metrics.averageLatency, baseline: baselineLatency },
 			});
 		}
 
@@ -148,24 +153,34 @@ export class BehavioralAnalyzer {
 		}
 
 		// Check resource usage anomaly
-		if (baseline.resourceUsage > 0 && metrics.resourceUsage > baseline.resourceUsage * this.anomalyThresholds.resourceUsage) {
+		// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+		const baselineResourceUsage = baseline["resourceUsage"] ?? 0;
+		if (
+			baselineResourceUsage > 0 &&
+			metrics.resourceUsage > baselineResourceUsage * this.anomalyThresholds.resourceUsage
+		) {
 			anomalies.push({
 				type: "high_resource_usage",
 				severity: "medium",
-				description: `Resource usage exceeds baseline`,
+				description: "Resource usage exceeds baseline",
 				timestamp: Date.now(),
-				metrics: { resourceUsage: metrics.resourceUsage, baseline: baseline.resourceUsage },
+				metrics: { resourceUsage: metrics.resourceUsage, baseline: baselineResourceUsage },
 			});
 		}
 
 		// Check message frequency anomaly
-		if (baseline.messageFrequency > 0 && metrics.messageFrequency > baseline.messageFrequency * this.anomalyThresholds.messageFrequency) {
+		// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+		const baselineMessageFrequency = baseline["messageFrequency"] ?? 0;
+		if (
+			baselineMessageFrequency > 0 &&
+			metrics.messageFrequency > baselineMessageFrequency * this.anomalyThresholds.messageFrequency
+		) {
 			anomalies.push({
 				type: "high_message_frequency",
 				severity: "medium",
-				description: `Message frequency exceeds baseline`,
+				description: "Message frequency exceeds baseline",
 				timestamp: Date.now(),
-				metrics: { messageFrequency: metrics.messageFrequency, baseline: baseline.messageFrequency },
+				metrics: { messageFrequency: metrics.messageFrequency, baseline: baselineMessageFrequency },
 			});
 		}
 
@@ -174,14 +189,72 @@ export class BehavioralAnalyzer {
 
 	/**
 	 * Extract patterns from history
+	 * Performs statistical analysis on behavior metrics to identify patterns
 	 */
 	private extractPatterns(history: BehaviorMetrics[]): Readonly<Record<string, number>> {
-		// Simplified pattern extraction
-		// In production, use statistical analysis and ML
+		if (history.length === 0) {
+			return {};
+		}
+
+		const sum = history.reduce(
+			(acc, m) => ({
+				operationCount: acc.operationCount + m.operationCount,
+				averageLatency: acc.averageLatency + m.averageLatency,
+				errorRate: acc.errorRate + m.errorRate,
+				resourceUsage: acc.resourceUsage + m.resourceUsage,
+				messageFrequency: acc.messageFrequency + m.messageFrequency,
+			}),
+			{
+				operationCount: 0,
+				averageLatency: 0,
+				errorRate: 0,
+				resourceUsage: 0,
+				messageFrequency: 0,
+			}
+		);
+
+		const count = history.length;
+		const mean = {
+			operationCount: sum.operationCount / count,
+			averageLatency: sum.averageLatency / count,
+			errorRate: sum.errorRate / count,
+			resourceUsage: sum.resourceUsage / count,
+			messageFrequency: sum.messageFrequency / count,
+		};
+
+		const variance = history.reduce(
+			(acc, m) => ({
+				operationCount: acc.operationCount + (m.operationCount - mean.operationCount) ** 2,
+				averageLatency: acc.averageLatency + (m.averageLatency - mean.averageLatency) ** 2,
+				errorRate: acc.errorRate + (m.errorRate - mean.errorRate) ** 2,
+				resourceUsage: acc.resourceUsage + (m.resourceUsage - mean.resourceUsage) ** 2,
+				messageFrequency: acc.messageFrequency + (m.messageFrequency - mean.messageFrequency) ** 2,
+			}),
+			{
+				operationCount: 0,
+				averageLatency: 0,
+				errorRate: 0,
+				resourceUsage: 0,
+				messageFrequency: 0,
+			}
+		);
+
+		const stdDev = {
+			operationCount: Math.sqrt(variance.operationCount / count),
+			averageLatency: Math.sqrt(variance.averageLatency / count),
+			errorRate: Math.sqrt(variance.errorRate / count),
+			resourceUsage: Math.sqrt(variance.resourceUsage / count),
+			messageFrequency: Math.sqrt(variance.messageFrequency / count),
+		};
+
 		return {
-			avgOperations: history.reduce((sum, m) => sum + m.operationCount, 0) / history.length,
-			avgLatency: history.reduce((sum, m) => sum + m.averageLatency, 0) / history.length,
+			avgOperations: mean.operationCount,
+			avgLatency: mean.averageLatency,
+			stdDevOperations: stdDev.operationCount,
+			stdDevLatency: stdDev.averageLatency,
+			avgErrorRate: mean.errorRate,
+			avgResourceUsage: mean.resourceUsage,
+			avgMessageFrequency: mean.messageFrequency,
 		};
 	}
 }
-

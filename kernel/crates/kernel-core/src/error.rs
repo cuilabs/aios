@@ -81,7 +81,7 @@ impl ErrorHandler {
             resource: None,
             operation: None,
             context: Vec::new(),
-            timestamp: 0, // TODO: Get from kernel time
+            timestamp: crate::time::now(),
         }
     }
 
@@ -104,13 +104,13 @@ impl ErrorHandler {
                 retry: true,
                 retry_count: 1,
                 escalate: true,
-                escalate_to: None, // TODO: Get escalation target
+                escalate_to: Some(0), // Escalate to kernel error handler (agent ID 0 = kernel)
             },
             ErrorSeverity::Fatal => ErrorPropagation {
                 retry: false,
                 retry_count: 0,
                 escalate: true,
-                escalate_to: None, // TODO: Get escalation target
+                escalate_to: Some(0), // Escalate to kernel error handler (agent ID 0 = kernel)
             },
         }
     }

@@ -30,7 +30,7 @@ export class SecureEnclaveManager {
 		options: {
 			memoryProtection?: boolean;
 			encryptionAtRest?: boolean;
-		} = {},
+		} = {}
 	): SecureEnclave {
 		const keyPair = QuantumSafeCrypto.generateKeyPair();
 		const measurement = QuantumSafeCrypto.hash(keyPair.publicKey);
@@ -80,7 +80,7 @@ export class SecureEnclaveManager {
 				timestamp: attestation.timestamp,
 			},
 			attestation.measurement,
-			attestation.publicKey,
+			attestation.publicKey
 		);
 	}
 
@@ -134,4 +134,3 @@ export class SecureEnclaveManager {
 		return true;
 	}
 }
-

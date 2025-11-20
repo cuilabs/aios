@@ -28,10 +28,28 @@ impl EventBus {
     pub fn publish(&mut self, event: KernelEvent) {
         // Add to queue
         let mut queue = self.event_queue.lock();
-        queue.push(event);
+        queue.push(event.clone());
 
         // Route to subscribers
-        // TODO: Implement routing logic
+        let subscriptions = self.subscriptions.lock();
+        for subscription in subscriptions.values() {
+            // Check if subscription matches event type
+            let matches_type = subscription.event_types.iter().any(|&et| {
+                core::mem::discriminant(&et) == core::mem::discriminant(&event.event_type)
+            });
+            
+            if matches_type {
+                // Check agent filter
+                if let Some(filter_agent_id) = subscription.agent_id_filter {
+                    if event.agent_id != Some(filter_agent_id) {
+                        continue;
+                    }
+                }
+                
+                // Call callback
+                (subscription.callback)(&event);
+            }
+        }
     }
 
     /// Subscribe to events

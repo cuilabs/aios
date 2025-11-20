@@ -4,7 +4,7 @@
  */
 
 import { QuantumSafeCrypto } from "@aios/kernel";
-import type { AgentSpec, AgentPolicy, AgentOperation } from "../types.js";
+import type { AgentOperation, AgentPolicy, AgentSpec } from "../types.js";
 
 /**
  * Agent orchestrator
@@ -42,7 +42,9 @@ export class AgentOrchestrator {
 
 		// Check instance limit
 		if (effectivePolicy) {
-			const currentInstances = Array.from(this.agents.values()).filter((a) => a.type === agentType).length;
+			const currentInstances = Array.from(this.agents.values()).filter(
+				(a) => a.type === agentType
+			).length;
 			if (currentInstances >= effectivePolicy.maxInstances) {
 				throw new Error(`Maximum instances reached for agent type: ${agentType}`);
 			}
@@ -128,7 +130,9 @@ export class AgentOrchestrator {
 		}
 
 		// Merge capabilities
-		const mergedCapabilities = Array.from(new Set([...agent1.capabilities, ...agent2.capabilities]));
+		const mergedCapabilities = Array.from(
+			new Set([...agent1.capabilities, ...agent2.capabilities])
+		);
 
 		// Merge configuration
 		const mergedConfig = { ...agent1.configuration, ...agent2.configuration };
@@ -164,7 +168,13 @@ export class AgentOrchestrator {
 	/**
 	 * Split agent into multiple agents
 	 */
-	split(agentId: string, splits: Array<{ capabilities: readonly string[]; configuration: Readonly<Record<string, unknown>> }>): AgentSpec[] {
+	split(
+		agentId: string,
+		splits: Array<{
+			capabilities: readonly string[];
+			configuration: Readonly<Record<string, unknown>>;
+		}>
+	): AgentSpec[] {
 		const source = this.agents.get(agentId);
 		if (!source) {
 			throw new Error(`Agent not found: ${agentId}`);
@@ -244,7 +254,13 @@ export class AgentOrchestrator {
 	/**
 	 * Specialize agent
 	 */
-	specialize(agentId: string, specialization: { capabilities: readonly string[]; configuration: Readonly<Record<string, unknown>> }): AgentSpec {
+	specialize(
+		agentId: string,
+		specialization: {
+			capabilities: readonly string[];
+			configuration: Readonly<Record<string, unknown>>;
+		}
+	): AgentSpec {
 		const agent = this.agents.get(agentId);
 		if (!agent) {
 			throw new Error(`Agent not found: ${agentId}`);
@@ -334,4 +350,3 @@ export class AgentOrchestrator {
 			.join("")}`;
 	}
 }
-

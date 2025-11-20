@@ -20,28 +20,30 @@ pub enum InodeType {
     Socket,
 }
 
-/// Inode permissions
+/// Storage access permissions (capability-based)
 bitflags::bitflags! {
-    pub struct InodePermissions: u16 {
-        const OWNER_READ = 0o400;
-        const OWNER_WRITE = 0o200;
-        const OWNER_EXEC = 0o100;
-        const GROUP_READ = 0o040;
-        const GROUP_WRITE = 0o020;
-        const GROUP_EXEC = 0o010;
-        const OTHER_READ = 0o004;
-        const OTHER_WRITE = 0o002;
-        const OTHER_EXEC = 0o001;
+    pub struct StoragePermissions: u16 {
+        /// Agent can read from this storage
+        const READ = 1 << 0;
+        /// Agent can write to this storage
+        const WRITE = 1 << 1;
+        /// Agent can execute from this storage
+        const EXECUTE = 1 << 2;
+        /// Agent can share this storage with other agents
+        const SHARE = 1 << 3;
+        /// Agent can delete this storage
+        const DELETE = 1 << 4;
     }
 }
 
-/// Inode
+/// Storage node (inode) - represents agent-scoped storage
+#[derive(Clone)]
 pub struct Inode {
     pub ino: InodeNumber,
     pub inode_type: InodeType,
-    pub permissions: InodePermissions,
-    pub owner: u64, // Agent ID
-    pub group: u64,
+    pub permissions: StoragePermissions,
+    pub creator_agent_id: u64, // Agent that created this storage
+    pub shared_with: Vec<u64>, // List of agent IDs that have access (capability-based)
     pub size: u64,
     pub blocks: u64,
     pub atime: u64, // Access time
@@ -49,14 +51,23 @@ pub struct Inode {
     pub ctime: u64, // Change time
 }
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
+
 impl Inode {
-    pub fn new(ino: InodeNumber, inode_type: InodeType, owner: u64) -> Self {
+    pub fn new(ino: InodeNumber, inode_type: InodeType, creator_agent_id: u64) -> Self {
         Self {
             ino,
             inode_type,
-            permissions: InodePermissions::OWNER_READ | InodePermissions::OWNER_WRITE,
-            owner,
-            group: 0,
+            permissions: StoragePermissions::READ | StoragePermissions::WRITE,
+            creator_agent_id,
+            #[cfg(feature = "alloc")]
+            shared_with: Vec::new(),
+            #[cfg(not(feature = "alloc"))]
+            shared_with: (),
             size: 0,
             blocks: 0,
             atime: 0,
@@ -65,16 +76,63 @@ impl Inode {
         }
     }
     
-    /// Check if agent has permission to access
+    /// Check if agent has permission to access (capability-based)
+    /// 
+    /// Permissions are checked via capability system, not owner/group model.
+    /// Creator agent has full access. Other agents need explicit capability grants.
     pub fn check_permission(&self, agent_id: u64, read: bool, write: bool, exec: bool) -> bool {
-        // TODO: Implement proper permission checking
-        // For now, owner has full access
-        if self.owner == agent_id {
+        // Creator agent has full access
+        if self.creator_agent_id == agent_id {
+            if read && !self.permissions.contains(StoragePermissions::READ) {
+                return false;
+            }
+            if write && !self.permissions.contains(StoragePermissions::WRITE) {
+                return false;
+            }
+            if exec && !self.permissions.contains(StoragePermissions::EXECUTE) {
+                return false;
+            }
             return true;
         }
         
-        // TODO: Check group and other permissions
+        // Check if agent is in shared_with list (has been granted access)
+        #[cfg(feature = "alloc")]
+        {
+            if self.shared_with.contains(&agent_id) {
+                // Agent has been granted access - check specific permissions
+                if read && !self.permissions.contains(StoragePermissions::READ) {
+                    return false;
+                }
+                if write && !self.permissions.contains(StoragePermissions::WRITE) {
+                    return false;
+                }
+                if exec && !self.permissions.contains(StoragePermissions::EXECUTE) {
+                    return false;
+                }
+                return true;
+            }
+        }
+        
+        // Agent not in shared list - no access
+        // Check capability system for dynamic grants
+        // Capability-based access is checked via capability token validation
+        // If agent has ACCESS_STORAGE capability, grant access
+        // This is handled by the caller providing a valid capability token
         false
+    }
+    
+    /// Grant access to another agent (capability-based sharing)
+    #[cfg(feature = "alloc")]
+    pub fn grant_access(&mut self, agent_id: u64) {
+        if !self.shared_with.contains(&agent_id) {
+            self.shared_with.push(agent_id);
+        }
+    }
+    
+    /// Revoke access from an agent
+    #[cfg(feature = "alloc")]
+    pub fn revoke_access(&mut self, agent_id: u64) {
+        self.shared_with.retain(|&id| id != agent_id);
     }
 }
 

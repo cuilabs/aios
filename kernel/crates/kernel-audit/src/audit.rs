@@ -4,6 +4,7 @@
 use alloc::vec::Vec;
 
 /// Audit event
+#[derive(Clone)]
 pub struct AuditEvent {
     pub timestamp: u64,
     pub event_type: AuditEventType,
@@ -15,6 +16,7 @@ pub struct AuditEvent {
 
 /// Audit event type
 #[repr(u32)]
+#[derive(Clone, Copy)]
 pub enum AuditEventType {
     AgentSpawn = 1,
     AgentKill = 2,
@@ -27,6 +29,7 @@ pub enum AuditEventType {
 
 /// Audit result
 #[repr(u32)]
+#[derive(Clone, Copy)]
 pub enum AuditResult {
     Success = 1,
     Failure = 2,

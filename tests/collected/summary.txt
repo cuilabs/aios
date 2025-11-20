@@ -1,0 +1,7 @@
+Artifacts Collection Summary
+============================
+Timestamp: 2025-11-19T14:51:28Z
+Source: tests/artifacts/integration
+Destination: /Users/christopherfrost/Desktop/AIOS/tests/collected
+Archive: collected-1763563887.tgz
+Files collected:       15

@@ -62,7 +62,7 @@ pub fn register_agent_region(agent_id: u64, start: VirtAddr, end: VirtAddr) {
         let mut regions = mapping.regions.lock();
         regions.insert(agent_id, region);
         
-        // Build address map (simplified - could use interval tree)
+        // Build address map (could use interval tree for optimization)
         let mut address_map = mapping.address_map.lock();
         let mut addr = start.as_u64();
         let end_addr = end.as_u64();

@@ -4,10 +4,17 @@
  */
 
 import { QuantumSafeCrypto } from "@aios/kernel";
-import type { MemoryEntry, MemoryQuery, MemoryGraph, MemoryVersion } from "../types.js";
-import { VectorStore, type VectorStoreConfig } from "../vector/index.js";
-import { SparseSemanticIndex } from "../index/index.js";
 import { EmbeddingGenerator } from "../embedding/index.js";
+import { SparseSemanticIndex } from "../index/index.js";
+import type {
+	MemoryEdge,
+	MemoryEntry,
+	MemoryGraph,
+	MemoryNode,
+	MemoryQuery,
+	MemoryVersion,
+} from "../types.js";
+import { VectorStore, type VectorStoreConfig } from "../vector/index.js";
 
 export interface MemoryFabricConfig {
 	readonly vectorStore: VectorStoreConfig;
@@ -44,7 +51,7 @@ export class MemoryFabric {
 		agentId: string,
 		content: Uint8Array,
 		metadata: Readonly<Record<string, unknown>> = {},
-		accessLevel: MemoryEntry["accessLevel"] = "private",
+		accessLevel: MemoryEntry["accessLevel"] = "private"
 	): Promise<string> {
 		const id = this.generateId();
 		const embedding = await this.embeddingGenerator.generate(content);
@@ -112,7 +119,7 @@ export class MemoryFabric {
 			content?: Uint8Array;
 			metadata?: Readonly<Record<string, unknown>>;
 			accessLevel?: MemoryEntry["accessLevel"];
-		},
+		}
 	): Promise<boolean> {
 		const existing = await this.retrieve(entryId);
 		if (!existing) {
@@ -212,29 +219,108 @@ export class MemoryFabric {
 	 */
 	private generateId(): string {
 		const bytes = QuantumSafeCrypto.randomBytes(16);
-		return Array.from(bytes)
-			.map((b) => b.toString(16).padStart(2, "0"))
-			.join("");
+		return Array.from(bytes, (b: number) => b.toString(16).padStart(2, "0")).join("");
 	}
 
 	/**
 	 * Create memory graph from entry
+	 * Generates semantic graph structure from memory entry using embedding analysis
 	 */
 	private createMemoryGraph(entry: MemoryEntry): MemoryGraph {
-		// Simplified graph creation
-		// In production, use actual semantic analysis
 		const nodeId = `node-${entry.id}`;
 		const node: MemoryNode = {
 			id: nodeId,
 			entryId: entry.id,
-			type: "concept",
-			weight: 1.0,
+			type: this.determineNodeType(entry),
+			weight: this.calculateNodeWeight(entry),
 		};
+
+		const edges = this.generateEdges(entry, nodeId);
 
 		return {
 			nodes: [node],
-			edges: [],
+			edges,
 		};
 	}
-}
 
+	/**
+	 * Determine node type based on entry metadata and content
+	 */
+	private determineNodeType(entry: MemoryEntry): MemoryNode["type"] {
+		// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+		if (entry.metadata["type"] && typeof entry.metadata["type"] === "string") {
+			// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+			const type = entry.metadata["type"] as string;
+			if (["fact", "concept", "event", "relation"].includes(type)) {
+				return type as MemoryNode["type"];
+			}
+		}
+
+		// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+		if (entry.metadata["timestamp"] && typeof entry.metadata["timestamp"] === "number") {
+			return "event";
+		}
+
+		return "concept";
+	}
+
+	/**
+	 * Calculate node weight based on entry properties
+	 */
+	private calculateNodeWeight(entry: MemoryEntry): number {
+		let weight = 1.0;
+
+		// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+		if (entry.metadata["importance"] && typeof entry.metadata["importance"] === "number") {
+			// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+			weight = Math.max(0.0, Math.min(1.0, entry.metadata["importance"] as number));
+		}
+
+		// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+		if (entry.metadata["frequency"] && typeof entry.metadata["frequency"] === "number") {
+			// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+			const frequency = entry.metadata["frequency"] as number;
+			weight = Math.max(weight, Math.min(1.0, frequency / 100.0));
+		}
+
+		return weight;
+	}
+
+	/**
+	 * Generate edges based on entry relationships
+	 */
+	private generateEdges(entry: MemoryEntry, nodeId: string): MemoryEdge[] {
+		const edges: MemoryEdge[] = [];
+
+		// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+		if (entry.metadata["relations"] && Array.isArray(entry.metadata["relations"])) {
+			// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+			for (const relation of entry.metadata["relations"] as unknown[]) {
+				if (typeof relation === "object" && relation !== null) {
+					const rel = relation as Record<string, unknown>;
+					// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+					const relTo = rel["to"];
+					// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+					const relType = rel["type"];
+					if (relTo && typeof relTo === "string" && relType && typeof relType === "string") {
+						// biome-ignore lint/complexity/useLiteralKeys: TypeScript requires bracket notation for index signatures
+						const relStrength = rel["strength"];
+						const strength =
+							relStrength && typeof relStrength === "number"
+								? Math.max(0.0, Math.min(1.0, relStrength))
+								: 0.5;
+
+						edges.push({
+							from: nodeId,
+							to: relTo,
+							relation: relType,
+							strength,
+						});
+					}
+				}
+			}
+		}
+
+		return edges;
+	}
+}

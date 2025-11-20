@@ -1,0 +1,13 @@
+{
+  "workload": "latency",
+  "agents": 100,
+  "duration_seconds": 60,
+  "timestamp": "2025-11-19T11:36:19Z",
+  "metrics": {
+    "avg_latency_ms": 0,
+    "p50_latency_ms": 0,
+    "p95_latency_ms": 0,
+    "p99_latency_ms": 0,
+    "status": "placeholder"
+  }
+}

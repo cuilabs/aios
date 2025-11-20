@@ -3,7 +3,7 @@
  * Fast lookup and retrieval of memory entries
  */
 
-import type { MemoryEntry, MemoryNode, MemoryEdge } from "../types.js";
+import type { MemoryEdge, MemoryEntry, MemoryNode } from "../types.js";
 
 export interface SemanticIndex {
 	readonly entryIds: readonly string[];
@@ -147,4 +147,3 @@ export class SparseSemanticIndex {
 		};
 	}
 }
-

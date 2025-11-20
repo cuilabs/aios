@@ -1,0 +1,11 @@
+[package]
+name = "aios-profiler"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "kernel_profiler"
+path = "kernel_profiler.rs"
+
+[dependencies]
+

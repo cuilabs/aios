@@ -3,8 +3,8 @@
  * Efficient storage and retrieval of high-dimensional vectors
  */
 
-import type { MemoryEntry, MemoryQuery } from "../types.js";
 import { EmbeddingGenerator } from "../embedding/index.js";
+import type { MemoryEntry, MemoryQuery } from "../types.js";
 
 export interface VectorStoreConfig {
 	readonly dimensions: number;
@@ -134,4 +134,3 @@ export class VectorStore {
 		this.entries.clear();
 	}
 }
-

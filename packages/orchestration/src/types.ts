@@ -30,4 +30,3 @@ export interface AgentOperation {
 	readonly status: "pending" | "executing" | "completed" | "failed";
 	readonly createdAt: number;
 }
-

@@ -47,4 +47,3 @@ export interface MemoryVersion {
 	readonly timestamp: number;
 	readonly changes: Readonly<Record<string, unknown>>;
 }
-

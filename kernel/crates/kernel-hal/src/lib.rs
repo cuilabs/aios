@@ -18,6 +18,14 @@ pub mod iommu;
 pub mod acpi;
 pub mod storage;
 pub mod network;
+#[cfg(feature = "alloc")]
+pub mod gpu;
+#[cfg(feature = "alloc")]
+pub mod graphics;
+#[cfg(feature = "alloc")]
+pub mod input;
+#[cfg(feature = "alloc")]
+pub mod edid;
 
 /// Initialize hardware abstraction layer
 pub fn init() {
@@ -28,5 +36,12 @@ pub fn init() {
     iommu::init();
     storage::init();
     network::init();
+    #[cfg(feature = "alloc")]
+    {
+        graphics::init();
+        input::init();
+    }
+    #[cfg(feature = "alloc")]
+    gpu::init();
 }
 

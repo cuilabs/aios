@@ -13,9 +13,11 @@ pub enum EventType {
     VirtualMemory = 6,
     Security = 7,
     Performance = 8,
+    IO = 9,
 }
 
 /// Kernel event
+#[derive(Clone)]
 pub struct KernelEvent {
     pub event_type: EventType,
     pub timestamp: u64,

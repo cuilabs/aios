@@ -1,0 +1,200 @@
+name: CI / Integration / Validation
+
+on:
+  push:
+    branches: [ main, release/* ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  actions: write
+  id-token: write
+
+env:
+  RUST_BACKTRACE: 1
+  CI: true
+  ARTIFACTS_PATH: tests/artifacts
+
+jobs:
+
+  lint:
+    name: Lint (Rust | TS | Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@v1
+      - name: Rust fmt & clippy
+        run: |
+          rustup component add clippy rustfmt || true
+          cargo fmt --all -- --check
+          cargo clippy --all-targets --all-features -- -D warnings
+      - name: Node setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: TypeScript lint
+        run: |
+          npm ci --prefix packages/ts-sdk
+          npx eslint packages --max-warnings=0
+      - name: Python lint
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Python format + lint
+        run: |
+          pip install -r packages/python/requirements-dev.txt
+          black --check packages/python || true
+          flake8 packages/python
+
+  unit:
+    name: Unit Tests (matrix)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - kernel/crates/kernel-core
+          - kernel/crates/kernel-agent
+          - packages/security
+          - packages/sdk-ts
+          - packages/sdk-py
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup toolchains
+        run: |
+          rustup default stable
+          npm ci --prefix packages/sdk-ts || true
+      - name: Run unit tests
+        run: |
+          if [[ "${{ matrix.target }}" == kernel* ]]; then
+            cd ${{ matrix.target }}
+            cargo test --all -- --nocapture
+          elif [[ "${{ matrix.target }}" == packages/security ]]; then
+            cd packages/security
+            npm ci
+            npm test
+          else
+            cd ${{ matrix.target }}
+            npm test || pytest -q
+          fi
+      - name: Upload unit test logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-${{ matrix.target }}-logs
+          path: $GITHUB_WORKSPACE/target/debug || $GITHUB_WORKSPACE/${{ matrix.target }}/test-output || tests/artifacts
+
+  integration:
+    name: Integration Tests (semantic + lifecycle)
+    runs-on: ubuntu-20.04
+    needs: [ lint, unit ]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare environment
+        run: |
+          mkdir -p ${ARTIFACTS_PATH}
+          ./scripts/build_all.sh
+      - name: Run integration suite
+        run: ./scripts/run_integration.sh --output ${ARTIFACTS_PATH}/integration
+      - name: Collect integration artifacts
+        run: ./scripts/collect_artifacts.sh ${ARTIFACTS_PATH}/integration
+      - uses: actions/upload-artifact@v4
+        with:
+          name: integration-artifacts
+          path: ${ARTIFACTS_PATH}/integration
+
+  performance:
+    name: Performance Benchmarks
+    runs-on: ubuntu-22.04
+    needs: integration
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build perf harness
+        run: ./scripts/build_perf.sh
+      - name: Run benchmarks (latency/throughput/memory)
+        run: ./scripts/run_performance.sh --out ${ARTIFACTS_PATH}/perf || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: perf-artifacts
+          path: ${ARTIFACTS_PATH}/perf
+
+  chaos:
+    name: Chaos & Resilience Tests (fault injection)
+    runs-on: ubuntu-22.04
+    needs: integration
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare chaos harness
+        run: ./scripts/build_chaos.sh
+      - name: Run chaos tests
+        run: ./scripts/run_chaos.sh --output ${ARTIFACTS_PATH}/chaos || exit 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chaos-artifacts
+          path: ${ARTIFACTS_PATH}/chaos
+
+  model-validation:
+    name: ML Model Validation
+    runs-on: ubuntu-22.04
+    needs: [ integration, performance ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare model validation env
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          pip install -r ci/requirements-models.txt
+      - name: Run model unit tests & metrics
+        run: |
+          python ci/models/validate_models.py --models-dir=ml/models --out ${ARTIFACTS_PATH}/models || true
+      - name: Upload model artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-validation
+          path: ${ARTIFACTS_PATH}/models
+
+  hardware-tests:
+    name: Hardware Tests (external runners)
+    runs-on: ubuntu-latest
+    needs: [ integration, performance ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger hardware runners
+        run: |
+          # This is a hook: external hardware runners should poll an API or SSH to start tests.
+          # We include a status file so runners can pick it up.
+          echo "START_HARDWARE_TESTS" > ${ARTIFACTS_PATH}/hardware.trigger
+      - name: Upload hardware trigger
+        uses: actions/upload-artifact@v4
+        with:
+          name: hardware-trigger
+          path: ${ARTIFACTS_PATH}/hardware.trigger
+
+  release-check:
+    name: Release Gate & Compliance
+    runs-on: ubuntu-latest
+    needs: [ chaos, model-validation, hardware-tests ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Evaluate release gates
+        run: |
+          python ci/release_gates/check_gates.py \
+            --integration ${ARTIFACTS_PATH}/integration/results.json \
+            --perf ${ARTIFACTS_PATH}/perf/summary.json \
+            --chaos ${ARTIFACTS_PATH}/chaos/summary.json \
+            --models ${ARTIFACTS_PATH}/models/report.json \
+            --output ${ARTIFACTS_PATH}/release_gates.json || true
+      - name: Upload release gate results
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-gates
+          path: ${ARTIFACTS_PATH}/release_gates.json
+      - name: Fail if gates not passed
+        run: |
+          python -c "import json,sys
+          r=json.load(open('${ARTIFACTS_PATH}/release_gates.json'))
+          print('Gates:',r)
+          sys.exit(0 if r.get('passed') else 2)"

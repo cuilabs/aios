@@ -1,0 +1,10 @@
+{
+  "fault_type": "nic_flap",
+  "timestamp": "2025-11-19T20:13:01.274346Z",
+  "parameters": {
+    "count": "3",
+    "delay_secs": "5"
+  },
+  "trace": "Warning: This script requires root privileges for network interface control\nIn CI/test environment, this may not be available\nSimulating NIC flap...\n[2025-11-19T20:12:48Z] Starting NIC flap test\nInterface: eth0\nFlap count: 3\nDelay between flaps: 5s\n[2025-11-19T20:12:48Z] Flap 1/3: Bringing interface down\n[2025-11-19T20:12:49Z] Flap 1/3: Bringing interface up\n[2025-11-19T20:12:54Z] Flap 2/3: Bringing interface down\n[2025-11-19T20:12:55Z] Flap 2/3: Bringing interface up\n[2025-11-19T20:13:00Z] Flap 3/3: Bringing interface down\n[2025-11-19T20:13:01Z] Flap 3/3: Bringing interface up\n[2025-11-19T20:13:01Z] NIC flap test completed\n\n",
+  "duration_ms": 13056
+}

@@ -39,6 +39,28 @@ mod alloc_impl {
                 events.push(event);
             }
         }
+
+        /// Record event from kernel event bus
+        pub fn record_from_event_bus(&self, agent_id: u64, event_type: &alloc::string::String, timestamp: u64, data: &[u8]) {
+            let event = TraceEvent {
+                timestamp,
+                event_type: event_type.clone(),
+                data: data.to_vec(),
+            };
+            self.record_event(agent_id, event);
+        }
+
+        /// Get active trace count
+        pub fn active_trace_count(&self) -> usize {
+            let traces = self.active_traces.lock();
+            traces.len()
+        }
+
+        /// Get trace event count for agent
+        pub fn trace_event_count(&self, agent_id: u64) -> usize {
+            let traces = self.active_traces.lock();
+            traces.get(&agent_id).map(|e| e.len()).unwrap_or(0)
+        }
     }
 }
 

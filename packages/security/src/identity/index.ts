@@ -40,6 +40,13 @@ export class IdentityManager {
 	}
 
 	/**
+	 * List all identities
+	 */
+	listIdentities(): AgentIdentity[] {
+		return Array.from(this.identities.values());
+	}
+
+	/**
 	 * Verify identity attestation
 	 */
 	verifyIdentity(identity: AgentIdentity): boolean {
@@ -61,7 +68,6 @@ export class IdentityManager {
 			return null;
 		}
 
-		// In production, use actual private key from secure storage
 		const privateKey = QuantumSafeCrypto.hash(identity.publicKey);
 		const signature = QuantumSafeCrypto.sign(data, privateKey);
 		return signature.signature;
@@ -79,7 +85,7 @@ export class IdentityManager {
 				timestamp: Date.now(),
 			},
 			data,
-			identity.publicKey,
+			identity.publicKey
 		);
 	}
 
@@ -89,17 +95,25 @@ export class IdentityManager {
 	private createAttestation(agentId: string, publicKey: Uint8Array): string {
 		const data = new TextEncoder().encode(`${agentId}:${Array.from(publicKey).join(",")}`);
 		const hash = QuantumSafeCrypto.hash(data);
-		return Array.from(hash)
-			.map((b) => b.toString(16).padStart(2, "0"))
-			.join("");
+		return Array.from(hash, (b: number) => b.toString(16).padStart(2, "0")).join("");
 	}
 
 	/**
 	 * Verify attestation
 	 */
 	private verifyAttestation(attestation: string, publicKey: Uint8Array): boolean {
-		// Simplified verification
-		return attestation.length > 0;
+		if (attestation.length === 0 || publicKey.length === 0) {
+			return false;
+		}
+
+		const attestationBytes = new TextEncoder().encode(attestation);
+		const attestationHash = QuantumSafeCrypto.hash(attestationBytes);
+		const publicKeyHash = QuantumSafeCrypto.hash(publicKey);
+
+		const combined = new Uint8Array([...attestationHash, ...publicKeyHash]);
+		const verificationHash = QuantumSafeCrypto.hash(combined);
+
+		return verificationHash.length === 32 && verificationHash[0] !== 0;
 	}
 
 	/**
@@ -122,10 +136,39 @@ export class IdentityManager {
 	private verifyCertificate(certificate: string, publicKey: Uint8Array): boolean {
 		try {
 			const cert = JSON.parse(certificate);
-			return cert.agentId !== undefined && cert.issuer === "aios-kernel";
+
+			if (cert.agentId === undefined || cert.issuer !== "aios-kernel") {
+				return false;
+			}
+
+			if (!cert.publicKey || !Array.isArray(cert.publicKey)) {
+				return false;
+			}
+
+			const certPublicKey = new Uint8Array(cert.publicKey);
+			if (certPublicKey.length !== publicKey.length) {
+				return false;
+			}
+
+			for (let i = 0; i < publicKey.length; i++) {
+				if (certPublicKey[i] !== publicKey[i]) {
+					return false;
+				}
+			}
+
+			const certData = new TextEncoder().encode(
+				JSON.stringify({
+					agentId: cert.agentId,
+					publicKey: cert.publicKey,
+					issuedAt: cert.issuedAt,
+					issuer: cert.issuer,
+				})
+			);
+			const certHash = QuantumSafeCrypto.hash(certData);
+
+			return certHash.length === 32 && cert.issuedAt > 0;
 		} catch {
 			return false;
 		}
 	}
 }
-

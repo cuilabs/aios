@@ -2,5 +2,8 @@
 target = "x86_64-aios.json"
 
 [target.x86_64-aios]
-runner = "qemu-system-x86_64 -drive format=raw,file=target/x86_64-aios/debug/bootimage-aios-kernel.bin"
+runner = "qemu-system-x86_64 -drive format=raw,file="
 
+[unstable]
+build-std = ["core", "alloc", "compiler_builtins"]
+build-std-features = ["compiler-builtins-mem"]

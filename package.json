@@ -4,10 +4,7 @@
 	"description": "AIOS — AI-Native Operating System. The OS layer for agent-first computing.",
 	"type": "module",
 	"private": true,
-	"workspaces": [
-		"packages/*",
-		"apps/*"
-	],
+	"workspaces": ["packages/*", "apps/*"],
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",

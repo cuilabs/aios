@@ -9,6 +9,8 @@ pub mod allocator;
 pub mod agent_pool;
 pub mod fabric;
 pub mod agent_mapping;
+#[cfg(feature = "alloc")]
+pub mod ai_adaptive;
 
 use core::alloc::Layout;
 
@@ -18,6 +20,9 @@ pub fn init() {
     virtual_mem::init();
     allocator::init();
     agent_pool::init();
+    fabric::MemoryFabricManager::init();
+    #[cfg(feature = "alloc")]
+    ai_adaptive::init();
 }
 
 /// Allocate memory for agent use

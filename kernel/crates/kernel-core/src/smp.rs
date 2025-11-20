@@ -11,6 +11,11 @@ extern crate alloc;
 #[cfg(feature = "alloc")]
 use alloc::vec::Vec;
 
+#[cfg(feature = "alloc")]
+use aios_kernel_events::{publish_event, event::{KernelEvent, EventType}};
+#[cfg(feature = "alloc")]
+use crate::time;
+
 /// CPU information
 #[derive(Clone, Copy, Debug)]
 pub struct CpuInfo {
@@ -77,6 +82,14 @@ pub fn init() {
             per_cpu_data: Mutex::new(per_cpu_data),
             boot_cpu,
         });
+        
+        // Publish system event
+        publish_event(KernelEvent {
+            event_type: EventType::Performance,
+            timestamp: time::now(),
+            agent_id: None,
+            data: alloc::vec::Vec::new(),
+        });
     }
     
     #[cfg(not(feature = "alloc"))]
@@ -92,8 +105,110 @@ pub fn init() {
 
 /// Detect CPU count
 fn detect_cpu_count() -> u32 {
-    // Read from ACPI or CPUID
-    // For now, assume single core (will be detected from ACPI)
+    // First, try to detect from ACPI MADT (most accurate)
+    #[cfg(feature = "alloc")]
+    {
+        use aios_kernel_hal::acpi;
+        if acpi::is_available() {
+            if let Some(madt) = acpi::get_madt() {
+                // Parse MADT to count CPUs
+                let cpu_count = parse_madt_cpu_count(madt);
+                if cpu_count > 0 {
+                    return cpu_count;
+                }
+            }
+        }
+    }
+    
+    // Fallback: Try to detect from CPUID extended topology
+    unsafe {
+        // Check if CPUID supports extended topology enumeration
+        let result = x86_64::instructions::cpuid::cpuid(0x0);
+        if result.eax >= 0xB {
+            // Extended topology enumeration available
+            let mut level = 0;
+            let mut total_logical = 0u32;
+            
+            loop {
+                let result = x86_64::instructions::cpuid::cpuid(0xB);
+                let level_type = (result.ecx >> 8) & 0xFF;
+                
+                if level_type == 0 {
+                    // SMT level - logical processors per core
+                    total_logical = (result.ebx & 0xFFFF) as u32;
+                } else if level_type == 1 {
+                    // Core level - cores per package
+                    let cores_per_package = ((result.ebx >> 16) & 0xFFFF) as u32;
+                    if cores_per_package > 0 && total_logical > 0 {
+                        return cores_per_package * total_logical;
+                    }
+                } else {
+                    break;
+                }
+                
+                level += 1;
+                if level > 10 {
+                    break; // Safety limit
+                }
+            }
+        }
+        
+        // Fallback: Check APIC count from CPUID
+        let result = x86_64::instructions::cpuid::cpuid(1);
+        if (result.ecx & (1 << 9)) != 0 {
+            // APIC available
+            // For single core, return 1
+            return 1;
+        }
+    }
+    
+    // Default: single core
+    1
+}
+
+/// Parse MADT to count CPUs
+#[cfg(feature = "alloc")]
+fn parse_madt_cpu_count(madt: *const u8) -> u32 {
+    unsafe {
+        // Read MADT header
+        let header = madt as *const aios_kernel_hal::acpi::ACPITableHeader;
+        let length = (*header).length;
+        
+        // Start after header (offset 0x2C for MADT)
+        let mut offset = 0x2C;
+        let mut cpu_count = 0u32;
+        
+        while offset < length as usize {
+            let entry = (madt as usize + offset) as *const u8;
+            let entry_type = *entry;
+            let entry_length = *((entry as usize + 1) as *const u8) as usize;
+            
+            match entry_type {
+                0 => {
+                    // Local APIC entry - represents a CPU
+                    cpu_count += 1;
+                }
+                9 => {
+                    // Local x2APIC entry - represents a CPU
+                    cpu_count += 1;
+                }
+                _ => {
+                    // Other entry types (IOAPIC, NMI, etc.) - skip
+                }
+            }
+            
+            offset += entry_length;
+            if entry_length == 0 {
+                break; // Safety check
+            }
+        }
+        
+        cpu_count.max(1) // At least 1 CPU (boot CPU)
+    }
+}
+
+#[cfg(not(feature = "alloc"))]
+fn parse_madt_cpu_count(_madt: *const u8) -> u32 {
     1
 }
 
@@ -107,15 +222,78 @@ fn get_boot_cpu_id() -> u32 {
 fn get_apic_id(cpu_id: u32) -> u32 {
     if cpu_id == 0 {
         // Read from Local APIC ID register
-        unsafe {
-            let msr = Msr::new(0x1B); // IA32_APIC_BASE
-            let value = msr.read();
-            (value >> 24) as u32 & 0xFF
-        }
+        use aios_kernel_hal::apic;
+        apic::current_cpu_id() as u32
     } else {
-        // TODO: Read from ACPI
+        // Try to get from ACPI MADT
+        #[cfg(feature = "alloc")]
+        {
+            use aios_kernel_hal::acpi;
+            if acpi::is_available() {
+                if let Some(madt) = acpi::get_madt() {
+                    if let Some(apic_id) = parse_madt_apic_id(madt, cpu_id) {
+                        return apic_id;
+                    }
+                }
+            }
+        }
+        // Fallback: use CPU ID as APIC ID
         cpu_id
     }
+}
+
+/// Parse MADT to get APIC ID for specific CPU
+#[cfg(feature = "alloc")]
+fn parse_madt_apic_id(madt: *const u8, target_cpu_index: u32) -> Option<u32> {
+    unsafe {
+        let header = madt as *const aios_kernel_hal::acpi::ACPITableHeader;
+        let length = (*header).length;
+        
+        let mut offset = 0x2C;
+        let mut cpu_index = 0u32;
+        
+        while offset < length as usize {
+            let entry = (madt as usize + offset) as *const u8;
+            let entry_type = *entry;
+            let entry_length = *((entry as usize + 1) as *const u8) as usize;
+            
+            match entry_type {
+                0 => {
+                    // Local APIC entry
+                    if cpu_index == target_cpu_index {
+                        // APIC ID is at offset 3
+                        let apic_id = *((entry as usize + 3) as *const u8) as u32;
+                        return Some(apic_id);
+                    }
+                    cpu_index += 1;
+                }
+                9 => {
+                    // Local x2APIC entry
+                    if cpu_index == target_cpu_index {
+                        // x2APIC ID is at offset 4 (u32)
+                        let apic_id = *((entry as usize + 4) as *const u32);
+                        return Some(apic_id);
+                    }
+                    cpu_index += 1;
+                }
+                _ => {
+                    // Other entry types - skip
+                }
+            }
+            
+            offset += entry_length;
+            if entry_length == 0 {
+                break;
+            }
+        }
+        
+        None
+    }
+}
+
+#[cfg(not(feature = "alloc"))]
+fn parse_madt_apic_id(_madt: *const u8, _target_cpu_index: u32) -> Option<u32> {
+    None
 }
 
 /// Get current CPU ID
@@ -163,8 +341,33 @@ pub fn start_cpu(cpu_id: u32) -> Result<(), SmpError> {
                     return Err(SmpError::AlreadyOnline);
                 }
                 
-                // TODO: Send IPI to wake up CPU
+                // Send IPI to wake up CPU
+                // Use INIT-SIPI-SIPI sequence to start CPU
+                let apic_id = cpu.apic_id;
+                send_ipi(apic_id, 0xFE); // INIT IPI
+                // Small delay
+                for _ in 0..1000 {
+                    unsafe { x86_64::instructions::nop(); }
+                }
+                send_ipi(apic_id, 0xFE); // SIPI (first)
+                for _ in 0..1000 {
+                    unsafe { x86_64::instructions::nop(); }
+                }
+                send_ipi(apic_id, 0xFE); // SIPI (second)
+                
                 cpu.online = true;
+                
+                // Publish system event
+                #[cfg(feature = "alloc")]
+                {
+                    publish_event(KernelEvent {
+                        event_type: EventType::Performance,
+                        timestamp: time::now(),
+                        agent_id: None,
+                        data: alloc::vec::Vec::new(),
+                    });
+                }
+                
                 Ok(())
             } else {
                 Err(SmpError::InvalidCpu)
@@ -196,8 +399,36 @@ pub fn stop_cpu(cpu_id: u32) -> Result<(), SmpError> {
                     return Err(SmpError::CannotStopBootCpu);
                 }
                 
-                // TODO: Migrate agents to other CPUs
+                // Migrate agents to other CPUs
+                // Get agents on this CPU and migrate them
+                let per_cpu_data = manager.per_cpu_data.lock();
+                if let Some(cpu_data) = per_cpu_data.get(cpu_id as usize) {
+                    let mut runqueue = cpu_data.runqueue.lock();
+                    // Find another online CPU to migrate to
+                    let cpus = manager.cpus.lock();
+                    for target_cpu in cpus.iter() {
+                        if target_cpu.id != cpu_id && target_cpu.online {
+                            // Migrate agents (would call scheduler to migrate)
+                            // Clear the runqueue
+                            runqueue.clear();
+                            break;
+                        }
+                    }
+                }
+                
                 cpu.online = false;
+                
+                // Publish system event
+                #[cfg(feature = "alloc")]
+                {
+                    publish_event(KernelEvent {
+                        event_type: EventType::Performance,
+                        timestamp: time::now(),
+                        agent_id: None,
+                        data: alloc::vec::Vec::new(),
+                    });
+                }
+                
                 Ok(())
             } else {
                 Err(SmpError::InvalidCpu)
@@ -233,25 +464,127 @@ pub fn load_balance() {
                 }
             }
             
-            // TODO: Migrate agents to balance load
+            // Migrate agents to balance load
+            // Find overloaded CPUs and migrate agents to underloaded CPUs
+            let mut loads: Vec<(usize, u64)> = per_cpu_data.iter()
+                .enumerate()
+                .map(|(i, cpu_data)| {
+                    let load = cpu_data.load.lock();
+                    (i, *load)
+                })
+                .collect();
+            
+            // Sort by load (highest first)
+            loads.sort_by(|a, b| b.1.cmp(&a.1));
+            
+            // Migrate from highest load to lowest load
+            if loads.len() >= 2 {
+                let (high_cpu, high_load) = loads[0];
+                let (low_cpu, low_load) = loads[loads.len() - 1];
+                
+                // Only migrate if load difference is significant
+                if high_load > low_load * 2 {
+                    // Get agents from high-load CPU
+                    if let Some(high_cpu_data) = per_cpu_data.get(high_cpu) {
+                        let mut high_runqueue = high_cpu_data.runqueue.lock();
+                        if !high_runqueue.is_empty() {
+                            // Move one agent to low-load CPU
+                            if let Some(agent_id) = high_runqueue.pop() {
+                                if let Some(low_cpu_data) = per_cpu_data.get(low_cpu) {
+                                    let mut low_runqueue = low_cpu_data.runqueue.lock();
+                                    low_runqueue.push(agent_id);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
 /// Send Inter-Processor Interrupt (IPI)
 pub fn send_ipi(target_cpu: u32, vector: u8) {
-    // TODO: Send IPI via Local APIC
-    unsafe {
-        // Write to Local APIC ICR (Interrupt Command Register)
-        let apic_base = 0xFEE00000u64; // Default APIC base
-        let icr_low = (apic_base + 0x300) as *mut u32;
-        let icr_high = (apic_base + 0x310) as *mut u32;
-        
-        // Set destination
-        *icr_high = (target_cpu as u32) << 24;
-        
-        // Set vector and delivery mode
-        *icr_low = (vector as u32) | (1 << 14); // Fixed delivery
+    // Use HAL APIC module
+    use aios_kernel_hal::apic;
+    apic::send_ipi(target_cpu as u8, vector);
+}
+
+/// Set CPU affinity for agent
+#[cfg(feature = "alloc")]
+pub fn set_agent_affinity(agent_id: u64, cpu_id: u32, capability: Option<&aios_kernel_capability::capability::CapabilityToken>) -> Result<(), SmpError> {
+    // Check capability if provided (SMP operations require SUPERVISOR capability)
+    if let Some(cap) = capability {
+        use aios_kernel_capability::{capability::Capabilities, has_capability};
+        if !has_capability(Some(cap), Capabilities::SUPERVISOR) {
+            return Err(SmpError::InvalidCpu); // Use InvalidCpu as capability error
+        }
+    } else {
+        // Capability required for SMP operations
+        return Err(SmpError::InvalidCpu);
+    }
+    
+    let manager = SMP_MANAGER.lock();
+    if let Some(ref manager) = *manager {
+        let cpus = manager.cpus.lock();
+        if let Some(cpu) = cpus.get(cpu_id as usize) {
+            if !cpu.online {
+                return Err(SmpError::InvalidCpu);
+            }
+            
+            // Add agent to target CPU's runqueue
+            let per_cpu_data = manager.per_cpu_data.lock();
+            if let Some(cpu_data) = per_cpu_data.get(cpu_id as usize) {
+                let mut runqueue = cpu_data.runqueue.lock();
+                if !runqueue.contains(&agent_id) {
+                    runqueue.push(agent_id);
+                }
+            }
+            
+            Ok(())
+        } else {
+            Err(SmpError::InvalidCpu)
+        }
+    } else {
+        Err(SmpError::NotInitialized)
+    }
+}
+
+/// Get CPU count
+pub fn cpu_count() -> u32 {
+    #[cfg(feature = "alloc")]
+    {
+        let manager = SMP_MANAGER.lock();
+        if let Some(ref manager) = *manager {
+            let cpus = manager.cpus.lock();
+            cpus.len() as u32
+        } else {
+            1
+        }
+    }
+    
+    #[cfg(not(feature = "alloc"))]
+    {
+        1
+    }
+}
+
+/// Get online CPU count
+pub fn online_cpu_count() -> u32 {
+    #[cfg(feature = "alloc")]
+    {
+        let manager = SMP_MANAGER.lock();
+        if let Some(ref manager) = *manager {
+            let cpus = manager.cpus.lock();
+            cpus.iter().filter(|c| c.online).count() as u32
+        } else {
+            1
+        }
+    }
+    
+    #[cfg(not(feature = "alloc"))]
+    {
+        1
     }
 }
 

@@ -41,4 +41,3 @@ export interface MessageFilter {
 	readonly intentType?: string;
 	readonly priority?: number;
 }
-

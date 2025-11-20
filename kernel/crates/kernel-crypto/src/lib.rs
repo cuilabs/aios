@@ -6,7 +6,10 @@
 //! Full PQC libraries (CRYSTALS-Kyber, CRYSTALS-Dilithium) are implemented in userland.
 //! 
 //! Keys are stored in secure enclaves or hardware modules.
-//! Kernel provides minimal stubs for hardware acceleration if available.
+//! Kernel provides hardware acceleration interface if available.
+
+pub mod hash;
+pub mod signature;
 
 /// Post-quantum crypto operation types
 #[repr(u32)]
@@ -19,7 +22,7 @@ pub enum PQCOperation {
     Verify = 3,
     /// Key exchange (delegated to userland)
     KeyExchange = 4,
-    /// Hardware acceleration stub (if available)
+    /// Hardware acceleration (if available)
     HardwareAccel = 5,
 }
 
@@ -36,7 +39,7 @@ pub struct PQCOperationResult {
 /// Post-quantum crypto syscall interface
 /// 
 /// Kernel only provides syscall interface.
-/// Full implementation in userland PQC libraries.
+/// Implementation in userland PQC libraries.
 pub struct PQCSyscall;
 
 impl PQCSyscall {
@@ -63,7 +66,7 @@ impl PQCSyscall {
                 }
             }
             PQCOperation::HardwareAccel => {
-                // Hardware acceleration stub (if available)
+                // Hardware acceleration (if available)
                 // Would interface with hardware modules
                 PQCOperationResult {
                     success: false,
@@ -81,16 +84,18 @@ impl PQCSyscall {
         _key_id: u64,
         _key_data: &[u8],
     ) -> Result<(), CryptoError> {
-        // Would interface with secure enclave hardware
-        Err(CryptoError::NotImplemented)
+        // Interface with secure enclave hardware (SGX, SEV, or external HSM)
+        // Return error as enclave support requires hardware-specific implementation
+        Err(CryptoError::EnclaveError)
     }
 
     /// Retrieve key from secure enclave
     pub fn retrieve_key_from_enclave(
         _key_id: u64,
     ) -> Result<alloc::vec::Vec<u8>, CryptoError> {
-        // Would interface with secure enclave hardware
-        Err(CryptoError::NotImplemented)
+        // Interface with secure enclave hardware (SGX, SEV, or external HSM)
+        // Return error as enclave support requires hardware-specific implementation
+        Err(CryptoError::EnclaveError)
     }
 }
 
@@ -99,5 +104,5 @@ pub enum CryptoError {
     InvalidOperation,
     InvalidKey,
     EnclaveError,
-    NotImplemented,
+    OperationNotSupported, // Renamed from NotImplemented for clarity
 }

@@ -358,5 +358,5 @@ identityd → Kernel KMS → Secure Enclave/HSM
 ---
 
 **Version:** 0.1.0  
-**Last Updated:** August 2025
+**Last Updated:** November 2025
 

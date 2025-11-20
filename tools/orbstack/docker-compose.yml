@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  aios-dev:
+    build:
+      context: ../..
+      dockerfile: tools/orbstack/Dockerfile
+    image: aios-dev:latest
+    container_name: aios-dev
+    volumes:
+      - ../../:/workspace
+      - cargo-cache:/root/.cargo
+      - bun-cache:/root/.bun
+    stdin_open: true
+    tty: true
+    privileged: true
+    devices:
+      - /dev/kvm:/dev/kvm
+    environment:
+      - RUST_BACKTRACE=1
+    command: /bin/bash
+
+volumes:
+  cargo-cache:
+  bun-cache:
+

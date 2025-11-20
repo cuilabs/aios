@@ -1,0 +1,23 @@
+{
+	"name": "@aios/ml",
+	"version": "0.1.0",
+	"description": "TensorFlow.js ML models for AIOS AI-powered features",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"train": "ts-node src/train.ts"
+	},
+	"dependencies": {
+		"@tensorflow/tfjs-node": "^4.15.0"
+	},
+	"devDependencies": {
+		"@types/node": "^20.0.0",
+		"typescript": "^5.0.0",
+		"ts-node": "^10.9.0"
+	},
+	"peerDependencies": {
+		"@aios/security": "workspace:*"
+	}
+}
+

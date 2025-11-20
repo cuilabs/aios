@@ -3,7 +3,7 @@
 **AI-Native Operating System for the Agent-First Computing Era**
 
 **Version:** 1.0  
-**Date:** August 2025  
+**Date:** November 2025  
 **Company:** CUI Labs (Pte.) Ltd., Singapore
 
 ---

@@ -51,6 +51,34 @@ impl DriverBus {
 
         Ok(driver_id)
     }
+    
+    /// Get driver for device
+    pub fn get_driver_for_device(&self, device_id: u64) -> Option<u64> {
+        let bindings = self.bindings.lock();
+        bindings.get(&device_id).copied()
+    }
+    
+    /// Get device
+    pub fn get_device(&self, device_id: u64) -> Option<Device> {
+        let devices = self.devices.lock();
+        devices.get(&device_id).cloned()
+    }
+    
+    /// Register device
+    pub fn register_device(&mut self, mut device: Device) -> u64 {
+        let mut devices = self.devices.lock();
+        let mut next_id = self.next_device_id.lock();
+        let device_id = *next_id;
+        *next_id = next_id.wrapping_add(1);
+        
+        device.device_id = device_id;
+        devices.insert(device_id, device);
+        
+        // Try to bind to driver
+        self.try_bind_device(device_id);
+        
+        device_id
+    }
 
     /// Enumerate devices
     pub fn enumerate_devices(&self) -> Vec<Device> {
@@ -62,16 +90,8 @@ impl DriverBus {
     pub fn handle_hotplug(&mut self, event: HotplugEvent) {
         match event {
             HotplugEvent::DeviceAdded(device) => {
-                let mut devices = self.devices.lock();
-                let mut next_id = self.next_device_id.lock();
-                let device_id = *next_id;
-                *next_id = next_id.wrapping_add(1);
-                
-                // TODO: Set device ID
-                devices.insert(device_id, device);
-
-                // Try to bind to driver
-                self.try_bind_device(device_id);
+                let device_id = self.register_device(device);
+                // Device is already registered and binding attempted
             }
             HotplugEvent::DeviceRemoved(device_id) => {
                 let mut devices = self.devices.lock();

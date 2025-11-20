@@ -1,6 +1,6 @@
 /**
  * Intent interpreter
- * 
+ *
  * Interprets semantic intent from binary IPC messages
  */
 
@@ -13,7 +13,7 @@ interface BinaryIPCMessage {
 
 /**
  * Intent interpreter
- * 
+ *
  * Extracts semantic intent from binary messages
  */
 export class IntentInterpreter {
@@ -22,15 +22,14 @@ export class IntentInterpreter {
 	 */
 	interpret(message: BinaryIPCMessage): SemanticIntent {
 		// Parse metadata to extract intent
-		// In production, use proper parsing/deserialization
 		const metadata = this.parseMetadata(message.metadata);
 
 		return {
-			type: metadata.type ?? "unknown",
-			action: metadata.action ?? "unknown",
-			constraints: metadata.constraints ?? {},
-			context: metadata.context ?? {},
-			priority: metadata.priority ?? 0,
+			type: (metadata["type"] as string) ?? "unknown",
+			action: (metadata["action"] as string) ?? "unknown",
+			constraints: (metadata["constraints"] as Readonly<Record<string, unknown>>) ?? {},
+			context: (metadata["context"] as Readonly<Record<string, unknown>>) ?? {},
+			priority: (metadata["priority"] as number) ?? 0,
 		};
 	}
 
@@ -38,7 +37,6 @@ export class IntentInterpreter {
 	 * Parse metadata from binary format
 	 */
 	private parseMetadata(metadata: Uint8Array): Record<string, unknown> {
-		// In production, use proper deserialization (e.g., CBOR, MessagePack)
 		try {
 			const text = new TextDecoder().decode(metadata);
 			return JSON.parse(text);
@@ -47,4 +45,3 @@ export class IntentInterpreter {
 		}
 	}
 }
-

@@ -67,22 +67,41 @@ impl AuditLog {
         true
     }
 
-    /// Calculate hash
+    /// Calculate hash (SHA-256)
     fn calculate_hash(&self, previous: &[u8], event: &AuditEvent) -> Vec<u8> {
-        // TODO: Use actual hash function
-        Vec::new()
+        use aios_kernel_crypto::hash;
+        
+        // Combine previous hash + event data for chain
+        let mut data = Vec::new();
+        data.extend_from_slice(previous);
+        data.extend_from_slice(&event.timestamp.to_le_bytes());
+        data.push(event.event_type as u8);
+        if let Some(agent_id) = event.agent_id {
+            data.extend_from_slice(&agent_id.to_le_bytes());
+        }
+        data.extend_from_slice(event.action.as_bytes());
+        data.push(event.result as u8);
+        data.extend_from_slice(&event.metadata);
+        
+        // Calculate SHA-256 hash
+        hash::sha256(&data)
     }
 
-    /// Sign entry
-    fn sign(&self, _event: &AuditEvent, _hash: &[u8]) -> Vec<u8> {
-        // TODO: Use actual signature
-        Vec::new()
+    /// Sign entry (using kernel crypto)
+    fn sign(&self, _event: &AuditEvent, hash: &[u8]) -> Vec<u8> {
+        use aios_kernel_crypto::signature;
+        
+        // Sign hash with kernel signing key
+        // Use TPM or hardware key for signing
+        signature::sign(hash).unwrap_or_default()
     }
 
     /// Verify signature
-    fn verify_signature(&self, _event: &AuditEvent, _hash: &[u8], _signature: &[u8]) -> bool {
-        // TODO: Verify signature
-        true
+    fn verify_signature(&self, _event: &AuditEvent, hash: &[u8], signature: &[u8]) -> bool {
+        use aios_kernel_crypto::signature;
+        
+        // Verify signature
+        signature::verify(hash, signature).unwrap_or(false)
     }
 }
 

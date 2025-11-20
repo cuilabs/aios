@@ -58,4 +58,3 @@ export interface Tool {
 	readonly capabilities: readonly string[];
 	readonly configuration: Readonly<Record<string, unknown>>;
 }
-

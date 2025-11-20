@@ -3,7 +3,9 @@
  * Creates and executes plans for agent goals
  */
 
-import type { PlanningTask, PlanningStep, ExecutionPlan, ExecutionStep } from "../types.js";
+import type { ExecutionPlan, ExecutionStep, PlanningStep, PlanningTask } from "../types.js";
+
+export type { PlanningTask, PlanningStep, ExecutionPlan, ExecutionStep };
 
 /**
  * Planning manager
@@ -16,7 +18,11 @@ export class PlanningManager {
 	/**
 	 * Create planning task
 	 */
-	createTask(agentId: string, goal: string, steps: readonly Omit<PlanningStep, "id" | "status">[]): PlanningTask {
+	createTask(
+		agentId: string,
+		goal: string,
+		steps: readonly Omit<PlanningStep, "id" | "status">[]
+	): PlanningTask {
 		const taskId = this.generateTaskId();
 
 		const planningSteps: PlanningStep[] = steps.map((step, index) => ({
@@ -61,7 +67,12 @@ export class PlanningManager {
 	/**
 	 * Update step status
 	 */
-	updateStepStatus(taskId: string, stepId: string, status: PlanningStep["status"], result?: Readonly<Record<string, unknown>>): boolean {
+	updateStepStatus(
+		taskId: string,
+		stepId: string,
+		status: PlanningStep["status"],
+		result?: Readonly<Record<string, unknown>>
+	): boolean {
 		const task = this.tasks.get(taskId);
 		if (!task) {
 			return false;
@@ -87,15 +98,23 @@ export class PlanningManager {
 			return null;
 		}
 
-		const executionSteps: ExecutionStep[] = task.steps.map((step) => ({
-			stepId: step.id,
-			action: step.action,
-			parameters: step.result ?? {},
-			timeout: 5000, // Default 5s timeout
-		}));
+		const executionSteps: ExecutionStep[] = task.steps.map((step) => {
+			const baseTimeout = 5000;
+			// Use default timeout since PlanningStep doesn't have timeout property
+			const timeout = baseTimeout;
 
-		// Calculate estimated duration (simplified)
-		const estimatedDuration = executionSteps.length * 1000; // 1s per step
+			return {
+				stepId: step.id,
+				action: step.action,
+				parameters: step.result ?? {},
+				timeout,
+			};
+		});
+
+		const estimatedDuration = executionSteps.reduce((total, step) => {
+			const stepEstimate = step.timeout * 1.2;
+			return total + stepEstimate;
+		}, 0);
 
 		const plan: ExecutionPlan = {
 			taskId,
@@ -118,7 +137,10 @@ export class PlanningManager {
 	/**
 	 * Execute plan
 	 */
-	async executePlan(taskId: string, executor: (step: ExecutionStep) => Promise<Readonly<Record<string, unknown>>>): Promise<boolean> {
+	async executePlan(
+		taskId: string,
+		executor: (step: ExecutionStep) => Promise<Readonly<Record<string, unknown>>>
+	): Promise<boolean> {
 		const plan = this.executionPlans.get(taskId);
 		if (!plan) {
 			return false;
@@ -159,6 +181,13 @@ export class PlanningManager {
 	}
 
 	/**
+	 * Get all tasks (for supervisor queries)
+	 */
+	getAllTasks(): PlanningTask[] {
+		return Array.from(this.tasks.values());
+	}
+
+	/**
 	 * Generate unique task ID
 	 */
 	private generateTaskId(): string {
@@ -167,4 +196,3 @@ export class PlanningManager {
 		return `task-${timestamp}-${random}`;
 	}
 }
-

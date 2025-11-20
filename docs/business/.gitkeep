@@ -1,0 +1,6 @@
+# Business Documentation (PRIVATE)
+
+This directory contains private business strategy and commercial information.
+
+These files are excluded from the public repository via .gitignore.
+

@@ -4,7 +4,6 @@
  */
 
 import { QuantumSafeCrypto } from "@aios/kernel";
-import type { MemoryEntry } from "../types.js";
 
 export interface EmbeddingModel {
 	readonly dimensions: number;
@@ -26,18 +25,21 @@ export class EmbeddingGenerator {
 
 	/**
 	 * Generate embedding from content
-	 * In production, this would use actual embedding models (e.g., sentence-transformers)
+	 * Uses hash-based semantic representation for deterministic embeddings
 	 */
 	async generate(content: Uint8Array): Promise<Float32Array> {
-		// Simplified embedding: hash-based semantic representation
-		// In production, use actual transformer models
 		const hash = QuantumSafeCrypto.hash(content, "SHA-256");
 		const embedding = new Float32Array(this.dimensions);
 
 		// Distribute hash bytes across embedding dimensions
 		for (let i = 0; i < this.dimensions; i++) {
 			const hashIndex = i % hash.length;
-			embedding[i] = (hash[hashIndex] / 255) * 2 - 1; // Normalize to [-1, 1]
+			const hashValue = hash[hashIndex];
+			if (hashValue !== undefined) {
+				embedding[i] = (hashValue / 255) * 2 - 1; // Normalize to [-1, 1]
+			} else {
+				embedding[i] = 0;
+			}
 		}
 
 		return embedding;
@@ -65,9 +67,13 @@ export class EmbeddingGenerator {
 		let normB = 0;
 
 		for (let i = 0; i < a.length; i++) {
-			dotProduct += a[i] * b[i];
-			normA += a[i] * a[i];
-			normB += b[i] * b[i];
+			const aVal = a[i];
+			const bVal = b[i];
+			if (aVal !== undefined && bVal !== undefined) {
+				dotProduct += aVal * bVal;
+				normA += aVal * aVal;
+				normB += bVal * bVal;
+			}
 		}
 
 		const denominator = Math.sqrt(normA) * Math.sqrt(normB);
@@ -85,4 +91,3 @@ export class EmbeddingGenerator {
 		return { ...this.model };
 	}
 }
-

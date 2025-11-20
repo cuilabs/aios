@@ -38,8 +38,10 @@ export class ResourceIsolation {
 		const limits: AgentResourceLimits = {
 			maxMemoryBytes: customLimits?.maxMemoryBytes ?? this.limits.maxMemoryBytes,
 			maxCpuPercent: customLimits?.maxCpuPercent ?? this.limits.maxCpuPercent,
-			maxNetworkBandwidthBytes: customLimits?.maxNetworkBandwidthBytes ?? this.limits.maxNetworkBandwidthBytes,
-			maxConcurrentOperations: customLimits?.maxConcurrentOperations ?? this.limits.maxConcurrentOperations,
+			maxNetworkBandwidthBytes:
+				customLimits?.maxNetworkBandwidthBytes ?? this.limits.maxNetworkBandwidthBytes,
+			maxConcurrentOperations:
+				customLimits?.maxConcurrentOperations ?? this.limits.maxConcurrentOperations,
 		};
 
 		const context: IsolationContext = {
@@ -82,13 +84,19 @@ export class ResourceIsolation {
 		}
 
 		if (resource.networkBandwidthBytes !== undefined) {
-			if (currentUsage.networkBandwidthBytes + resource.networkBandwidthBytes > limits.maxNetworkBandwidthBytes) {
+			if (
+				currentUsage.networkBandwidthBytes + resource.networkBandwidthBytes >
+				limits.maxNetworkBandwidthBytes
+			) {
 				return false;
 			}
 		}
 
 		if (resource.concurrentOperations !== undefined) {
-			if (currentUsage.concurrentOperations + resource.concurrentOperations > limits.maxConcurrentOperations) {
+			if (
+				currentUsage.concurrentOperations + resource.concurrentOperations >
+				limits.maxConcurrentOperations
+			) {
 				return false;
 			}
 		}
@@ -103,7 +111,10 @@ export class ResourceIsolation {
 		if (!this.canAllocate(agentId, resource)) {
 			const context = this.contexts.get(agentId);
 			if (context) {
-				const violations = [...context.violations, `Resource limit exceeded: ${JSON.stringify(resource)}`];
+				const violations = [
+					...context.violations,
+					`Resource limit exceeded: ${JSON.stringify(resource)}`,
+				];
 				this.contexts.set(agentId, { ...context, violations });
 			}
 			return false;
@@ -117,8 +128,10 @@ export class ResourceIsolation {
 		const currentUsage: ResourceUsage = {
 			memoryBytes: context.currentUsage.memoryBytes + (resource.memoryBytes ?? 0),
 			cpuPercent: context.currentUsage.cpuPercent + (resource.cpuPercent ?? 0),
-			networkBandwidthBytes: context.currentUsage.networkBandwidthBytes + (resource.networkBandwidthBytes ?? 0),
-			concurrentOperations: context.currentUsage.concurrentOperations + (resource.concurrentOperations ?? 0),
+			networkBandwidthBytes:
+				context.currentUsage.networkBandwidthBytes + (resource.networkBandwidthBytes ?? 0),
+			concurrentOperations:
+				context.currentUsage.concurrentOperations + (resource.concurrentOperations ?? 0),
 		};
 
 		this.contexts.set(agentId, { ...context, currentUsage });
@@ -137,8 +150,14 @@ export class ResourceIsolation {
 		const currentUsage: ResourceUsage = {
 			memoryBytes: Math.max(0, context.currentUsage.memoryBytes - (resource.memoryBytes ?? 0)),
 			cpuPercent: Math.max(0, context.currentUsage.cpuPercent - (resource.cpuPercent ?? 0)),
-			networkBandwidthBytes: Math.max(0, context.currentUsage.networkBandwidthBytes - (resource.networkBandwidthBytes ?? 0)),
-			concurrentOperations: Math.max(0, context.currentUsage.concurrentOperations - (resource.concurrentOperations ?? 0)),
+			networkBandwidthBytes: Math.max(
+				0,
+				context.currentUsage.networkBandwidthBytes - (resource.networkBandwidthBytes ?? 0)
+			),
+			concurrentOperations: Math.max(
+				0,
+				context.currentUsage.concurrentOperations - (resource.concurrentOperations ?? 0)
+			),
 		};
 
 		this.contexts.set(agentId, { ...context, currentUsage });
@@ -157,5 +176,11 @@ export class ResourceIsolation {
 	removeContext(agentId: string): boolean {
 		return this.contexts.delete(agentId);
 	}
-}
 
+	/**
+	 * Get context count
+	 */
+	getContextCount(): number {
+		return this.contexts.size;
+	}
+}

@@ -13,15 +13,22 @@
 extern crate alloc;
 
 pub mod boot;
+pub mod boot_info;
+pub mod serialize;
 pub mod memory;
 pub mod interrupts;
 pub mod exceptions;
 pub mod error;
+pub mod error_recovery;
 pub mod sync;
 pub mod syscall;
 pub mod log;
 pub mod time;
 pub mod smp;
+#[cfg(feature = "alloc")]
+pub mod ai_healing;
+#[cfg(feature = "alloc")]
+pub mod ml_client;
 
 use core::panic::PanicInfo;
 

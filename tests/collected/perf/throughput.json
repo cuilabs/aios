@@ -1,0 +1,11 @@
+{
+  "workload": "throughput",
+  "agents": 500,
+  "duration_seconds": 120,
+  "timestamp": "2025-11-19T11:36:19Z",
+  "metrics": {
+    "ops_per_second": 0,
+    "total_ops": 0,
+    "status": "placeholder"
+  }
+}

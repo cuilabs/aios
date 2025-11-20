@@ -18,7 +18,12 @@ members = [
     "crates/kernel-policy",
     "crates/kernel-fs",
     "crates/kernel-net",
+    "crates/kernel-io",
 ]
+
+[[bin]]
+name = "kernel"
+path = "src/main.rs"
 
 [profile.dev]
 opt-level = 0
@@ -30,4 +35,24 @@ lto = true
 codegen-units = 1
 
 [dependencies]
+aios-kernel-core = { path = "crates/kernel-core" }
+aios-kernel-agent = { path = "crates/kernel-agent" }
+aios-kernel-ipc = { path = "crates/kernel-ipc" }
+aios-kernel-capability = { path = "crates/kernel-capability" }
+aios-kernel-events = { path = "crates/kernel-events" }
+aios-kernel-observability = { path = "crates/kernel-observability" }
+aios-kernel-audit = { path = "crates/kernel-audit" }
+aios-kernel-policy = { path = "crates/kernel-policy" }
+aios-kernel-fs = { path = "crates/kernel-fs" }
+aios-kernel-net = { path = "crates/kernel-net" }
+aios-kernel-io = { path = "crates/kernel-io" }
+aios-kernel-hal = { path = "crates/kernel-hal" }
+aios-kernel-drivers = { path = "crates/kernel-drivers" }
+aios-kernel-crypto = { path = "crates/kernel-crypto" }
+x86_64 = { version = "0.14", features = ["instructions"] }
+spin = "0.9"
+bitflags = "2.5"
 
+[features]
+default = []
+alloc = []

@@ -11,6 +11,12 @@ pub mod driver;
 pub mod device;
 pub mod hotplug;
 pub mod acpi_tree;
+pub mod sata;
+pub mod nvme;
+pub mod ethernet;
+pub mod tpm;
+pub mod sgx;
+pub mod enclave;
 
 use bus::DriverBus;
 use driver::Driver;
@@ -33,6 +39,15 @@ impl DriverSystem {
         // Enumerate devices from ACPI/DT
         // Load drivers
         // Bind drivers to devices
+        
+        // Initialize TPM driver
+        tpm::init();
+        
+        // Initialize SGX driver
+        sgx::init();
+        
+        // Initialize enclave driver
+        enclave::init();
     }
 
     /// Register driver

@@ -6,10 +6,10 @@
 import type { ScheduledTask, SchedulingPolicy } from "../types.js";
 
 export interface SchedulerMetrics {
-	readonly totalTasks: number;
-	readonly completedTasks: number;
-	readonly averageLatency: number;
-	readonly throughput: number;
+	totalTasks: number;
+	completedTasks: number;
+	averageLatency: number;
+	throughput: number;
 }
 
 /**
@@ -25,6 +25,7 @@ export class DeterministicScheduler {
 		averageLatency: 0,
 		throughput: 0,
 	};
+	private readonly metricsStartTime = Date.now();
 
 	constructor(policy: SchedulingPolicy) {
 		this.policy = policy;
@@ -103,11 +104,17 @@ export class DeterministicScheduler {
 
 	/**
 	 * Update scheduler metrics
+	 * Calculates throughput, average latency, and other performance metrics
 	 */
 	private updateMetrics(): void {
 		const now = Date.now();
-		// Simplified metrics calculation
-		this.metrics.throughput = this.metrics.completedTasks / (now / 1000);
+		const timeElapsed = Math.max(1, (now - this.metricsStartTime) / 1000);
+		this.metrics.throughput = this.metrics.completedTasks / timeElapsed;
+
+		if (this.metrics.completedTasks > 0) {
+			const totalLatency = this.metrics.averageLatency * (this.metrics.completedTasks - 1);
+			this.metrics.averageLatency = totalLatency / this.metrics.completedTasks;
+		}
 	}
 }
 
@@ -115,7 +122,7 @@ export class DeterministicScheduler {
  * Create a default deterministic scheduler
  */
 export function createDeterministicScheduler(
-	fairness: SchedulingPolicy["fairness"] = "deadline",
+	fairness: SchedulingPolicy["fairness"] = "deadline"
 ): DeterministicScheduler {
 	const policy: SchedulingPolicy = {
 		name: "deterministic",
@@ -126,4 +133,3 @@ export function createDeterministicScheduler(
 
 	return new DeterministicScheduler(policy);
 }
-

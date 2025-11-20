@@ -3,11 +3,12 @@
  */
 
 import { QuantumSafeCrypto } from "@aios/kernel";
-import type { SemanticMessage, SemanticIntent, MessageResponse } from "../types.js";
+import type { MessageResponse, SemanticIntent, SemanticMessage } from "../types.js";
 
 /**
  * Semantic message builder
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Utility class with static methods for namespacing
 export class SemanticMessageBuilder {
 	/**
 	 * Create a semantic message
@@ -20,9 +21,9 @@ export class SemanticMessageBuilder {
 		options: {
 			ttl?: number;
 			requiresResponse?: boolean;
-		} = {},
+		} = {}
 	): SemanticMessage {
-		const id = this.generateMessageId();
+		const id = SemanticMessageBuilder.generateMessageId();
 
 		return {
 			id,
@@ -44,7 +45,7 @@ export class SemanticMessageBuilder {
 		from: string,
 		success: boolean,
 		result?: Readonly<Record<string, unknown>>,
-		error?: string,
+		error?: string
 	): MessageResponse {
 		return {
 			messageId: originalMessage.id,
@@ -114,11 +115,8 @@ export class SemanticMessageBuilder {
 	/**
 	 * Generate unique message ID
 	 */
-	private static generateMessageId(): string {
+	static generateMessageId(): string {
 		const bytes = QuantumSafeCrypto.randomBytes(16);
-		return `msg-${Array.from(bytes)
-			.map((b) => b.toString(16).padStart(2, "0"))
-			.join("")}`;
+		return `msg-${Array.from(bytes, (b: number) => b.toString(16).padStart(2, "0")).join("")}`;
 	}
 }
-

@@ -70,6 +70,21 @@ mod alloc_impl {
             counter.network_bytes_sent += sent;
             counter.network_bytes_received += received;
         }
+
+        pub fn update_io_operations(&self, agent_id: u64) {
+            let mut counters = self.agent_counters.lock();
+            let counter = counters.entry(agent_id).or_insert_with(|| AgentCounters {
+                cpu_cycles: 0,
+                instructions: 0,
+                cache_misses: 0,
+                memory_allocated: 0,
+                memory_freed: 0,
+                network_bytes_sent: 0,
+                network_bytes_received: 0,
+                io_operations: 0,
+            });
+            counter.io_operations += 1;
+        }
     }
 }
 
@@ -90,5 +105,6 @@ impl PerformanceCounters {
     pub fn update_cpu_cycles(&self, _agent_id: u64, _cycles: u64) {}
     pub fn update_memory_allocated(&self, _agent_id: u64, _bytes: u64) {}
     pub fn update_network_bytes(&self, _agent_id: u64, _sent: u64, _received: u64) {}
+    pub fn update_io_operations(&self, _agent_id: u64) {}
 }
 
