@@ -335,11 +335,10 @@ export class AgentSupervisorService {
 							cpu: 0,
 							memory: 0,
 							gpu: 0,
+							network: Math.random() * 1024 * 1024, // Random KB
+							io: Math.random() * 1024 * 1024, // Random KB
 						});
 					}
-						network: Math.random() * 1024 * 1024, // Random KB
-						io: Math.random() * 1024 * 1024, // Random KB
-					});
 				}
 			}
 		}, 5000); // Every 5 seconds
