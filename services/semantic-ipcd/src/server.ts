@@ -165,7 +165,7 @@ export class SemanticIPCServer {
 				success: true,
 				message_id: messageId,
 			});
-		} catch (error) {
+		} catch (_error) {
 			const err = error as Error;
 			res.status(500).json({
 				success: false,
@@ -236,7 +236,7 @@ export class SemanticIPCServer {
 			res.json({
 				message: response,
 			});
-		} catch (error) {
+		} catch (_error) {
 			const err = error as Error;
 			res.status(500).json({
 				success: false,
@@ -259,7 +259,7 @@ export class SemanticIPCServer {
 				});
 
 				this.server = server;
-			} catch (error) {
+			} catch (_error) {
 				reject(error);
 			}
 		});

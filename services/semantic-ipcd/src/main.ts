@@ -29,7 +29,7 @@ async function main(): Promise<void> {
 			await server.stop();
 			process.exit(0);
 		});
-	} catch (error) {
+	} catch (_error) {
 		console.error("Failed to start Semantic IPC Daemon:", error);
 		process.exit(1);
 	}

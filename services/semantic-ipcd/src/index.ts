@@ -61,7 +61,7 @@ export class SemanticIPCDaemon {
 						await this.processMessage(result.message);
 					}
 				}
-			} catch (error) {
+			} catch (_error) {
 				// Log error but continue processing
 				console.error("Error receiving IPC message:", error);
 			}
