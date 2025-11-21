@@ -326,7 +326,7 @@ export class MemoryFabricServer {
 
 				this.server = server;
 			} catch (_error) {
-				reject(error);
+				reject(_error);
 			}
 		});
 	}
