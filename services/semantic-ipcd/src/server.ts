@@ -260,7 +260,7 @@ export class SemanticIPCServer {
 
 				this.server = server;
 			} catch (_error) {
-				reject(error);
+				reject(_error);
 			}
 		});
 	}
