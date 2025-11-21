@@ -118,8 +118,8 @@ export class SemanticIPCServer {
 			}
 
 			// Type safety check: if message declares type, validate data matches
-			const declaredType = messageData["type"] as string | undefined;
-			const messageDataValue = messageData["data"];
+			const declaredType = messageData.type as string | undefined;
+			const messageDataValue = messageData.data;
 
 			// Only validate if type is declared and data exists
 			if (declaredType && messageDataValue !== undefined) {
@@ -176,7 +176,7 @@ export class SemanticIPCServer {
 
 	private async handleReceive(req: Request, res: Response): Promise<void> {
 		try {
-			const agentIdStr = req.params["agentId"];
+			const agentIdStr = req.params.agentId;
 
 			if (!agentIdStr) {
 				res.status(400).json({
@@ -188,7 +188,7 @@ export class SemanticIPCServer {
 
 			const agentId = Number.parseInt(agentIdStr, 10);
 
-			if (isNaN(agentId)) {
+			if (Number.isNaN(agentId)) {
 				res.status(400).json({
 					success: false,
 					error: "Invalid agent_id",
@@ -229,7 +229,7 @@ export class SemanticIPCServer {
 
 			// Add metadata if present
 			if (Object.keys(metadata).length > 0) {
-				response["metadata"] = metadata;
+				response.metadata = metadata;
 			}
 
 			// Wrap in 'message' field for test compatibility

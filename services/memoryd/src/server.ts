@@ -85,9 +85,9 @@ export class MemoryFabricServer {
 				lease_duration_ms?: number;
 			};
 
-			const key = body["key"];
-			const data = body["data"];
-			const lease_duration_ms = body["lease_duration_ms"];
+			const key = body.key;
+			const data = body.data;
+			const lease_duration_ms = body.lease_duration_ms;
 
 			if (!key || !data) {
 				res.status(400).json({
@@ -209,8 +209,8 @@ export class MemoryFabricServer {
 
 	private async handleReadVersion(req: Request, res: Response): Promise<void> {
 		try {
-			const key = req.params["key"];
-			const versionStr = req.params["version"];
+			const key = req.params.key;
+			const versionStr = req.params.version;
 
 			if (!key || !versionStr) {
 				res.status(400).json({
@@ -222,7 +222,7 @@ export class MemoryFabricServer {
 
 			const version = Number.parseInt(versionStr, 10);
 
-			if (isNaN(version)) {
+			if (Number.isNaN(version)) {
 				res.status(400).json({
 					success: false,
 					error: "Invalid version number",

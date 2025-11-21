@@ -41,7 +41,7 @@ export class SemanticIPCDaemon {
 		// Process each message through interpreter and router
 		// Daemon agent ID is 0 (system service)
 		const daemonAgentId = 0;
-		const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
+		const kernelBridgeUrl = process.env.KERNEL_BRIDGE_URL || "http://127.0.0.1:9000";
 
 		setInterval(async () => {
 			// Receive messages from kernel IPC via kernel-bridge service

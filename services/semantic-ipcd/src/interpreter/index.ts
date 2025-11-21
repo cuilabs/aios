@@ -25,11 +25,11 @@ export class IntentInterpreter {
 		const metadata = this.parseMetadata(message.metadata);
 
 		return {
-			type: (metadata["type"] as string) ?? "unknown",
-			action: (metadata["action"] as string) ?? "unknown",
-			constraints: (metadata["constraints"] as Readonly<Record<string, unknown>>) ?? {},
-			context: (metadata["context"] as Readonly<Record<string, unknown>>) ?? {},
-			priority: (metadata["priority"] as number) ?? 0,
+			type: (metadata.type as string) ?? "unknown",
+			action: (metadata.action as string) ?? "unknown",
+			constraints: (metadata.constraints as Readonly<Record<string, unknown>>) ?? {},
+			context: (metadata.context as Readonly<Record<string, unknown>>) ?? {},
+			priority: (metadata.priority as number) ?? 0,
 		};
 	}
 
