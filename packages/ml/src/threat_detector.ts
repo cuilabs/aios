@@ -123,6 +123,39 @@ export class ThreatDetectorModel {
 	}
 
 	/**
+	 * Prepare input array (without tensor) for batch training
+	 * Must match prepareInput() exactly
+	 */
+	private prepareInputArray(features: ThreatFeatures): number[] {
+		const inputArray: number[] = [];
+
+		// Behavior metrics
+		inputArray.push(features.metrics.averageLatency / 1000); // Normalize to seconds
+		inputArray.push(features.metrics.errorRate);
+		inputArray.push(features.metrics.resourceUsage);
+		inputArray.push(features.metrics.messageFrequency / 1000); // Normalize
+
+		// Anomaly features
+		const anomalyCount = features.anomalies.length;
+		const criticalAnomalies = features.anomalies.filter((a) => a.severity === "critical").length;
+		const highAnomalies = features.anomalies.filter((a) => a.severity === "high").length;
+
+		inputArray.push(anomalyCount / 10); // Normalize
+		inputArray.push(criticalAnomalies / 10);
+		inputArray.push(highAnomalies / 10);
+
+		// Historical threats (10 values)
+		for (let i = 0; i < 10; i++) {
+			inputArray.push(features.historicalThreats[i] ?? 0);
+		}
+
+		// Time since last threat (normalized to hours)
+		inputArray.push(features.timeSinceLastThreat / (1000 * 60 * 60));
+
+		return inputArray;
+	}
+
+	/**
 	 * Train model on dataset
 	 */
 	async train(
@@ -133,8 +166,28 @@ export class ThreatDetectorModel {
 			await this.initialize();
 		}
 
-		// Prepare training data
-		const trainingData = tf.stack(features.map((f) => this.prepareInput(f))) as any;
+		// Prepare training data as 2D tensor [batchSize, featureCount]
+		const featureArrays = features.map((f) => this.prepareInputArray(f));
+		
+		// Find the most common length and normalize all arrays to that length
+		const lengths = featureArrays.map(arr => arr.length);
+		const lengthCounts = new Map<number, number>();
+		lengths.forEach(len => lengthCounts.set(len, (lengthCounts.get(len) || 0) + 1));
+		const expectedLength = Array.from(lengthCounts.entries()).sort((a, b) => b[1] - a[1])[0][0];
+		
+		// Normalize all arrays to expected length
+		const normalizedArrays = featureArrays.map(arr => {
+			if (arr.length < expectedLength) {
+				// Pad with zeros
+				return [...arr, ...new Array(expectedLength - arr.length).fill(0)];
+			} else if (arr.length > expectedLength) {
+				// Truncate
+				return arr.slice(0, expectedLength);
+			}
+			return arr;
+		});
+		
+		const trainingData = tf.tensor2d(normalizedArrays);
 
 		const labelData = tf.tensor2d(
 			labels.map((l) => [l.threatScore, l.threatType, l.confidence, l.recommendedAction])

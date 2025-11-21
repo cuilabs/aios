@@ -16,23 +16,23 @@ import {
 	type FailureFeatures,
 	type FailurePrediction,
 	FailurePredictorModel,
-} from "./failure_predictor.js";
-import { getMLModelManager } from "./index.js";
+} from "./failure_predictor";
+import { getMLModelManager } from "./index";
 import {
 	type MemoryFeatures,
 	type MemoryPrediction,
 	MemoryPredictorModel,
-} from "./memory_predictor.js";
+} from "./memory_predictor";
 import {
 	ThreatDetectorModel,
 	type ThreatFeatures,
 	type ThreatPrediction,
-} from "./threat_detector.js";
+} from "./threat_detector";
 import {
 	type WorkloadFeatures,
 	type WorkloadPrediction,
 	WorkloadPredictorModel,
-} from "./workload_predictor.js";
+} from "./workload_predictor";
 
 /**
  * Inference cache entry

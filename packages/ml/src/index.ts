@@ -10,11 +10,11 @@
  * Also exports high-performance inference engine optimized for microsecond-level predictions
  */
 
-export * from "./inference_engine.js";
-export * from "./workload_predictor.js";
-export * from "./threat_detector.js";
-export * from "./failure_predictor.js";
-export * from "./memory_predictor.js";
+export * from "./inference_engine";
+export * from "./workload_predictor";
+export * from "./threat_detector";
+export * from "./failure_predictor";
+export * from "./memory_predictor";
 
 // Use @tensorflow/tfjs for browser compatibility, @tensorflow/tfjs-node for Node.js
 let tf: any;
@@ -93,21 +93,42 @@ export class MLModelManager {
 	 */
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private createDefaultModel(modelName: string): any {
+		// Determine input shape and output units based on model type
+		let inputShape: number;
+		let outputUnits: number;
+		
+		if (modelName === "workload_predictor") {
+			inputShape = 35; // 10 CPU + 10 Memory + 10 GPU + 2 time + 3 current = 35
+			outputUnits = 4; // predictedCpu, predictedMemory, predictedGpu, confidence
+		} else if (modelName === "threat_detector") {
+			inputShape = 18; // 4 metrics + 3 anomaly + 10 historical + 1 time
+			outputUnits = 4; // threatScore, threatType, confidence, recommendedAction
+		} else if (modelName === "failure_predictor") {
+			inputShape = 25; // 5 current + 10 historical health + 10 failure history
+			outputUnits = 4; // failureProbability, predictedTime, confidence, failureType
+		} else if (modelName === "memory_predictor") {
+			inputShape = 62; // 20 access history + 20 access types + 20 timestamps + 1 current + 1 locality
+			outputUnits = 4; // nextAddress, accessProbability, accessType, confidence
+		} else {
+			inputShape = 10; // Default
+			outputUnits = 1;
+		}
+
 		// Create sequential model as fallback
 		const model = tf.sequential({
 			layers: [
 				tf.layers.dense({
-					inputShape: [10],
+					inputShape: [inputShape],
+					units: 64,
+					activation: "relu",
+				}),
+				tf.layers.dense({
 					units: 32,
 					activation: "relu",
 				}),
 				tf.layers.dense({
-					units: 16,
-					activation: "relu",
-				}),
-				tf.layers.dense({
-					units: 1,
-					activation: "sigmoid",
+					units: outputUnits,
+					activation: modelName === "workload_predictor" ? "linear" : "sigmoid",
 				}),
 			],
 		});

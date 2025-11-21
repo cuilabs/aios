@@ -121,6 +121,25 @@ export class FailurePredictorModel {
 	}
 
 	/**
+	 * Prepare input array (without tensor) for batch training
+	 */
+	private prepareInputArray(features: FailureFeatures): number[] {
+		const inputArray: number[] = [];
+
+		// Current metrics
+		inputArray.push(features.healthScore);
+		inputArray.push(features.currentValue);
+		inputArray.push(features.trend);
+
+		// Historical health (last 10)
+		for (let i = 0; i < 10; i++) {
+			inputArray.push(features.historicalHealth[i] ?? 0);
+		}
+
+		return inputArray;
+	}
+
+	/**
 	 * Train model on dataset
 	 */
 	async train(
@@ -131,8 +150,9 @@ export class FailurePredictorModel {
 			await this.initialize();
 		}
 
-		// Prepare training data
-		const trainingData = tf.stack(features.map((f) => this.prepareInput(f))) as any;
+		// Prepare training data as 2D tensor [batchSize, featureCount]
+		const featureArrays = features.map((f) => this.prepareInputArray(f));
+		const trainingData = tf.tensor2d(featureArrays);
 
 		const labelData = tf.tensor2d(
 			labels.map((l) => [

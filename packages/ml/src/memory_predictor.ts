@@ -126,6 +126,35 @@ export class MemoryPredictorModel {
 	}
 
 	/**
+	 * Prepare input array (without tensor) for batch training
+	 */
+	private prepareInputArray(features: MemoryFeatures): number[] {
+		const inputArray: number[] = [];
+
+		// Access history (20 addresses, normalized)
+		for (let i = 0; i < 20; i++) {
+			inputArray.push(features.accessHistory[i] ?? 0);
+		}
+
+		// Access types (20 values)
+		for (let i = 0; i < 20; i++) {
+			inputArray.push(features.accessTypes[i] ?? 0);
+		}
+
+		// Access timestamps (20 values, normalized)
+		const maxTimestamp = Math.max(...features.accessTimestamps, 1);
+		for (let i = 0; i < 20; i++) {
+			inputArray.push(features.accessTimestamps[i] ? features.accessTimestamps[i] / maxTimestamp : 0);
+		}
+
+		// Current access pattern
+		inputArray.push(features.currentAddress);
+		inputArray.push(features.localityScore);
+
+		return inputArray;
+	}
+
+	/**
 	 * Train model on dataset
 	 */
 	async train(
@@ -136,8 +165,9 @@ export class MemoryPredictorModel {
 			await this.initialize();
 		}
 
-		// Prepare training data
-		const trainingData = tf.stack(features.map((f) => this.prepareInput(f))) as any;
+		// Prepare training data as 2D tensor [batchSize, featureCount]
+		const featureArrays = features.map((f) => this.prepareInputArray(f));
+		const trainingData = tf.tensor2d(featureArrays);
 
 		const labelData = tf.tensor2d(
 			labels.map((l) => [l.nextAddress, l.accessProbability, l.accessType, l.confidence])

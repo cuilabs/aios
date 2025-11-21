@@ -145,6 +145,52 @@ export class WorkloadPredictorModel {
 	}
 
 	/**
+	 * Prepare input array (without tensor) for batch training
+	 */
+	private prepareInputArray(features: WorkloadFeatures): number[] {
+		const inputArray: number[] = [];
+
+		// Historical CPU (10 values, normalized to 0-1)
+		for (let i = 0; i < 10; i++) {
+			inputArray.push(features.historicalCpu[i] ?? 0);
+		}
+
+		// Historical Memory (10 values, normalized)
+		const maxMemory = Math.max(...features.historicalMemory, 1);
+		for (let i = 0; i < 10; i++) {
+			inputArray.push((features.historicalMemory[i] ?? 0) / maxMemory);
+		}
+
+		// Historical GPU (10 values, normalized to 0-1)
+		if (features.historicalGpu) {
+			for (let i = 0; i < 10; i++) {
+				inputArray.push(features.historicalGpu[i] ?? 0);
+			}
+		} else {
+			// Pad with zeros if no GPU data
+			for (let i = 0; i < 10; i++) {
+				inputArray.push(0);
+			}
+		}
+
+		// Time features (normalized)
+		inputArray.push(features.timeOfDay / 23); // 0-1
+		inputArray.push(features.dayOfWeek / 6); // 0-1
+
+		// Current values
+		inputArray.push(features.currentCpu);
+		inputArray.push(features.currentMemory / (1024 * 1024 * 1024)); // Normalize to GB
+
+		if (features.currentGpu !== undefined) {
+			inputArray.push(features.currentGpu);
+		} else {
+			inputArray.push(0);
+		}
+
+		return inputArray;
+	}
+
+	/**
 	 * Train model on dataset
 	 */
 	async train(
@@ -155,8 +201,9 @@ export class WorkloadPredictorModel {
 			await this.initialize();
 		}
 
-		// Prepare training data
-		const trainingData = tf.stack(features.map((f) => this.prepareInput(f))) as any;
+		// Prepare training data as 2D tensor [batchSize, featureCount]
+		const featureArrays = features.map((f) => this.prepareInputArray(f));
+		const trainingData = tf.tensor2d(featureArrays);
 
 		const labelData = tf.tensor2d(
 			labels.map((l) => [
