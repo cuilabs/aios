@@ -166,7 +166,7 @@ export class SemanticIPCServer {
 				message_id: messageId,
 			});
 		} catch (_error) {
-			const err = error as Error;
+			const err = _error as Error;
 			res.status(500).json({
 				success: false,
 				error: err.message || "Failed to send IPC message",

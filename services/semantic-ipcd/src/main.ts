@@ -30,7 +30,7 @@ async function main(): Promise<void> {
 			process.exit(0);
 		});
 	} catch (_error) {
-		console.error("Failed to start Semantic IPC Daemon:", error);
+		console.error("Failed to start Semantic IPC Daemon:", _error);
 		process.exit(1);
 	}
 }
