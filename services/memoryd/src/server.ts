@@ -102,7 +102,7 @@ export class MemoryFabricServer {
 			try {
 				const buffer = Buffer.from(data, "base64");
 				dataBytes = new Uint8Array(buffer);
-			} catch (_error) {
+			} catch (error) {
 				res.status(400).json({
 					success: false,
 					error: "Invalid base64 data",
@@ -139,7 +139,7 @@ export class MemoryFabricServer {
 				version_id: versionId,
 				lease_id: entry.leaseId,
 			});
-		} catch (_error) {
+		} catch (error) {
 			const err = error as Error;
 			res.status(500).json({
 				success: false,
@@ -198,7 +198,7 @@ export class MemoryFabricServer {
 				data: dataBase64,
 				version_id: latestEntry.versionId,
 			});
-		} catch (_error) {
+		} catch (error) {
 			const err = error as Error;
 			res.status(500).json({
 				success: false,
@@ -210,7 +210,7 @@ export class MemoryFabricServer {
 	private async handleReadVersion(req: Request, res: Response): Promise<void> {
 		try {
 			const key = req.params["key"];
-			const versionStr = req.params.version;
+			const versionStr = req.params["version"];
 
 			if (!key || !versionStr) {
 				res.status(400).json({
@@ -263,7 +263,7 @@ export class MemoryFabricServer {
 				data: dataBase64,
 				version_id: entry.versionId,
 			});
-		} catch (_error) {
+		} catch (error) {
 			const err = error as Error;
 			res.status(500).json({
 				success: false,
@@ -288,7 +288,7 @@ export class MemoryFabricServer {
 			res.json({
 				snapshot,
 			});
-		} catch (_error) {
+		} catch (error) {
 			const err = error as Error;
 			res.status(500).json({
 				success: false,
@@ -325,7 +325,7 @@ export class MemoryFabricServer {
 				});
 
 				this.server = server;
-			} catch (_error) {
+			} catch (error) {
 				reject(_error);
 			}
 		});
