@@ -71,7 +71,7 @@ export class MemoryFabricService {
 		// Register kernel memory fabric integration handlers
 		this.messageBus.subscribe({ intentType: "memory.fabric.create_region" }, async (message) => {
 			// Call kernel memory fabric syscall via kernel-bridge service
-			const kernelBridgeUrl = process.env.KERNEL_BRIDGE_URL || "http://127.0.0.1:9000";
+			const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
 			const payload = message.payload as { agentId?: string; size?: number; regionType?: string };
 
 			if (payload.agentId && payload.size) {
@@ -102,7 +102,7 @@ export class MemoryFabricService {
 			{ intentType: "memory.fabric.create_shared_page" },
 			async (message) => {
 				// Call kernel memory fabric syscall via kernel-bridge service
-				const kernelBridgeUrl = process.env.KERNEL_BRIDGE_URL || "http://127.0.0.1:9000";
+				const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
 				const payload = message.payload as { agents?: string[] };
 
 				if (payload.agents && payload.agents.length > 0) {
