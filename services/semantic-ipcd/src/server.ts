@@ -176,7 +176,7 @@ export class SemanticIPCServer {
 
 	private async handleReceive(req: Request, res: Response): Promise<void> {
 		try {
-			const agentIdStr = req.params.agentId;
+			const agentIdStr = req.params["agentId"];
 
 			if (!agentIdStr) {
 				res.status(400).json({
@@ -229,7 +229,7 @@ export class SemanticIPCServer {
 
 			// Add metadata if present
 			if (Object.keys(metadata).length > 0) {
-				response.metadata = metadata;
+				response["metadata"] = metadata;
 			}
 
 			// Wrap in 'message' field for test compatibility
