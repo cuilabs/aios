@@ -140,7 +140,7 @@ export class MemoryFabricServer {
 				lease_id: entry.leaseId,
 			});
 		} catch (error) {
-			const err = error as Error;
+			const err = _error as Error;
 			res.status(500).json({
 				success: false,
 				error: err.message || "Failed to write to memory fabric",
@@ -199,7 +199,7 @@ export class MemoryFabricServer {
 				version_id: latestEntry.versionId,
 			});
 		} catch (error) {
-			const err = error as Error;
+			const err = _error as Error;
 			res.status(500).json({
 				success: false,
 				error: err.message || "Failed to read from memory fabric",
@@ -264,7 +264,7 @@ export class MemoryFabricServer {
 				version_id: entry.versionId,
 			});
 		} catch (error) {
-			const err = error as Error;
+			const err = _error as Error;
 			res.status(500).json({
 				success: false,
 				error: err.message || "Failed to read memory version",
@@ -289,7 +289,7 @@ export class MemoryFabricServer {
 				snapshot,
 			});
 		} catch (error) {
-			const err = error as Error;
+			const err = _error as Error;
 			res.status(500).json({
 				success: false,
 				error: err.message || "Failed to create snapshot",
