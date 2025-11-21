@@ -32,7 +32,7 @@ export class MessageRouter {
 		// Deliver message via kernel IPC
 		// Kernel handles binary routing
 		// Convert semantic message to binary IPC message
-		const kernelBridgeUrl = process.env.KERNEL_BRIDGE_URL || "http://127.0.0.1:9000";
+		const kernelBridgeUrl = process.env["KERNEL_BRIDGE_URL"] || "http://127.0.0.1:9000";
 
 		// Serialize semantic message to binary format
 		const binaryData = new TextEncoder().encode(JSON.stringify(message));
