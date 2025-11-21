@@ -31,7 +31,8 @@
 				"noUselessFragments": "error",
 				"noUselessLabel": "error",
 				"noUselessRename": "error",
-				"noUselessSwitchCase": "error"
+				"noUselessSwitchCase": "error",
+				"useLiteralKeys": "off"
 			},
 			"correctness": {
 				"noUnusedVariables": "error",
