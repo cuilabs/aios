@@ -139,7 +139,7 @@ export class MemoryFabricServer {
 				version_id: versionId,
 				lease_id: entry.leaseId,
 			});
-		} catch (error) {
+		} catch (_error) {
 			const err = error as Error;
 			res.status(500).json({
 				success: false,
@@ -150,7 +150,7 @@ export class MemoryFabricServer {
 
 	private async handleRead(req: Request, res: Response): Promise<void> {
 		try {
-			const key = req.params.key;
+			const key = req.params["key"];
 
 			if (!key) {
 				res.status(400).json({
@@ -198,7 +198,7 @@ export class MemoryFabricServer {
 				data: dataBase64,
 				version_id: latestEntry.versionId,
 			});
-		} catch (error) {
+		} catch (_error) {
 			const err = error as Error;
 			res.status(500).json({
 				success: false,
@@ -209,7 +209,7 @@ export class MemoryFabricServer {
 
 	private async handleReadVersion(req: Request, res: Response): Promise<void> {
 		try {
-			const key = req.params.key;
+			const key = req.params["key"];
 			const versionStr = req.params.version;
 
 			if (!key || !versionStr) {
@@ -263,7 +263,7 @@ export class MemoryFabricServer {
 				data: dataBase64,
 				version_id: entry.versionId,
 			});
-		} catch (error) {
+		} catch (_error) {
 			const err = error as Error;
 			res.status(500).json({
 				success: false,
@@ -288,7 +288,7 @@ export class MemoryFabricServer {
 			res.json({
 				snapshot,
 			});
-		} catch (error) {
+		} catch (_error) {
 			const err = error as Error;
 			res.status(500).json({
 				success: false,
@@ -325,7 +325,7 @@ export class MemoryFabricServer {
 				});
 
 				this.server = server;
-			} catch (error) {
+			} catch (_error) {
 				reject(error);
 			}
 		});

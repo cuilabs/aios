@@ -93,7 +93,7 @@ export class MemoryFabricService {
 						console.error("Failed to create memory fabric region:", response.statusText);
 					}
 				} catch (_error) {
-					console.error("Error creating memory fabric region:", error);
+					console.error("Error creating memory fabric region:", _error);
 				}
 			}
 		});
@@ -120,7 +120,7 @@ export class MemoryFabricService {
 							console.error("Failed to create shared page:", response.statusText);
 						}
 					} catch (_error) {
-						console.error("Error creating shared page:", error);
+						console.error("Error creating shared page:", _error);
 					}
 				}
 			}
