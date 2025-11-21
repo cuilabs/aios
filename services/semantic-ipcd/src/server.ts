@@ -118,8 +118,8 @@ export class SemanticIPCServer {
 			}
 
 			// Type safety check: if message declares type, validate data matches
-			const declaredType = messageData.type as string | undefined;
-			const messageDataValue = messageData.data;
+			const declaredType = messageData["type"] as string | undefined;
+			const messageDataValue = messageData["data"];
 
 			// Only validate if type is declared and data exists
 			if (declaredType && messageDataValue !== undefined) {
