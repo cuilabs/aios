@@ -139,7 +139,7 @@ export class MemoryFabricServer {
 				version_id: versionId,
 				lease_id: entry.leaseId,
 			});
-		} catch (error) {
+		} catch (_error) {
 			const err = _error as Error;
 			res.status(500).json({
 				success: false,
@@ -198,7 +198,7 @@ export class MemoryFabricServer {
 				data: dataBase64,
 				version_id: latestEntry.versionId,
 			});
-		} catch (error) {
+		} catch (_error) {
 			const err = _error as Error;
 			res.status(500).json({
 				success: false,
@@ -263,7 +263,7 @@ export class MemoryFabricServer {
 				data: dataBase64,
 				version_id: entry.versionId,
 			});
-		} catch (error) {
+		} catch (_error) {
 			const err = _error as Error;
 			res.status(500).json({
 				success: false,
@@ -288,7 +288,7 @@ export class MemoryFabricServer {
 			res.json({
 				snapshot,
 			});
-		} catch (error) {
+		} catch (_error) {
 			const err = _error as Error;
 			res.status(500).json({
 				success: false,
