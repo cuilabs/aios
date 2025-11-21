@@ -102,7 +102,7 @@ export class MemoryFabricServer {
 			try {
 				const buffer = Buffer.from(data, "base64");
 				dataBytes = new Uint8Array(buffer);
-			} catch (error) {
+			} catch (_error) {
 				res.status(400).json({
 					success: false,
 					error: "Invalid base64 data",
@@ -150,7 +150,7 @@ export class MemoryFabricServer {
 
 	private async handleRead(req: Request, res: Response): Promise<void> {
 		try {
-			const key = req.params["key"];
+			const key = req.params.key;
 
 			if (!key) {
 				res.status(400).json({
