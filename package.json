@@ -20,7 +20,7 @@
 		"update-deps": "./scripts/update-dependencies.sh"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
+		"@biomejs/biome": "^2.3.6",
 		"@changesets/cli": "^2.29.7",
 		"@types/node": "^22.10.2",
 		"turbo": "^2.3.3",
