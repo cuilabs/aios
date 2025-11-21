@@ -102,7 +102,7 @@ export class MemoryFabricServer {
 			try {
 				const buffer = Buffer.from(data, "base64");
 				dataBytes = new Uint8Array(buffer);
-			} catch (error) {
+			} catch (_error) {
 				res.status(400).json({
 					success: false,
 					error: "Invalid base64 data",
@@ -325,7 +325,7 @@ export class MemoryFabricServer {
 				});
 
 				this.server = server;
-			} catch (error) {
+			} catch (_error) {
 				reject(_error);
 			}
 		});
