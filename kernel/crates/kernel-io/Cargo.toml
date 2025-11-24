@@ -9,7 +9,7 @@ aios-kernel-capability = { path = "../kernel-capability" }
 aios-kernel-drivers = { path = "../kernel-drivers" }
 aios-kernel-observability = { path = "../kernel-observability" }
 aios-kernel-policy = { path = "../kernel-policy" }
-spin = "0.9"
+spin = "0.10"
 bitflags = "2.5"
 
 [features]
