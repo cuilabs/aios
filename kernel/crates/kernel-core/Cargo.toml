@@ -9,7 +9,7 @@ aios-kernel-ipc = { path = "../kernel-ipc" }
 spin = "0.9"
 bitflags = "2.5"
 x86_64 = { version = "0.14", features = ["instructions"] }
-volatile = "0.4"
+volatile = "0.6"
 multiboot2 = "0.24"
 
 # Bootloader removed - we have our own minimal bootloader in boot/bootloader/
