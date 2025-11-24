@@ -10,7 +10,7 @@ aios-kernel-observability = { path = "../kernel-observability" }
 aios-kernel-policy = { path = "../kernel-policy" }
 spin = "0.9"
 bitflags = "2.5"
-x86_64 = { version = "0.14", features = ["instructions"] }
+x86_64 = { version = "0.15", features = ["instructions"] }
 
 [features]
 default = []

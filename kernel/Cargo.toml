@@ -49,7 +49,7 @@ aios-kernel-io = { path = "crates/kernel-io" }
 aios-kernel-hal = { path = "crates/kernel-hal" }
 aios-kernel-drivers = { path = "crates/kernel-drivers" }
 aios-kernel-crypto = { path = "crates/kernel-crypto" }
-x86_64 = { version = "0.14", features = ["instructions"] }
+x86_64 = { version = "0.15", features = ["instructions"] }
 spin = "0.9"
 bitflags = "2.5"
 
